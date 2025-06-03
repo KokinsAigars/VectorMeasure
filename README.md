@@ -23,4 +23,4 @@
  */
 
 
-npx @tailwindcss/cli -i ./src/input.css -o ./public/style.css --watch
+npx @tailwindcss/cli -i ./src/input.css -o ./docs/style.css --watch

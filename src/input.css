@@ -27,8 +27,13 @@
 #toolbar {
     position: relative;
     z-index: 100;
-    border-bottom: 1px solid black;
     margin-top: 20px;
+}
+#toolbar2 {
+    position: relative;
+    z-index: 100;
+    border-bottom: 1px solid black;
+    margin-top: 10px;
 }
 #pdf-container {
     z-index: 10;
