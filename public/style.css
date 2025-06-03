@@ -1,0 +1,7 @@
+#toolbar {
+    position: relative;
+    z-index: 100;
+}
+#pdf-container {
+    z-index: 10;
+}
