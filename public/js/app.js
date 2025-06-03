@@ -3,29 +3,12 @@
  * Abbreviation: VM
  * License: MIT
  * Contributor(s): Aigars Kokins
- * 2025.06.03 - init()
- *
- * The purpose of this project is to test pdf.js functionality
- * https://github.com/mozilla/pdf.js
- *
- */
-
-/**
- * 1. Add Canvas and render PDF
- *
- * 1. Add canvas overlay [measureCanvas] (transparent layer for drawing lines)
- *
- * 2. Click two points to draw a line
- *
- * 3. Measure pixel distance
- *
- * 4. Add a simple calibration tool to convert to real-world unit
  */
 
 // app.js
 console.log("VectorMeasure initialized");
 
-const PDFlink = 'map.pdf'; /* ---- PDF FILE in public/ as map.pdf */
+const PDFlink = 'pdf/map.pdf'; /* ---- PDF FILE in public/ as map.pdf */
 
 const saveBtn = document.getElementById('save-btn'); saveBtn.addEventListener('click', fn_SaveImageClick);
 const measureBtn = document.getElementById('measure-btn'); measureBtn.addEventListener('click', fn_MeasureBtnClick);
@@ -36,8 +19,8 @@ document.getElementById('flip-pdf-vertical-btn').addEventListener('click', fn_fl
 document.addEventListener('DOMContentLoaded', fn_ContentLoaded);
 const calibrateBtn = document.getElementById('calibrate-btn'); calibrateBtn.addEventListener('click', fn_CalibrateClick);
 const info = document.getElementById('info');
-const zoomInBtn = document.getElementById('zoom-in-btn'); zoomInBtn.addEventListener('click', fn_ZoomInBtnClick);
-const zoomOutBtn = document.getElementById('zoom-out-btn'); zoomOutBtn.addEventListener('click', fn_ZoomOutBtnClick);
+// const zoomInBtn = document.getElementById('zoom-in-btn'); zoomInBtn.addEventListener('click', fn_ZoomInBtnClick);
+// const zoomOutBtn = document.getElementById('zoom-out-btn'); zoomOutBtn.addEventListener('click', fn_ZoomOutBtnClick);
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdfjs/pdf.worker.mjs';
 const container = document.getElementById('pdf-container');

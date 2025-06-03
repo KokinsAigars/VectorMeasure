@@ -7,9 +7,14 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "@tailwindcss/cli": "^4.1.8",
+    "express": "^4.21.2",
+    "tailwindcss": "^4.1.8"
   },
   "author": "Your Name",
   "license": "MIT",
-  "keywords": []
+  "keywords": [],
+  "devDependencies": {
+    "daisyui": "^5.0.43"
+  }
 }

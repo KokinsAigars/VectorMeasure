@@ -1,0 +1,46 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@theme {
+    --breakpoint-*: initial;
+    --breakpoint-sm: 480px;
+    --breakpoint-md: 768px;
+    --breakpoint-lg: 976px;
+    /* ... */
+}
+
+
+:root {
+    --font-display: "Satoshi", "sans-serif";
+    --breakpoint-3xl: 1920px;
+    --color-avocado-100: oklch(0.99 0 0);
+    --color-avocado-200: oklch(0.98 0.04 113.22);
+    --color-avocado-300: oklch(0.94 0.11 115.03);
+    --color-avocado-400: oklch(0.92 0.19 114.08);
+    --color-avocado-500: oklch(0.84 0.18 117.33);
+    --color-avocado-600: oklch(0.53 0.12 118.34);
+    --ease-fluid: cubic-bezier(0.3, 0, 0, 1);
+    --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
+    /* ... */
+}
+
+#toolbar {
+    position: relative;
+    z-index: 100;
+    border-bottom: 1px solid black;
+    margin-top: 20px;
+}
+#pdf-container {
+    z-index: 10;
+}
+#scale-indicator {
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 4px 8px;
+    font-size: 14px;
+    border-radius: 6px;
+    box-shadow: 0 0 3px rgba(0,0,0,0.2);
+    z-index: 100;
+}
