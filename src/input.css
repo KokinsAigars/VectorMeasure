@@ -35,6 +35,10 @@
     border-bottom: 1px solid black;
     margin-top: 10px;
 }
+#toolbar, #toolbar2{
+    margin-left: 25px;
+    margin-right: 55px;
+}
 #pdf-container {
     z-index: 10;
 }
@@ -49,3 +53,32 @@
     box-shadow: 0 0 3px rgba(0,0,0,0.2);
     z-index: 100;
 }
+#real-length{
+    width: 80px;
+}
+.info-margin{
+    margin-top: 20px;
+}
+
+/*#pdf-container{*/
+/*    width: 800px;*/
+/*    height:auto;*/
+/*    margin-left: 70px;*/
+/*    margin-top: 25px;*/
+/*    border: 1px solid black;*/
+/*}*/
+/*#pdf-canvas{*/
+/*    width: 100%;*/
+/*    height: auto;*/
+/*    !*border: 5px solid green;*!*/
+/*}*/
+/* #measure-canvas{*/
+/*    width: 100%;*/
+/*    height: auto;*/
+/*    border: 5px solid orange;*/
+/*}*/
+/*#preview-canvas{*/
+/*    width: 100%;*/
+/*    height: auto;*/
+/*    border: 5px solid magenta;*/
+/*}*/

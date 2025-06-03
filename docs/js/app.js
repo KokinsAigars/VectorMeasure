@@ -3,12 +3,29 @@
  * Abbreviation: VM
  * License: MIT
  * Contributor(s): Aigars Kokins
+ * app.js
  */
 
-// app.js
 console.log("VectorMeasure initialized");
 
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdfjs/pdf.worker.mjs';
 const PDFlink = 'pdf/map.pdf'; /* ---- PDF FILE in public/ as map.pdf */
+const container = document.getElementById('pdf-container');
+let canvas;         // for PDF
+let measureCanvas;  // for drawing
+let previewCanvas;  // for preview of drawing lines in measureCanvas
+let copyCanvas = null;
+let originalPdfImage = null;
+let measuring = false;
+let startPoint = null;
+let pxPerMeter = 10 / 424; // Example: 10 meters = 424 pixels
+let lastMeasuredStart = null;
+let lastMeasuredEnd = null;
+let isDrawing = false;
+let previewCtx = null; // 2D context for preview line
+let currentScale = 1.5; // Default
+let basePxPerMeter = null; // Store calibration relative to scale 1.0
+let ctx = null;
 
 const saveBtn = document.getElementById('save-btn'); saveBtn.addEventListener('click', fn_SaveImageClick);
 const measureBtn = document.getElementById('measure-btn'); measureBtn.addEventListener('click', fn_MeasureBtnClick);
@@ -22,79 +39,66 @@ const info = document.getElementById('info');
 // const zoomInBtn = document.getElementById('zoom-in-btn'); zoomInBtn.addEventListener('click', fn_ZoomInBtnClick);
 // const zoomOutBtn = document.getElementById('zoom-out-btn'); zoomOutBtn.addEventListener('click', fn_ZoomOutBtnClick);
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdfjs/pdf.worker.mjs';
-const container = document.getElementById('pdf-container');
-let canvas;          // for PDF
-let originalPdfImage = null;
-let measureCanvas;   // for drawing
-let previewCanvas;  // for preview of drawing lines in measureCanvas
-let measuring = false;
-let startPoint = null;
-let pxPerMeter = 10 / 424; // Example: 10 meters = 424 pixels
-let lastMeasuredStart = null;
-let lastMeasuredEnd = null;
-let isDrawing = false;
-let previewCtx = null; // 2D context for preview line
-let isFlipped = true;
-let isFlippedVertically = false;
-let currentScale = 1.5; // Default
-let basePxPerMeter = null; // Store calibration relative to scale 1.0
 
-
-async function renderPDF() {
-
+async function createPDFCanvas(){
     const pdf = await pdfjsLib.getDocument(PDFlink).promise;
     const page = await pdf.getPage(1);
-    const scale = 1.5;
-    const viewport = page.getViewport({ scale: scale });
-
+    const viewport = page.getViewport({ scale: currentScale });
     canvas = document.createElement('canvas');
     canvas.id = 'pdf-canvas';
-    const context = canvas.getContext('2d');
+    ctx = canvas.getContext('2d');
     canvas.width = viewport.width;
     canvas.height = viewport.height;
     document.body.appendChild(canvas);
 
-    await page.render({ canvasContext: context, viewport }).promise.then(() => {
-        // ✅ Save a snapshot of the original PDF canvas
+    await page.render({ canvasContext: ctx, viewport }).promise.then(() => {
+        // Save a snapshot of the original PDF canvas
         originalPdfImage = new Image();
         originalPdfImage.src = canvas.toDataURL('image/png');
     });
-
-    // Still recommend requestAnimationFrame even with async
-    requestAnimationFrame(() => {
-        measureCanvas = document.createElement('canvas');
-        measureCanvas.id = 'measure-canvas';
-        measureCanvas.width = canvas.width;
-        measureCanvas.height = canvas.height;
-        measureCanvas.style.position = 'absolute';
-        measureCanvas.style.top = canvas.offsetTop + 'px';
-        measureCanvas.style.left = canvas.offsetLeft + 'px';
-        measureCanvas.style.pointerEvents = 'none';
-        document.body.appendChild(measureCanvas);
-        measureCanvas.addEventListener('click', fn_MeasureClick);
-        measureCanvas.addEventListener('mousemove', fn_MeasureMousemove);
-
-        previewCanvas = document.createElement('canvas');
-        previewCanvas.id = 'preview-canvas';
-        previewCanvas.width = canvas.width;
-        previewCanvas.height = canvas.height;
-        previewCanvas.style.position = 'absolute';
-        previewCanvas.style.top = canvas.offsetTop + 'px';
-        previewCanvas.style.left = canvas.offsetLeft + 'px';
-        previewCanvas.style.pointerEvents = 'none';
-        document.body.appendChild(previewCanvas);
-
-        previewCtx = previewCanvas.getContext('2d');
-
-
-        container.appendChild(canvas);
-        container.appendChild(measureCanvas);
-        container.appendChild(previewCanvas);
-
-        fn_updateScaleIndicator();
-    });
+    container.appendChild(canvas);
 }
+async function createMeasureCanvas(){
+    measureCanvas = document.createElement('canvas');
+    measureCanvas.id = 'measure-canvas';
+    measureCanvas.width = canvas.width;
+    measureCanvas.height = canvas.height;
+    measureCanvas.style.position = 'absolute';
+    measureCanvas.style.top = canvas.offsetTop + 'px';
+    measureCanvas.style.left = canvas.offsetLeft + 'px';
+    measureCanvas.style.pointerEvents = 'none';
+    document.body.appendChild(measureCanvas);
+    measureCanvas.addEventListener('click', fn_MeasureClick);
+    measureCanvas.addEventListener('mousemove', fn_MeasureMousemove);
+    container.appendChild(measureCanvas);
+}
+async function createPreviewCanvas(){
+    previewCanvas = document.createElement('canvas');
+    previewCanvas.id = 'preview-canvas';
+    previewCanvas.width = canvas.width;
+    previewCanvas.height = canvas.height;
+    previewCanvas.style.position = 'absolute';
+    previewCanvas.style.top = canvas.offsetTop + 'px';
+    previewCanvas.style.left = canvas.offsetLeft + 'px';
+    previewCanvas.style.pointerEvents = 'none';
+    document.body.appendChild(previewCanvas);
+    previewCtx = previewCanvas.getContext('2d');
+    container.appendChild(previewCanvas);
+}
+async function renderPDF() {
+    await createPDFCanvas();
+    await createMeasureCanvas();
+    await createPreviewCanvas();
+}
+
+// call renderPDF() function
+await renderPDF().then(r => {
+    console.log('PDF canvas size:', canvas.width, canvas.height);
+    console.log('OffsetTop/Left:', canvas.offsetTop, canvas.offsetLeft);
+    console.log('PDF rendered; measureCanvas, canvas overlay created and appended');
+}).catch(err => { console.error('Error rendering PDF:', err); });
+
+
 
 async function renderPdfAtScale(scale) {
     currentScale = scale;
@@ -160,7 +164,7 @@ function fn_MeasureBtnClick(event) {
 
 // Add a "Clear" measurement lines button
 function fn_ClearClick(event) {
-    const ctx = measureCanvas.getContext('2d');
+    ctx = measureCanvas.getContext('2d');
     ctx.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
 
     const previewCtx = previewCanvas.getContext('2d');
@@ -263,15 +267,15 @@ function fn_CalibrateClick(event) {
     lastMeasuredStart = null;
     lastMeasuredEnd = null;
 
-    fn_updateScaleIndicator()
+    // fn_updateScaleIndicator()
 }
 
 // Add a "Flip" pdf horizontally button
 function fn_flipPdfCanvasHorizontally() {
-    const ctx = canvas.getContext('2d');
+    ctx = canvas.getContext('2d');
 
     // Create an off-screen copy of the original canvas
-    const copyCanvas = document.createElement('canvas');
+    copyCanvas = document.createElement('canvas');
     copyCanvas.width = canvas.width;
     copyCanvas.height = canvas.height;
     const copyCtx = copyCanvas.getContext('2d');
@@ -291,10 +295,10 @@ function fn_flipPdfCanvasHorizontally() {
 
 // Add a "Flip" pdf horizontally button
 function fn_flipPdfCanvasVertically() {
-    const ctx = canvas.getContext('2d');
+    ctx = canvas.getContext('2d');
 
     // Copy current canvas to an off-screen one
-    const copyCanvas = document.createElement('canvas');
+    copyCanvas = document.createElement('canvas');
     copyCanvas.width = canvas.width;
     copyCanvas.height = canvas.height;
     const copyCtx = copyCanvas.getContext('2d');
@@ -313,12 +317,13 @@ function fn_flipPdfCanvasVertically() {
 
 // Add a "Reset" PDF View button
 function fn_resetPdfCanvasView() {
+
     if (!originalPdfImage) {
         alert("Original PDF view not available.");
         return;
     }
 
-    const ctx = canvas.getContext('2d');
+    ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw the original saved image
@@ -340,27 +345,26 @@ function fn_ContentLoaded(event) {
     document.getElementById('info').innerText = `📏 Default calibration: 1px ≈ ${pxPerMeter.toFixed(5)} meters`;
 }
 
-
 // Add ZoomIn button Click event
 function fn_ZoomOutBtnClick(event) {
-    renderPdfAtScale(currentScale / 1.25).then(r => fn_updateScaleIndicator());
+    renderPdfAtScale(currentScale / 1.25).then(r => {
+        // fn_updateScaleIndicator()
+        null;
+    });
 }
 
 // Add ZoomOut buttons Click event
 function fn_ZoomInBtnClick(event) {
-    renderPdfAtScale(currentScale * 1.25).then(r => fn_updateScaleIndicator());
+    renderPdfAtScale(currentScale * 1.25).then(r => {
+        // fn_updateScaleIndicator()
+        null;
+    })
 }
 
 // Add info about the current scale
 function fn_updateScaleIndicator() {
     const adjusted = basePxPerMeter ? (basePxPerMeter * currentScale).toFixed(5) : '—';
-    document.getElementById('scale-indicator').innerText =
-        `Scale: ${currentScale.toFixed(2)}x\n1px ≈ ${adjusted} m`;
+    document.getElementById('scale-indicator').innerText = `Scale: ${currentScale.toFixed(2)}x\n1px ≈ ${adjusted} m`;
 }
 
-// call renderPDF() function
-renderPDF().then(r => {
-    console.log('PDF canvas size:', canvas.width, canvas.height);
-    console.log('OffsetTop/Left:', canvas.offsetTop, canvas.offsetLeft);
-    console.log('PDF rendered; measureCanvas, canvas overlay created and appended');
-}).catch(err => { console.error('Error rendering PDF:', err); });
+

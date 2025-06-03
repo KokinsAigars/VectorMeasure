@@ -10,12 +10,11 @@
 
 <body>
 
-  <h1>📐 VectorMeasure</h1>
 <!--  <div id="scale-indicator">1px ≈ ? m</div>-->
 
   <div id="toolbar">
     <button class="btn" id="save-btn">💾 Save as PNG</button>
-    <button class="inline-block cursor-pointer rounded-md bg-gray-400 px-4 py-3 text-center text-sm font-semibold uppercase text-white transition duration-200 ease-in-out hover:bg-gray-900"
+    <button class="inline-block cursor-pointer rounded-md bg-gray-500 px-4 py-3 text-center text-sm font-semibold uppercase text-white transition duration-200 ease-in-out hover:bg-gray-900"
             id="measure-btn">📏 Measure Distance</button>
     <button class="btn" id="clear-btn">🧹 Clear Measurements</button>
     <button class="btn" id="reset-pdf-btn">🔄 Reset View</button>
@@ -29,19 +28,19 @@
       <input class="input" id="real-length" type="number" step="0.01" value="10" />
     </label>
     <button class="btn" id="calibrate-btn">Calibrate</button>
-    <div id="info" style="margin-top: 20px">
-      <pre><code>can be any color!</code></pre>
+
+    <div class="info-margin">
+      <pre><code id="info" style="margin-top: 20px"></code></pre>
     </div>
 
+
   </div>
-<!--  <div class="mockup-window bg-base-100 border border-base-200">-->
-<!--    <div class="grid place-content-center w-200 h-180">-->
-      <div id="pdf-container"></div>
-<!--    </div>-->
-<!--  </div>-->
+
+  <div id="pdf-container"></div>
 
   <script src="./js/pdfjs/pdf.mjs" type="module"></script>
   <script src="./js/app.js" type="module"></script>
+
 </body>
 
 </html>
