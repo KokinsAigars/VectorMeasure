@@ -10,20 +10,22 @@
 <body>
 
   <h1>📐 VectorMeasure</h1>
-
+  <div id="scale-indicator">1px ≈ ? m</div>
   <div id="toolbar">
     <button id="save-btn">💾 Save as PNG</button>
     <button id="measure-btn">📏 Measure Distance</button>
     <button id="clear-btn">🧹 Clear Measurements</button>
-
     <button id="reset-pdf-btn">🔄 Reset View</button>
     <button id="flip-pdf-horizontal-btn">↔️ Flip Horizontally</button>
     <button id="flip-pdf-vertical-btn">↕️ Flip Vertically</button>
+    <button id="zoom-in-btn">➕ Zoom In</button>
+    <button id="zoom-out-btn">➖ Zoom Out</button>
     <label> 📐 Calibrate (real-world meters):
       <input id="real-length" type="number" step="0.01" value="10" />
     </label>
     <button id="calibrate-btn">Calibrate</button>
     <div id="info"></div>
+
   </div>
 
   <div id="pdf-container" style="position: relative;"></div>

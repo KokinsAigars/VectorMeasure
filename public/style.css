@@ -5,3 +5,14 @@
 #pdf-container {
     z-index: 10;
 }
+#scale-indicator {
+    position: absolute;
+    top: 20px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 4px 8px;
+    font-size: 14px;
+    border-radius: 6px;
+    box-shadow: 0 0 3px rgba(0,0,0,0.2);
+    z-index: 100;
+}
