@@ -30,12 +30,18 @@ const PDFlink = 'map.pdf'; /* ---- PDF FILE in public/ as map.pdf */
 const saveBtn = document.getElementById('save-btn'); saveBtn.addEventListener('click', fn_handleSaveImageClick);
 const measureBtn = document.getElementById('measure-btn'); measureBtn.addEventListener('click', fn_handleMeasureBtnClick);
 const clearBtn = document.getElementById('clear-btn'); clearBtn.addEventListener('click', fn_handleClearClick);
+document.getElementById('reset-pdf-btn').addEventListener('click', resetPdfCanvasView);
+document.getElementById('flip-pdf-horizontal-btn').addEventListener('click', flipPdfCanvasHorizontally);
+document.getElementById('flip-pdf-vertical-btn').addEventListener('click', flipPdfCanvasVertically);
+document.addEventListener('DOMContentLoaded', fn_handleDOMContentLoaded);
 const calibrateBtn = document.getElementById('calibrate-btn'); calibrateBtn.addEventListener('click', fn_handleCalibrateClick);
 const info = document.getElementById('info');
+
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdfjs/pdf.worker.mjs';
 const container = document.getElementById('pdf-container');
 let canvas;          // for PDF
+let originalPdfImage = null;
 let measureCanvas;   // for drawing
 let previewCanvas;  // for preview of drawing lines in measureCanvas
 let measuring = false;
@@ -45,10 +51,11 @@ let lastMeasuredStart = null;
 let lastMeasuredEnd = null;
 let isDrawing = false;
 let previewCtx = null; // 2D context for preview line
+let isFlipped = true;
+let isFlippedVertically = false;
+let currentScale = 1.5; // Default
+let basePxPerMeter = null; // Store calibration relative to scale 1.0
 
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('info').innerText = `📏 Default calibration: 1px ≈ ${pxPerMeter.toFixed(5)} meters`;
-});
 
 
 async function renderPDF() {
@@ -65,7 +72,11 @@ async function renderPDF() {
     canvas.height = viewport.height;
     document.body.appendChild(canvas);
 
-    await page.render({ canvasContext: context, viewport }).promise;
+    await page.render({ canvasContext: context, viewport }).promise.then(() => {
+        // ✅ Save a snapshot of the original PDF canvas
+        originalPdfImage = new Image();
+        originalPdfImage.src = canvas.toDataURL('image/png');
+    });
 
     // Still recommend requestAnimationFrame even with async
     requestAnimationFrame(() => {
@@ -146,7 +157,7 @@ function fn_handleMeasureBtnClick(event) {
     info.innerText = 'Click two points to measure.';
 }
 
-
+// Add a "Clear" measurement lines button
 function fn_handleClearClick(event) {
     const ctx = measureCanvas.getContext('2d');
     ctx.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
@@ -160,12 +171,6 @@ function fn_handleClearClick(event) {
     lastMeasuredEnd = null;
     document.getElementById('info').innerText = 'Measurements cleared.';
 }
-
-
-
-
-
-
 
 // Add Measure functionality OnClick
 function fn_handleMeasureClick(event) {
@@ -234,8 +239,6 @@ function fn_handleMeasureMousemove(event) {
     previewCtx.stroke();
 }
 
-
-
 // Add Calibration logic
 function fn_handleCalibrateClick(event) {
 
@@ -258,4 +261,79 @@ function fn_handleCalibrateClick(event) {
     lastMeasuredStart = null;
     lastMeasuredEnd = null;
 
+}
+
+// Add a "Flip" pdf horizontally button
+function flipPdfCanvasHorizontally() {
+    const ctx = canvas.getContext('2d');
+
+    // Create an off-screen copy of the original canvas
+    const copyCanvas = document.createElement('canvas');
+    copyCanvas.width = canvas.width;
+    copyCanvas.height = canvas.height;
+    const copyCtx = copyCanvas.getContext('2d');
+    copyCtx.drawImage(canvas, 0, 0);
+
+    // Clear and flip original canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.scale(-1, 1);
+    ctx.translate(-canvas.width, 0);
+    ctx.drawImage(copyCanvas, 0, 0);
+    ctx.restore();
+
+    fn_handleClearClick();
+
+}
+
+// Add a "Flip" pdf horizontally button
+function flipPdfCanvasVertically() {
+    const ctx = canvas.getContext('2d');
+
+    // Copy current canvas to an off-screen one
+    const copyCanvas = document.createElement('canvas');
+    copyCanvas.width = canvas.width;
+    copyCanvas.height = canvas.height;
+    const copyCtx = copyCanvas.getContext('2d');
+    copyCtx.drawImage(canvas, 0, 0);
+
+    // Flip the original canvas vertically
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.scale(1, -1); // Flip vertically
+    ctx.translate(0, -canvas.height); // Move origin back into view
+    ctx.drawImage(copyCanvas, 0, 0);
+    ctx.restore();
+
+    fn_handleClearClick(); // Optional: clear overlays
+}
+
+// Add a "Reset" PDF View button
+function resetPdfCanvasView() {
+    if (!originalPdfImage) {
+        alert("Original PDF view not available.");
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw the original saved image
+    originalPdfImage.onload = () => {
+        ctx.drawImage(originalPdfImage, 0, 0);
+    };
+
+    // If already loaded, draw immediately
+    if (originalPdfImage.complete) {
+        ctx.drawImage(originalPdfImage, 0, 0);
+    }
+
+    // Also clear measurements
+    fn_handleClearClick();
+}
+
+
+// Add DomContentLoaded
+function fn_handleDOMContentLoaded(event) {
+    document.getElementById('info').innerText = `📏 Default calibration: 1px ≈ ${pxPerMeter.toFixed(5)} meters`;
 }
