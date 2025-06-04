@@ -10,7 +10,10 @@ console.log("VectorMeasure initialized");
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdfjs/pdf.worker.mjs';
 const PDFlink = 'pdf/map.pdf'; /* ---- PDF FILE in public/ as map.pdf */
-let pxPerMeter = 42.4; // 42.4 pixels per meter
+
+// Default calibration: 1px ≈ 0.02470 meters [1/0.02470 = 40.48]
+let pxPerMeter = 40.48;
+
 const container = document.getElementById('pdf-container');
 let viewport = null;
 let canvas;         // for PDF
@@ -19,7 +22,6 @@ let previewCanvas;  // for preview of drawing lines in measureCanvas
 let previewCtx = null; // 2D context for preview line
 let copyCanvas = null;
 let originalPdfImage = null;
-let measuring = false;
 let startPoint = null;
 let measuringEnabled = true;
 let lastMeasuredStart = null;
@@ -40,6 +42,8 @@ const calibrateBtn = document.getElementById('calibrate-btn'); calibrateBtn.addE
 const info = document.getElementById('info');
 // const zoomInBtn = document.getElementById('zoom-in-btn'); zoomInBtn.addEventListener('click', fn_ZoomInBtnClick);
 // const zoomOutBtn = document.getElementById('zoom-out-btn'); zoomOutBtn.addEventListener('click', fn_ZoomOutBtnClick);
+
+// keydown - Escape, calls function to stop measure tool
 document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape') {
         fn_CancelMeasurement();
@@ -120,9 +124,9 @@ async function initCanvasRenderPDF() {
 
 // call MAIN() function
 await initCanvasRenderPDF().then(r => {
-    console.log('PDF canvas size:', canvas.width, canvas.height);
-    console.log('OffsetTop/Left:', canvas.offsetTop, canvas.offsetLeft);
-    console.log('PDF rendered; measureCanvas, canvas overlay created and appended');
+    // console.log('PDF canvas size:', canvas.width, canvas.height);
+    // console.log('OffsetTop/Left:', canvas.offsetTop, canvas.offsetLeft);
+    // console.log('PDF rendered; measureCanvas, canvas overlay created and appended');
 }).catch(err => { console.error('Error rendering PDF:', err); });
 
 
@@ -185,8 +189,8 @@ function fn_MeasureClick(event) {
 
     } else {
         // Draw new measurement
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 4;
+        ctx.strokeStyle = 'rgba(255, 0, 0)';
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(startPoint.x, startPoint.y);
         ctx.lineTo(x, y);
@@ -196,8 +200,9 @@ function fn_MeasureClick(event) {
         lastMeasuredStart = startPoint;
         lastMeasuredEnd = { x, y };
 
-        const dx = x - startPoint.x;
-        const dy = y - startPoint.y;
+        let dx = x - startPoint.x;  //Straight vertical lines (dx ≈ 0)
+        let dy = y - startPoint.y;  // Straight horizontal lines (dy ≈ 0)
+
         const pixelDistance = Math.sqrt(dx * dx + dy * dy);
 
         let meters = pixelDistance / pxPerMeter;
@@ -220,6 +225,9 @@ function fn_MeasureClick(event) {
         startPoint = null;
         isDrawing = false;
 
+        // Hide Measure HTML Tip
+        document.getElementById('measurement-tip').style.display = 'none';
+
     }
 }
 // Add Measure functionality OnMouseMove
@@ -231,15 +239,35 @@ function fn_MeasureMousemove(event) {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    // Clear only the preview layer
+    // Clear previous preview line
     previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 
     previewCtx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-    previewCtx.lineWidth = 1.5;
+    previewCtx.lineWidth = 2;
     previewCtx.beginPath();
     previewCtx.moveTo(startPoint.x, startPoint.y);
     previewCtx.lineTo(x, y);
     previewCtx.stroke();
+
+    // Calculate distance
+    const dx = x - startPoint.x;
+    const dy = y - startPoint.y;
+    const pixelDistance = Math.sqrt(dx * dx + dy * dy);
+    const meters = pxPerMeter ? pixelDistance / pxPerMeter : pixelDistance;
+
+    // Round down to 0.1m
+    const flooredMeters = Math.floor(meters * 10) / 10;
+    const isWhole = flooredMeters % 1 === 0;
+    const distanceText = isWhole
+        ? `${flooredMeters.toFixed(0)} m`
+        : `${flooredMeters.toFixed(1)} m`;
+
+    // Show floating tip
+    const tooltip = document.getElementById('measurement-tip');
+    tooltip.innerText = distanceText;
+    tooltip.style.left = `${event.clientX + 12}px`;
+    tooltip.style.top = `${event.clientY + 12}px`;
+    tooltip.style.display = 'block';
 }
 // Add a "Clear" measurement lines button
 function fn_ClearClick(event) {
@@ -257,17 +285,13 @@ function fn_ClearClick(event) {
     measuringEnabled = false;
 
     document.getElementById('info').innerText = 'Measurements cleared.';
+
+    // Hide Measure HTML Tip
+    document.getElementById('measurement-tip').style.display = 'none';
 }
 // Cancel Measurement
 function fn_CancelMeasurement() {
 
-    // Only cancels Measurement
-    // previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-    // startPoint = null;
-    // isDrawing = false;
-    // document.getElementById('info').innerText = 'Measurement canceled.';
-
-    // Full stops future measurement
     previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
     ctx.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
 
@@ -278,6 +302,9 @@ function fn_CancelMeasurement() {
     measuringEnabled = false;
 
     document.getElementById('info').innerText = 'Measuring mode stopped by ESC.';
+
+    // Hide Measure HTML Tip
+    document.getElementById('measurement-tip').style.display = 'none';
 }
 // Add Calibration logic
 function fn_CalibrateClick(event) {
@@ -309,36 +336,6 @@ function fn_CalibrateClick(event) {
 
     console.log(`ℹ️ pixelDistance = ${pixelDistance}, meters = ${realWorldMeters}`);
     console.log(`ℹ️ pxPerMeter = ${pxPerMeter}, metersPerPixel = ${metersPerPixel}`);
-}
-
-
-
-
-
-
-
-async function renderPdfAtScale(scale) {
-    currentScale = scale;
-
-    const pdf = await pdfjsLib.getDocument('map.pdf').promise;
-    const page = await pdf.getPage(1);
-    const viewport = page.getViewport({ scale: scale });
-
-    // Resize canvas
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-
-    const ctx = canvas.getContext('2d');
-    await page.render({ canvasContext: ctx, viewport }).promise;
-
-    // Resize overlay canvases
-    measureCanvas.width = canvas.width;
-    measureCanvas.height = canvas.height;
-    previewCanvas.width = canvas.width;
-    previewCanvas.height = canvas.height;
-
-    // Reset view (optionally clear drawings if not storing them)
-    fn_ClearClick();
 }
 
 
@@ -421,6 +418,42 @@ function fn_ContentLoaded(event) {
     document.getElementById('info').innerText =
         `📐 Default calibration: 1px ≈ ${metersPerPx.toFixed(5)} meters`;
 }
+
+
+
+
+
+
+
+
+
+
+// TODO
+
+async function renderPdfAtScale(scale) {
+    currentScale = scale;
+
+    const pdf = await pdfjsLib.getDocument('map.pdf').promise;
+    const page = await pdf.getPage(1);
+    const viewport = page.getViewport({ scale: scale });
+
+    // Resize canvas
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+
+    const ctx = canvas.getContext('2d');
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    // Resize overlay canvases
+    measureCanvas.width = canvas.width;
+    measureCanvas.height = canvas.height;
+    previewCanvas.width = canvas.width;
+    previewCanvas.height = canvas.height;
+
+    // Reset view (optionally clear drawings if not storing them)
+    fn_ClearClick();
+}
+
 
 // Add ZoomIn button Click event
 function fn_ZoomOutBtnClick(event) {
