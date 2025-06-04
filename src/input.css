@@ -59,10 +59,13 @@
 .info-margin{
     margin-top: 20px;
 }
+/*  -A4-  297x210 x 4 */
 #pdf-container {
     position: relative;
     width: 100%;            /* or a max-width like 1000px */
-    max-width: 1200px;      /* optional: to control size on big screens */
+    max-width: 1188px;      /* optional: to control size on big screens */
+    height: 100%;
+    max-height: 840px;
     margin: 10px 50px;         /* optional: center the container */
     overflow: hidden;
     aspect-ratio: auto; /* let JS control height */
@@ -87,3 +90,5 @@
     font-size: 12px;
     z-index: 9999;
 }
+
+

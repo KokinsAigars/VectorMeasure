@@ -9,11 +9,12 @@
 console.log("VectorMeasure initialized");
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdfjs/pdf.worker.mjs';
-const PDFlink = 'pdf/map.pdf'; /* ---- PDF FILE in public/ as map.pdf */
+const PLANS = 'Tukums';
+// const PLANS = 'KUBS';
+const PDFlink = 'pdf/PLANS_'+ PLANS + '.pdf'; /* ---- PDF FILE in public/ as map.pdf */
 
-// Default calibration: 1px ≈ 0.02470 meters [1/0.02470 = 40.48]
-let pxPerMeter = 40.48;
-let basePxPerMeter = 40.48; // Store calibration relative to scale 1.0
+let pxPerMeter = 44.5;      // Default calibration: 1px ≈ 0.02247 meters [1/0.02247 = 44.5]
+let basePxPerMeter = 44.5;  // Store calibration relative to scale 1.0
 let currentScale = 1.5;
 let pdfDoc = null;
 let pdfPage = null;
@@ -208,7 +209,7 @@ function fn_MeasureClick(event) {
     } else {
         // Draw new measurement
         ctx.strokeStyle = 'rgba(255, 0, 0)';
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.beginPath();
         ctx.moveTo(startPoint.x, startPoint.y);
         ctx.lineTo(x, y);
@@ -260,7 +261,7 @@ function fn_MeasureMousemove(event) {
     previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 
     previewCtx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-    previewCtx.lineWidth = 2;
+    previewCtx.lineWidth = 4;
     previewCtx.beginPath();
     previewCtx.moveTo(startPoint.x, startPoint.y);
     previewCtx.lineTo(x, y);
@@ -311,13 +312,17 @@ function fn_ClearClick(event) {
 function fn_CancelMeasurement() {
 
     previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-    ctx.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
-
     startPoint = null;
     isDrawing = false;
-    lastMeasuredStart = null;
-    lastMeasuredEnd = null;
-    measuringEnabled = false;
+    //
+    // previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    // ctx.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
+    //
+    // startPoint = null;
+    // isDrawing = false;
+    // lastMeasuredStart = null;
+    // lastMeasuredEnd = null;
+    // measuringEnabled = false;
 
     document.getElementById('info').innerText = 'Measuring mode stopped by ESC.';
 
@@ -444,9 +449,6 @@ function fn_ContentLoaded(event) {
     document.getElementById('info').innerText =
         `📐 Default calibration: 1px ≈ ${metersPerPx.toFixed(5)} meters`;
 }
-
-
-
 
 async function fn_renderPDFWithTransform() {
 
