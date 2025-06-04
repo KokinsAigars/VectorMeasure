@@ -13,7 +13,10 @@ const PDFlink = 'pdf/map.pdf'; /* ---- PDF FILE in public/ as map.pdf */
 
 // Default calibration: 1px ≈ 0.02470 meters [1/0.02470 = 40.48]
 let pxPerMeter = 40.48;
-
+let basePxPerMeter = 40.48; // Store calibration relative to scale 1.0
+let currentScale = 1.5;
+let pdfDoc = null;
+let pdfPage = null;
 const container = document.getElementById('pdf-container');
 let viewport = null;
 let canvas;         // for PDF
@@ -27,9 +30,10 @@ let measuringEnabled = true;
 let lastMeasuredStart = null;
 let lastMeasuredEnd = null;
 let isDrawing = false;
-let currentScale = 1.5; // Default
-let basePxPerMeter = null; // Store calibration relative to scale 1.0
+let originalCanvasWidth;
+let unscaledViewport = null;
 let ctx = null;
+let panOffset = null;
 
 const saveBtn = document.getElementById('save-btn'); saveBtn.addEventListener('click', fn_SaveImageClick);
 const measureBtn = document.getElementById('measure-btn'); measureBtn.addEventListener('click', fn_MeasureBtnClick);
@@ -38,10 +42,8 @@ document.getElementById('reset-pdf-btn').addEventListener('click', fn_resetPdfCa
 document.getElementById('flip-pdf-horizontal-btn').addEventListener('click', fn_flipPdfCanvasHorizontally);
 document.getElementById('flip-pdf-vertical-btn').addEventListener('click', fn_flipPdfCanvasVertically);
 document.addEventListener('DOMContentLoaded', fn_ContentLoaded);
-const calibrateBtn = document.getElementById('calibrate-btn'); calibrateBtn.addEventListener('click', fn_CalibrateClick);
+const calibrateBtn = document.getElementById('calibrate-btn'); calibrateBtn.addEventListener('click', fn_CalibrateBtnClick);
 const info = document.getElementById('info');
-// const zoomInBtn = document.getElementById('zoom-in-btn'); zoomInBtn.addEventListener('click', fn_ZoomInBtnClick);
-// const zoomOutBtn = document.getElementById('zoom-out-btn'); zoomOutBtn.addEventListener('click', fn_ZoomOutBtnClick);
 
 // keydown - Escape, calls function to stop measure tool
 document.addEventListener('keydown', function (event) {
@@ -50,16 +52,23 @@ document.addEventListener('keydown', function (event) {
     }
 });
 
+async function loadPDF() {
+    if (!pdfDoc) {
+        pdfDoc = await pdfjsLib.getDocument(PDFlink).promise;
+        pdfPage = await pdfDoc.getPage(1);
+    }
+}
 async function createPDFCanvas(){
 
+    await loadPDF();
+
+    unscaledViewport = pdfPage.getViewport({ scale: 1 });
     const desiredWidth = container.clientWidth;
-
-    const pdf = await pdfjsLib.getDocument(PDFlink).promise;
-    const page = await pdf.getPage(1);
-
-    const unscaledViewport = page.getViewport({ scale: 1 });
     const scale = desiredWidth / unscaledViewport.width;
-    viewport = page.getViewport({ scale: scale });
+    viewport = pdfPage.getViewport({ scale: scale });
+
+    currentScale = scale;
+    originalCanvasWidth = desiredWidth;
 
     canvas = document.createElement('canvas');
     canvas.id = 'pdf-canvas';
@@ -78,8 +87,9 @@ async function createPDFCanvas(){
 
     container.appendChild(canvas);
 
-    await page.render({ canvasContext: ctx, viewport }).promise;
+    await pdfPage.render({ canvasContext: ctx, viewport }).promise;
 
+    // Create a copy for reset view
     originalPdfImage = new Image();
     originalPdfImage.src = canvas.toDataURL('image/png');
 }
@@ -117,9 +127,17 @@ async function createPreviewCanvas(){
     container.appendChild(previewCanvas);
 }
 async function initCanvasRenderPDF() {
+
+    await new Promise(requestAnimationFrame);
     await createPDFCanvas();
     await createMeasureCanvas();
     await createPreviewCanvas();
+
+    requestAnimationFrame(() => {
+        console.log('Reset scale:', currentScale);
+        console.log('Canvas size:', canvas.width, canvas.height);
+        console.log('Transform:', canvas.style.transform);
+    });
 }
 
 // call MAIN() function
@@ -168,7 +186,7 @@ function fn_MeasureBtnClick(event) {
     info.innerText = 'Click two points to measure.';
     measuringEnabled = true;
 }
-// Add Measure functionality OnClick
+//MeasureCanvas functionality
 function fn_MeasureClick(event) {
 
     if (!measuringEnabled) return;
@@ -230,7 +248,6 @@ function fn_MeasureClick(event) {
 
     }
 }
-// Add Measure functionality OnMouseMove
 function fn_MeasureMousemove(event) {
 
     if (!isDrawing || !startPoint) return;
@@ -269,6 +286,7 @@ function fn_MeasureMousemove(event) {
     tooltip.style.top = `${event.clientY + 12}px`;
     tooltip.style.display = 'block';
 }
+
 // Add a "Clear" measurement lines button
 function fn_ClearClick(event) {
     ctx = measureCanvas.getContext('2d');
@@ -307,7 +325,7 @@ function fn_CancelMeasurement() {
     document.getElementById('measurement-tip').style.display = 'none';
 }
 // Add Calibration logic
-function fn_CalibrateClick(event) {
+function fn_CalibrateBtnClick(event) {
 
     const realWorldMeters = parseFloat(document.getElementById('real-length').value);
 
@@ -321,26 +339,17 @@ function fn_CalibrateClick(event) {
     const dy = lastMeasuredEnd.y - lastMeasuredStart.y;
     const pixelDistance = Math.sqrt(dx * dx + dy * dy);
 
-    // Calculate pixels per meter: how many pixels represent 1 meter
     pxPerMeter = pixelDistance / realWorldMeters;
 
-    // Just for display
-    const metersPerPixel = 1 / pxPerMeter;
-
     document.getElementById('info').innerText =
-        `✅ Calibrated: 1px = ${metersPerPixel.toFixed(5)} meters`;
+        `✅ Calibrated: 1px = ${(1 / pxPerMeter).toFixed(5)} m`;
 
     // Reset measurement points
     lastMeasuredStart = null;
     lastMeasuredEnd = null;
 
     console.log(`ℹ️ pixelDistance = ${pixelDistance}, meters = ${realWorldMeters}`);
-    console.log(`ℹ️ pxPerMeter = ${pxPerMeter}, metersPerPixel = ${metersPerPixel}`);
 }
-
-
-
-
 
 // Add a "Flip" pdf horizontally button
 function fn_flipPdfCanvasHorizontally() {
@@ -388,28 +397,45 @@ function fn_flipPdfCanvasVertically() {
 }
 
 // Add a "Reset" PDF View button
-function fn_resetPdfCanvasView() {
+async function fn_resetPdfCanvasView() {
 
-    if (!originalPdfImage) {
-        alert("Original PDF view not available.");
-        return;
-    }
+    currentScale = originalCanvasWidth / unscaledViewport.width;
+    panOffset = { x: 0, y: 0 };
+    pxPerMeter = basePxPerMeter;
+
+    // Clear all transforms
+    [canvas, measureCanvas, previewCanvas].forEach(c => {
+        c.style.transform = 'none';
+    });
+
+    await fn_renderPDFWithTransform();
+
+    requestAnimationFrame(() => {
+        document.getElementById('info').innerText = '🔄 View reset to original state';
+        console.log('Reset scale:', currentScale);
+        console.log('Canvas size:', canvas.width, canvas.height);
+        console.log('Transform:', canvas.style.transform);
+    });
 
     ctx = canvas.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0); // reset canvas 2D context
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw the original saved image
-    originalPdfImage.onload = () => {
-        ctx.drawImage(originalPdfImage, 0, 0);
-    };
-
-    // If already loaded, draw immediately
+    // Redraw saved PDF image
     if (originalPdfImage.complete) {
         ctx.drawImage(originalPdfImage, 0, 0);
+    } else {
+        originalPdfImage.onload = () => {
+            ctx.drawImage(originalPdfImage, 0, 0);
+        };
     }
 
-    // Also clear measurements
-    fn_ClearClick();
+    [canvas, measureCanvas, previewCanvas].forEach(c => {
+        c.style.transform = 'none';
+        c.style.left = '0px';
+        c.style.top = '0px';
+    })
 }
 
 // Add DomContentLoaded
@@ -422,59 +448,32 @@ function fn_ContentLoaded(event) {
 
 
 
+async function fn_renderPDFWithTransform() {
 
-
-
-
-
-
-// TODO
-
-async function renderPdfAtScale(scale) {
-    currentScale = scale;
-
-    const pdf = await pdfjsLib.getDocument('map.pdf').promise;
-    const page = await pdf.getPage(1);
-    const viewport = page.getViewport({ scale: scale });
+    const viewport = pdfPage.getViewport({scale: currentScale});
 
     // Resize canvas
     canvas.width = viewport.width;
     canvas.height = viewport.height;
 
-    const ctx = canvas.getContext('2d');
-    await page.render({ canvasContext: ctx, viewport }).promise;
+    ctx.setTransform(1, 0, 0, 1, panOffset.x, panOffset.y); // reset transform
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Resize overlay canvases
-    measureCanvas.width = canvas.width;
-    measureCanvas.height = canvas.height;
-    previewCanvas.width = canvas.width;
-    previewCanvas.height = canvas.height;
+    await pdfPage.render({canvasContext: ctx, viewport}).promise;
 
-    // Reset view (optionally clear drawings if not storing them)
-    fn_ClearClick();
-}
-
-
-// Add ZoomIn button Click event
-function fn_ZoomOutBtnClick(event) {
-    renderPdfAtScale(currentScale / 1.25).then(r => {
-        // fn_updateScaleIndicator()
-        null;
-    });
-}
-
-// Add ZoomOut buttons Click event
-function fn_ZoomInBtnClick(event) {
-    renderPdfAtScale(currentScale * 1.25).then(r => {
-        // fn_updateScaleIndicator()
-        null;
+    // Update overlay canvases
+    [measureCanvas, previewCanvas].forEach(c => {
+        c.width = canvas.width;
+        c.height = canvas.height;
+        c.style.transform = `translate(${panOffset.x}px, ${panOffset.y}px) scale(${currentScale})`;
+        c.style.transformOrigin = 'top left';
     })
+
+    // Recalculate pxPerMeter
+    currentScale = originalCanvasWidth / unscaledViewport.width;
+    panOffset = { x: 0, y: 0 };
+    pxPerMeter = basePxPerMeter;
+
+    document.getElementById('info').innerText =
+        `🔍 Zoom: ${currentScale.toFixed(2)}x | 1px = ${(1/pxPerMeter).toFixed(5)} m`;
 }
-
-// Add info about the current scale
-function fn_updateScaleIndicator() {
-    const adjusted = basePxPerMeter ? (basePxPerMeter * currentScale).toFixed(5) : '—';
-    document.getElementById('scale-indicator').innerText = `Scale: ${currentScale.toFixed(2)}x\n1px ≈ ${adjusted} m`;
-}
-
-
