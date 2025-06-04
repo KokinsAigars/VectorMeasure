@@ -1,4 +1,11 @@
-// server.js
+/**
+ * Project Name: “VectorMeasure”
+ * Abbreviation: VM
+ * License: MIT
+ * Contributor(s): Aigars Kokins
+ * server.js
+ */
+
 const express = require('express');
 const path = require('path');
 const app = express();

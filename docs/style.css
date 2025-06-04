@@ -2166,6 +2166,21 @@
 .info-margin {
   margin-top: 20px;
 }
+#pdf-container {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 10px 50px;
+  overflow: hidden;
+  aspect-ratio: auto;
+  border: 1px solid #ccc;
+}
+#pdf-container canvas {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
 @layer base {
   :where(:root),:root:has(input.theme-controller[value=light]:checked),[data-theme=light] {
     color-scheme: light;

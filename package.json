@@ -3,18 +3,20 @@
   "version": "1.0.0",
   "description": "A simple PDF measurement tool",
   "main": "server.js",
+  "author": "Your Name",
+  "license": "MIT",
+  "keywords": [],
   "scripts": {
-    "start": "node server.js"
+    "dev": "concurrently \"node server.js\" \"npx @tailwindcss/cli -i ./src/input.css -o ./docs/style.css --watch\""
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.8",
     "express": "^4.21.2",
     "tailwindcss": "^4.1.8"
   },
-  "author": "Your Name",
-  "license": "MIT",
-  "keywords": [],
   "devDependencies": {
+    "concurrently": "^9.1.2",
+    "@tailwindcss/cli": "^4.1.8",
     "daisyui": "^5.0.43"
   }
 }

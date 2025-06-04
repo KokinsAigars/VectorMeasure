@@ -22,5 +22,6 @@
  * 4. Add a simple calibration tool to convert to real-world unit
  */
 
+npm run dev
 
-npx @tailwindcss/cli -i ./src/input.css -o ./docs/style.css --watch
+[//]: # (npx @tailwindcss/cli -i ./src/input.css -o ./docs/style.css --watch)
