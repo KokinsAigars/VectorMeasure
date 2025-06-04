@@ -11,17 +11,18 @@
  */
 
 /**
- * 1. Add Canvas and render PDF
+ * Add Canvas and render PDF
  *
- * 1. Add canvas overlay [measureCanvas] (transparent layer for drawing lines)
+ * Add canvas overlay [measureCanvas] (transparent layer for drawing lines)
  *
- * 2. Click two points to draw a line
+ * Click two points to draw a line
  *
- * 3. Measure pixel distance
+ * Measure pixel distance
  *
- * 4. Add a simple calibration tool to convert to real-world unit
+ * Add a simple calibration tool to convert to real-world unit
  */
 
+npm install
 npm run dev
 
 [//]: # (npx @tailwindcss/cli -i ./src/input.css -o ./docs/style.css --watch)
