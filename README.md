@@ -22,7 +22,15 @@
  * Add a simple calibration tool to convert to real-world unit
  */
 
-npm install
-npm run dev
+    
+    https://nodejs.org/en/download
+    npm install npm@latest
+    npm install -g npm-check-updates
+    npm audit fix --force
+
+    npm install
+
+    npm run dev
+
 
 [//]: # (npx @tailwindcss/cli -i ./src/input.css -o ./docs/style.css --watch)

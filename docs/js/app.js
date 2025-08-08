@@ -9,8 +9,8 @@
 console.log("VectorMeasure initialized");
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = 'js/pdfjs/pdf.worker.mjs';
-const PLANS = 'Tukums';
-// const PLANS = 'CUBE';
+//const PLANS = 'Tukums';
+const PLANS = 'CUBE';
 const PDFlink = 'pdf/PLANS_'+ PLANS + '.pdf'; /* ---- PDF FILE in public/ as map.pdf */
 
 let pxPerMeter = 44.5;      // Default calibration: 1px ≈ 0.02247 meters [1/0.02247 = 44.5]
