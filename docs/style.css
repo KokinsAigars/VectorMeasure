@@ -2194,6 +2194,14 @@
   font-size: 12px;
   z-index: 9999;
 }
+.cls_sel {
+  padding-top: 14px;
+  padding-left: 30px;
+}
+.pdf-selector {
+  line-height: 1.5;
+  font-family: var(--default-font-family, ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"), serif;
+}
 @layer base {
   :where(:root),:root:has(input.theme-controller[value=light]:checked),[data-theme=light] {
     color-scheme: light;

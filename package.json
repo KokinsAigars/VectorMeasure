@@ -11,12 +11,13 @@
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.1.8",
+    "tailwindcss": "^4.1.8",
     "express": "^4.21.2",
-    "tailwindcss": "^4.1.8"
+    "npm": "^11.5.2"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2",
     "@tailwindcss/cli": "^4.1.8",
+    "concurrently": "^9.1.2",
     "daisyui": "^5.0.43"
   }
 }
