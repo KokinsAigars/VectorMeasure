@@ -5,11 +5,7 @@
  * canvas.js
  */
 
-import {
-    setOriginalCanvasWidth,
-    setUnscaledViewport,
-    setCurrentScale
-} from './state.js';
+import * as state from './state.js';
 
 export let pdfDoc = null;
 export let pdfPage = null;
@@ -23,7 +19,7 @@ export let measureCanvas;
 export let previewCanvas;
 export let previewCtx;
 export let originalPdfImage;
-export let panOffset = { x: 0, y: 0 };
+// export let panOffset = { x: 0, y: 0 };
 
 export let DivPdfContainer;
 export let PDFlink;
@@ -46,9 +42,9 @@ export async function initCanvasRenderPDF(options = {}) {
     await createPreviewCanvas();
 
     requestAnimationFrame(() => {
-        console.log('Reset scale:', currentScale);
-        console.log('Canvas size:', canvas.width, canvas.height);
-        console.log('Transform:', canvas.style.transform);
+        // console.log('Reset scale:', currentScale);
+        // console.log('Canvas size:', canvas.width, canvas.height);
+        // console.log('Transform:', canvas.style.transform);
     });
 }
 
@@ -71,9 +67,9 @@ async function createPDFCanvas() {
     originalCanvasWidth = desiredWidth;
 
     // Update centralized state
-    setCurrentScale(scale);
-    setOriginalCanvasWidth(desiredWidth);
-    setUnscaledViewport(unscaledViewport);
+    state.setCurrentScale(scale);
+    state.setOriginalCanvasWidth(desiredWidth);
+    state.setUnscaledViewport(unscaledViewport);
 
     canvas = document.createElement('canvas');
     canvas.id = 'pdf-canvas';
@@ -116,4 +112,21 @@ async function createPreviewCanvas() {
     previewCanvas.style.pointerEvents = 'none';
     previewCtx = previewCanvas.getContext('2d');
     DivPdfContainer.appendChild(previewCanvas);
+}
+
+export function clearCanvasContainer() {
+
+    if (state.DivPdfContainer) {
+        state.DivPdfContainer.innerHTML = '';
+    }
+
+    [canvas, measureCanvas, previewCanvas].forEach(c => {
+        if (c && c.parentNode) c.parentNode.removeChild(c);
+    });
+
+    // console.log('[clearCanvasContainer] running');
+    // console.log('DivPdfContainer:', DivPdfContainer);  // may be undefined
+    // console.log('canvas:', canvas);
+    // console.log('measureCanvas:', measureCanvas);
+
 }

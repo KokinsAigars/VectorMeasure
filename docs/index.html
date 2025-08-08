@@ -2,16 +2,22 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>VectorMeasure</title>
-  <link rel="icon" href="./favicon.ico" type="image/x-icon">
-  <link rel="stylesheet" href="./style.css" />
+    <meta charset="UTF-8" />
+    <title>VectorMeasure</title>
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
 
-<!--  <div id="scale-indicator">1px ≈ ? m</div>-->
+    <select id="pdf-selector" name="pdf">
+        <option value="PLANS_Tukums">TUKUMS</option>
+        <option value="PLANS_CUBE">CUBE</option>
+        <option value="PLANS_Tukums_reverse">TUKUMS REVERSE</option>
+    </select>
 
+
+<!--  <div id="scale-indicator">1px ≈ ? m</div>-->
   <div id="toolbar">
     <button class="btn" id="save-btn">💾 Save as PNG</button>
     <button class="inline-block cursor-pointer rounded-md bg-gray-500 px-4 py-3 text-center text-sm font-semibold uppercase text-white transition duration-200 ease-in-out hover:bg-gray-900"
@@ -23,6 +29,8 @@
     <button class="btn" id="zoom-in-btn">➕ Zoom In</button>
     <button class="btn" id="zoom-out-btn">➖ Zoom Out</button>
     <button class="btn" id="pan-toggle-button">Pan</button>
+
+
   </div>
 
   <div id="toolbar2">
@@ -39,8 +47,8 @@
 
   <div id="pdf-container"></div>
 
-  <script src="./js/pdfjs/pdf.mjs" type="module"></script>
-  <script src="./js/app.js" type="module"></script>
+    <script src="./js/pdfjs/pdf.mjs" type="module"></script>
+    <script src="./js/app.js" type="module"></script>
 
 </body>
 

@@ -28,7 +28,7 @@ import {
 
 import { clearMeasurementState } from './measure.js';
 
-export function handleSaveClick() {
+function handleSaveClick() {
     const pdfCanvas = canvas;
     const mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = pdfCanvas.width;
@@ -45,13 +45,13 @@ export function handleSaveClick() {
     link.click();
 }
 
-export function handleMeasureMode() {
+function handleMeasureMode() {
     handleClearClick();
     measureCanvas.style.pointerEvents = 'auto';
     document.getElementById('info').innerText = 'Click two points to measure.';
 }
 
-export function handleClearClick() {
+function handleClearClick() {
     const ctxMeasure = measureCanvas.getContext('2d');
     ctxMeasure.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
 
@@ -64,7 +64,7 @@ export function handleClearClick() {
     document.getElementById('measurement-tip').style.display = 'none';
 }
 
-export async function resetPdfView() {
+async function resetPdfView() {
     const scale = originalCanvasWidth / unscaledViewport.width;
     setCurrentScale(scale);
     setPanOffset(0, 0);
@@ -96,7 +96,7 @@ export async function resetPdfView() {
     });
 }
 
-export function flipPdfHorizontal() {
+function flipPdfHorizontal() {
     const ctxCanvas = canvas.getContext('2d');
 
     const copyCanvas = document.createElement('canvas');
@@ -115,7 +115,7 @@ export function flipPdfHorizontal() {
     handleClearClick();
 }
 
-export function flipPdfVertical() {
+function flipPdfVertical() {
     const ctxCanvas = canvas.getContext('2d');
 
     const copyCanvas = document.createElement('canvas');
@@ -133,3 +133,13 @@ export function flipPdfVertical() {
 
     handleClearClick();
 }
+
+
+export {
+    handleSaveClick,
+    handleMeasureMode,
+    handleClearClick,
+    resetPdfView,
+    flipPdfHorizontal,
+    flipPdfVertical
+};

@@ -5,28 +5,36 @@
  * events.js
  */
 
+import * as ui from './ui.js';
+import * as actions from './actions.js';
+import { handleCalibrateClick } from './calibration.js'
+import { loadPdfByName } from './loader.js';
 import { measureCanvas } from './canvas.js';
 import { onMeasureClick, onMeasureMove, cancelMeasurement } from './measure.js';
 
 // EventListeners
-export function setupEventListeners(ui, handlers) {
+export function setupEventListeners() {
 
-
-    ui.BtnCalibrate.addEventListener('click', handlers.handleCalibrateClick);
-    ui.BtnSave.addEventListener('click', handlers.handleSaveClick);
-    ui.BtnMeasure.addEventListener('click', handlers.handleMeasureMode);
-    ui.BtnClear.addEventListener('click',  handlers.handleClearClick);
-    ui.BtnResetPdf.addEventListener('click', handlers.resetPdfView);
-    ui.BtnFlipPdfHorizontal.addEventListener('click', handlers.flipPdfHorizontal);
-    ui.BtnFlipPdfVertical.addEventListener('click', handlers.flipPdfVertical);
+    ui.selector.addEventListener('change', async (event) => {
+        await actions.resetPdfView();
+        const plan = event.target.value;
+        await loadPdfByName(plan);
+    });
+    ui.BtnCalibrate.addEventListener('click', handleCalibrateClick);
+    ui.BtnSave.addEventListener('click', actions.handleSaveClick);
+    ui.BtnMeasure.addEventListener('click', actions.handleMeasureMode);
+    ui.BtnClear.addEventListener('click',  actions.handleClearClick);
+    ui.BtnResetPdf.addEventListener('click', actions.resetPdfView);
+    ui.BtnFlipPdfHorizontal.addEventListener('click', actions.flipPdfHorizontal);
+    ui.BtnFlipPdfVertical.addEventListener('click', actions.flipPdfVertical);
 
     // Measurement canvas events
     measureCanvas.addEventListener('click', onMeasureClick);
     measureCanvas.addEventListener('mousemove', onMeasureMove);
     document.addEventListener('keydown', function (event) {
-
         if (event.key === 'Escape') {
             cancelMeasurement();
         }
     });
 }
+

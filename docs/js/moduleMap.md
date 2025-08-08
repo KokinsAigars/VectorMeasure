@@ -5,5 +5,6 @@
 - `measure.js` – Handles drawing + preview
 - `actions.js` – Toolbar functionality
 - `calibration.js` – Applies real-world scaling
-- `events.js` – Wires up everything
-- `state.js` – Central source of truth
+- `events.js` – Wires up EventListeners
+- `state.js` – Central source of shared variables
+

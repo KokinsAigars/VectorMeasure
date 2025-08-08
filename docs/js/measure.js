@@ -16,7 +16,7 @@ let isDrawing = false;
 const previewCtx = () => previewCanvas.getContext('2d');
 const measureCtx = () => measureCanvas.getContext('2d');
 
-export function onMeasureClick(event) {
+function onMeasureClick(event) {
     if (!measureCanvas || !pxPerMeter) return;
 
     const rect = measureCanvas.getBoundingClientRect();
@@ -60,7 +60,7 @@ export function onMeasureClick(event) {
     }
 }
 
-export function onMeasureMove(event) {
+function onMeasureMove(event) {
     if (!isDrawing || !startPoint) return;
 
     const rect = previewCanvas.getBoundingClientRect();
@@ -95,18 +95,21 @@ export function onMeasureMove(event) {
     tooltip.style.display = 'block';
 }
 
-export function getMeasurementPoints() {
+function getMeasurementPoints() {
     return { lastMeasuredStart, lastMeasuredEnd };
 }
 
-export function clearMeasurementState() {
+function clearMeasurementState() {
     startPoint = null;
     lastMeasuredStart = null;
     lastMeasuredEnd = null;
     isDrawing = false;
 }
 
-export function cancelMeasurement() {
+function cancelMeasurement() {
+
+    console.log('cancelMeasurement() is called');
+
     const previewCanvasEl = document.getElementById('preview-canvas');
     const ctx = previewCanvasEl.getContext('2d');
 
@@ -118,3 +121,12 @@ export function cancelMeasurement() {
     document.getElementById('info').innerText = 'Measuring mode stopped by ESC.';
     document.getElementById('measurement-tip').style.display = 'none';
 }
+
+
+export {
+    onMeasureClick,
+    onMeasureMove,
+    getMeasurementPoints,
+    clearMeasurementState,
+    cancelMeasurement
+};
