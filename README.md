@@ -2,7 +2,7 @@
  * Project Name: “VectorMeasure”
  * Abbreviation: VM
  * License: MIT
- * Contributor(s): Aigars Kokins
+ * Contributor(s): Aigars Kokins, ChatGPT-5
  * 2025.06.03 - init()
  *
  * The purpose of this project is to test pdf.js functionality

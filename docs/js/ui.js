@@ -14,3 +14,4 @@ export const BtnClear = document.getElementById('clear-btn');
 export const BtnResetPdf = document.getElementById('reset-pdf-btn');
 export const BtnFlipPdfHorizontal = document.getElementById('flip-pdf-horizontal-btn');
 export const BtnFlipPdfVertical = document.getElementById('flip-pdf-vertical-btn');
+export const BtnClrBuffer = document.getElementById('clr-buffer');

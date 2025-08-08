@@ -16,10 +16,10 @@ import { onMeasureClick, onMeasureMove, cancelMeasurement } from './measure.js';
 export function setupEventListeners() {
 
     ui.selector.addEventListener('change', async (event) => {
-        await actions.resetPdfView();
         const plan = event.target.value;
         await loadPdfByName(plan);
     });
+    ui.BtnClrBuffer.addEventListener('click', actions.handleClrBuffer);
     ui.BtnCalibrate.addEventListener('click', handleCalibrateClick);
     ui.BtnSave.addEventListener('click', actions.handleSaveClick);
     ui.BtnMeasure.addEventListener('click', actions.handleMeasureMode);

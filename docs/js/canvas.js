@@ -19,13 +19,16 @@ export let measureCanvas;
 export let previewCanvas;
 export let previewCtx;
 export let originalPdfImage;
-// export let panOffset = { x: 0, y: 0 };
-
 export let DivPdfContainer;
 export let PDFlink;
+// export let panOffset = { x: 0, y: 0 };
+
 
 export async function initCanvasRenderPDF(options = {}) {
+    clearCanvasContainer();
+
     PDFlink = options.PDFlink;
+    console.log('PDFlink: ', PDFlink);
     DivPdfContainer = options.DivPdfContainer;
 
     if (options.workerSrc) {
@@ -49,10 +52,10 @@ export async function initCanvasRenderPDF(options = {}) {
 }
 
 async function loadPDF() {
-    if (!pdfDoc) {
-        pdfDoc = await pdfjsLib.getDocument(PDFlink).promise;
-        pdfPage = await pdfDoc.getPage(1);
-    }
+
+    pdfDoc = await pdfjsLib.getDocument(PDFlink).promise;
+    pdfPage = await pdfDoc.getPage(1);
+
 }
 
 async function createPDFCanvas() {
@@ -115,6 +118,7 @@ async function createPreviewCanvas() {
 }
 
 export function clearCanvasContainer() {
+    console.log('clearCanvasContainer() function called')
 
     if (state.DivPdfContainer) {
         state.DivPdfContainer.innerHTML = '';
@@ -130,3 +134,5 @@ export function clearCanvasContainer() {
     // console.log('measureCanvas:', measureCanvas);
 
 }
+
+

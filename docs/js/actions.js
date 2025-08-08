@@ -25,6 +25,7 @@ import {
     setPanOffset,
     setPxPerMeter
 } from './state.js';
+import { clearCanvasContainer } from './canvas.js';
 
 import { clearMeasurementState } from './measure.js';
 
@@ -134,6 +135,11 @@ function flipPdfVertical() {
     handleClearClick();
 }
 
+function  handleClrBuffer() {
+    console.log('handleClrBuffer() function called')
+
+    clearCanvasContainer();
+}
 
 export {
     handleSaveClick,
@@ -141,5 +147,6 @@ export {
     handleClearClick,
     resetPdfView,
     flipPdfHorizontal,
-    flipPdfVertical
+    flipPdfVertical,
+    handleClrBuffer
 };
