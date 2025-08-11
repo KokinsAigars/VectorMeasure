@@ -19,6 +19,7 @@ export async function loadPdfByName(planName) {
     }
 
     isLoadingPdf = true;
+
     const thisLoadId = ++currentLoadId;
 
     const PDFlink = `pdf/${planName}.pdf`;
@@ -44,7 +45,9 @@ export async function loadPdfByName(planName) {
     } catch (err) {
         console.error('PDF load error:', err);
         return false;
+
     } finally {
         isLoadingPdf = false;
     }
+
 }

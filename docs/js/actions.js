@@ -13,21 +13,22 @@ import {
     previewCtx,
     originalPdfImage
 } from './canvas.js';
-
+import { renderAtCurrentTransform } from './canvas.js';
 import {
+    ZOOM,
+    currentScale,
+    setCurrentScale,
+    panOffset,
+    setPanOffset,
     pxPerMeter,
     basePxPerMeter,
-    currentScale,
-    panOffset,
     originalCanvasWidth,
     unscaledViewport,
-    setCurrentScale,
-    setPanOffset,
     setPxPerMeter
 } from './state.js';
 import { clearCanvasContainer } from './canvas.js';
-
 import { clearMeasurementState } from './measure.js';
+
 
 function handleSaveClick() {
     const pdfCanvas = canvas;
@@ -141,6 +142,54 @@ function  handleClrBuffer() {
     clearCanvasContainer();
 }
 
+async function handleZoomIn() {
+    const next = Math.min(currentScale + ZOOM.step, ZOOM.max);
+    if (next === currentScale) return;
+    setCurrentScale(next);
+    await renderAtCurrentTransform();
+}
+
+async function handleZoomOut() {
+    const next = Math.max(currentScale - ZOOM.step, ZOOM.min);
+    if (next === currentScale) return;
+    setCurrentScale(next);
+    await renderAtCurrentTransform();
+}
+
+async function handleZoomReset() {
+    setCurrentScale(1.0);
+    setPanOffset(0, 0);
+    await renderAtCurrentTransform();
+}
+
+// --- Pan (drag) support ---
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
+
+function startPan(event) {
+    isPanning = true;
+    panStart = { x: event.clientX - panOffset.x, y: event.clientY - panOffset.y };
+}
+
+async function movePan(event) {
+    if (!isPanning) return;
+    const x = event.clientX - panStart.x;
+    const y = event.clientY - panStart.y;
+    setPanOffset(x, y);
+    // Pan is purely a CSS translate on overlays; update transform only
+    const overlays = document.querySelectorAll('#measure-canvas, #preview-canvas');
+    overlays.forEach(c => {
+        c.style.transform = `translate(${x}px, ${y}px)`;
+        c.style.transformOrigin = 'top left';
+    });
+}
+
+function endPan() {
+    isPanning = false;
+}
+
+
+
 export {
     handleSaveClick,
     handleMeasureMode,
@@ -148,5 +197,11 @@ export {
     resetPdfView,
     flipPdfHorizontal,
     flipPdfVertical,
-    handleClrBuffer
+    handleClrBuffer,
+    handleZoomIn,
+    handleZoomOut,
+    handleZoomReset,
+    startPan,
+    movePan,
+    endPan
 };

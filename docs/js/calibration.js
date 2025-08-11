@@ -13,7 +13,7 @@ export function handleCalibrateClick() {
     const { lastMeasuredStart, lastMeasuredEnd } = getMeasurementPoints();
 
     if (!lastMeasuredStart || !lastMeasuredEnd || isNaN(realWorldMeters) || realWorldMeters <= 0) {
-        alert('❌ Measure a distance first, then enter a valid real-world value.');
+        // alert('❌ Measure a distance first, then enter a valid real-world value.');
         return;
     }
 
