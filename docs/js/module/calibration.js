@@ -31,3 +31,50 @@ export function handleCalibrateClick() {
 
     clearMeasurementState();
 }
+export function toCanvasPoint(evt, canvas) {
+    const rect = canvas.getBoundingClientRect();
+    // client -> element local
+    const localX = evt.clientX - rect.left;
+    const localY = evt.clientY - rect.top;
+    // undo pan + scale (both are visual-only)
+    const x = (localX - panOffset.x) / currentScale;
+    const y = (localY - panOffset.y) / currentScale;
+    return { x, y };
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

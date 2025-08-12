@@ -166,7 +166,7 @@ export function renderMeasureButton(on) {
 
 
 
-export function handleInputCalibrationNumber () {
+export function handleInputCalibrationNumber() {
     let InputCalibrationNumber = document.getElementById('calibration-number').value;
     console.log('InputCalibrationNumber: ', InputCalibrationNumber);
 

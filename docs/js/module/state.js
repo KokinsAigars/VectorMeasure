@@ -9,6 +9,8 @@
 export let pxPerMeter = 37.6;       // Default: 1px ≈ 0.02652 meters  [1/0.02660 = 37.6]
 export let basePxPerMeter = 37.6;   // For reset/view recalibration [Store calibration relative to scale 1.0]
 export let currentScale = 1;
+let metersPerPixel = null;       // <-- calibration in UN-SCALED canvas pixels
+let lastCalibPxLen = null;       // remember the picked segment px length (unscaled)
 
 export let originalCanvasWidth = null;
 export let unscaledViewport = null;
