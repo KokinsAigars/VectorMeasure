@@ -174,6 +174,7 @@ let panStart = { x: 0, y: 0 };
 function startPan(event) {
     isPanning = true;
     panStart = { x: event.clientX - panOffset.x, y: event.clientY - panOffset.y };
+    console.log('panStart');
 }
 
 async function movePan(event) {
@@ -181,12 +182,16 @@ async function movePan(event) {
     const x = event.clientX - panStart.x;
     const y = event.clientY - panStart.y;
     setPanOffset(x, y);
-    // Pan is purely a CSS translate on overlays; update transform only
-    const overlays = document.querySelectorAll('#measure-canvas, #preview-canvas, #drawingCanvas');
-    overlays.forEach(c => {
+
+    // Pan is CSS translate on overlays; update transform only
+    const all = document.querySelectorAll(
+        '#pdf-canvas, #measure-canvas, #preview-canvas, #drawing-canvas'
+    );
+    all.forEach(c => {
         c.style.transform = `translate(${x}px, ${y}px)`;
         c.style.transformOrigin = 'top left';
     });
+    console.log('movePan');
 }
 
 function endPan() {

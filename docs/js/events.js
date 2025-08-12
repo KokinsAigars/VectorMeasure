@@ -11,7 +11,6 @@ import { handleCalibrateClick } from './calibration.js'
 import { loadPdfByName } from './loader.js';
 import * as canvas from './canvas.js';
 import { onMeasureClick, onMeasureMove, cancelMeasurement } from './measure.js';
-import {handleZoomIn, handleZoomOut} from "./actions.js";
 
 // EventListeners
 export function setupEventListeners() {
@@ -31,8 +30,10 @@ export function setupEventListeners() {
     if(ui.BtnFlipPdfHorizontal) ui.BtnFlipPdfHorizontal.addEventListener('click', actions.flipPdfHorizontal);
     if(ui.BtnFlipPdfVertical) ui.BtnFlipPdfVertical.addEventListener('click', actions.flipPdfVertical);
 
+    // Calibrate
     if(ui.BtnCalibrate) ui.BtnCalibrate.addEventListener('click', handleCalibrateClick);
 
+    // Zoom In/Out/Reset
     if(ui.BtnZoomIn) ui.BtnZoomIn.addEventListener('click', actions.handleZoomIn);
     if(ui.BtnZoomOut) ui.BtnZoomOut.addEventListener('click', actions.handleZoomOut);
     if(ui.BtnZoomReset) ui.BtnZoomReset.addEventListener('click', actions.handleZoomReset);
@@ -43,20 +44,18 @@ export function setupEventListeners() {
         canvas.measureCanvas.addEventListener('mousemove', onMeasureMove);
     }
 
+    // 'Escape'
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             cancelMeasurement();
         }
     });
 
-
-    // --- PAN ---
-    // --- Pan via Space + drag on overlays (use previewCanvas for pointer events)
+    // --- Pan via Space + drag
     let spaceDown = false;
     document.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
             spaceDown = true;
-            // enable pointer events so we can capture drag on preview layer
             canvas.previewCanvas.style.pointerEvents = 'auto';
             canvas.previewCanvas.style.cursor = 'grab';
         }

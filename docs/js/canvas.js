@@ -26,6 +26,7 @@ export let originalPdfImage;
 export let DivPdfContainer;
 export let DrawingScale = null;
 let renderToken = 0;
+export let stageEl;
 
 export async function initCanvasRenderPDF(options = {}) {
     clearCanvasContainer();
@@ -118,6 +119,8 @@ export async function renderAtCurrentTransform() {
     if (needResize) {
         canvas.width = viewport.width;
         canvas.height = viewport.height;
+        // keep container height synced with zoom
+        DivPdfContainer.style.height = `${viewport.height}px`;
     }
 
     const ctx = canvas.getContext('2d');
@@ -126,13 +129,14 @@ export async function renderAtCurrentTransform() {
     await pdfPage.render({ canvasContext: ctx, viewport }).promise;
 
     // sync overlays
+    const t = `translate(${state.panOffset.x}px, ${state.panOffset.y}px)`;
     [measureCanvas, previewCanvas, drawingCanvas].forEach(c => {
         if (!c) return;
         if (needResize) {
             c.width  = canvas.width;
             c.height = canvas.height;
         }
-        c.style.transform = `translate(${state.panOffset.x}px, ${state.panOffset.y}px)`;
+        c.style.transform = t;
         c.style.transformOrigin = 'top left';
     });
 

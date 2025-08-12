@@ -14,17 +14,16 @@ let currentLoadId = 0;
 
 export async function loadPdfByName(planName) {
     if (isLoadingPdf) {
-        //console.warn('PDF load in progress — skipping duplicate call');
+        console.warn('PDF load in progress — skipping duplicate call');
         return false;
     }
-
     isLoadingPdf = true;
-
     const thisLoadId = ++currentLoadId;
 
     const PDFlink = `pdf/${planName}.pdf`;
 
     try {
+
         await initCanvasRenderPDF({
             PDFlink,
             DivPdfContainer,

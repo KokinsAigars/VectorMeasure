@@ -18,4 +18,3 @@ export const BtnClrBuffer = document.getElementById('clr-buffer');
 export const BtnZoomIn = document.getElementById('zoom-in-btn');
 export const BtnZoomOut = document.getElementById('zoom-out-btn');
 export const BtnZoomReset = document.getElementById('zoom-reset-btn');
-export const BtnPanToggle = document.getElementById('pan-toggle-btn');
