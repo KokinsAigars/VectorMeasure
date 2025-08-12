@@ -38,7 +38,6 @@ export async function loadPdfByName(planName) {
         }
 
         setupEventListeners();
-
         return true;
 
     } catch (err) {

@@ -24,4 +24,4 @@ events - add EventListener to ui elements
 action - add function to ui elements
 
 
-
+app.js > loader.js > canvas.js

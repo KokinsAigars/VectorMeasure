@@ -40,21 +40,12 @@ export async function initCanvasRenderPDF(options = {}) {
     document.getElementById('info').innerText =
         `📐 Default calibration: 1px ≈ ${metersPerPx.toFixed(5)} meters`;
 
-
     const ok = await createPDFCanvas();
-    if (!ok) {
-        alert('hmm, no pdf loaded')
-        return;
-    }
+    if (!ok) return;
+
     await createMeasureCanvas();
     await createPreviewCanvas();
     await createDrawingCanvas();
-    await new Promise(requestAnimationFrame);
-    requestAnimationFrame(() => {
-        console.log('Reset scale:', currentScale);
-        console.log('Canvas size:', canvas.width, canvas.height);
-        console.log('Transform:', canvas.style.transform);
-    });
 }
 
 async function loadPDF() {
@@ -157,7 +148,6 @@ async function createMeasureCanvas() {
     measureCanvas.style.pointerEvents = 'none';
     DivPdfContainer.appendChild(measureCanvas);
 }
-
 async function createPreviewCanvas() {
     previewCanvas = document.createElement('canvas');
     previewCanvas.id = 'preview-canvas';
@@ -170,10 +160,7 @@ async function createPreviewCanvas() {
     previewCtx = previewCanvas.getContext('2d');
     DivPdfContainer.appendChild(previewCanvas);
 }
-
-export function createDrawingCanvas() {
-    console.log('createDrawingCanvas() function called')
-
+async function createDrawingCanvas() {
     drawingCanvas = document.createElement('canvas');
     drawingCanvas.id = 'drawing-canvas';
     drawingCanvas.width = viewport.width;
@@ -182,7 +169,6 @@ export function createDrawingCanvas() {
     drawingCanvas.style.top = '0';
     drawingCanvas.style.left = '0';
     drawingCanvas.style.pointerEvents = 'none';
-    previewCtx = previewCanvas.getContext('2d');
     DivPdfContainer.appendChild(drawingCanvas);
 }
 
@@ -217,6 +203,3 @@ export function redrawMeasurements() {
         ctx.stroke();
     });
 }
-
-
-
