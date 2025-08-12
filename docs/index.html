@@ -17,23 +17,23 @@
             <option value="PLANS_CUBE">CUBE</option>
             <option value="PLANS_Tukums_reverse">TUKUMS REVERSE</option>
         </select>
-<!--        <button class="btn" id="clr-buffer">clr buffer</button>-->
+        <button class="btn" id="clr-buffer">clr buffer</button>
+        <div>
+            <label for="calibration-number">Calibration Number (e.g. 53) </label>
+            <input type="text" id="calibration-number" name="calibrationNumber" />
+            <button id="enter-calibration-number">Enter</button>
+        </div>
+
     </div>
 
     <div id="toolbar">
         <button class="btn" id="save-btn">💾 Save as PNG</button>
-        <button class="inline-block cursor-pointer rounded-md bg-gray-500 px-4 py-3 text-center text-sm font-semibold uppercase text-white transition duration-200 ease-in-out hover:bg-gray-900"
-                id="measure-btn">📏 Measure Distance</button>
-        <button class="btn" id="clear-btn">🧹 Clear Measurements</button>
-        <button class="btn" id="reset-pdf-btn">🔄 Reset View</button>
-        <button class="btn" id="flip-pdf-horizontal-btn">↔️ Flip Horizontally</button>
-<!--        <button class="btn" id="flip-pdf-vertical-btn">↕️ Flip Vertically</button>-->
-    </div>
-    <div id="toolbar-b">
+        <button class="btn" id="measure-btn" aria-pressed="false" data-mode="off">📏 Measure Distance</button>
         <button class="btn" id="zoom-in-btn">➕ Zoom In</button>
         <button class="btn" id="zoom-out-btn">➖ Zoom Out</button>
-        <button class="btn" id="zoom-reset-btn">Zoom RESET</button>
-        <!--        <button class="btn" id="pan-toggle-btn">Pan</button>-->
+        <button class="btn" id="reset-pdf-btn">🔄 Reset View</button>
+        <!--button class="btn" id="flip-pdf-horizontal-btn">↔️ Flip Horizontally</button>-->
+        <!--<button class="btn" id="flip-pdf-vertical-btn">↕️ Flip Vertically</button>-->
     </div>
 
     <div id="toolbar2">

@@ -173,7 +173,7 @@ async function createDrawingCanvas() {
 }
 
 export function clearCanvasContainer() {
-    console.log('clearCanvasContainer() function called')
+    //console.log('clearCanvasContainer() function called')
 
     if (state.DivPdfContainer) {
         state.DivPdfContainer.innerHTML = '';

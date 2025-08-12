@@ -29,11 +29,7 @@
     z-index: 100;
     margin-top: 20px;
 }
-#toolbar-b {
-    position: relative;
-    z-index: 100;
-    margin-left: 25px;
-}
+
 #toolbar2 {
     position: relative;
     z-index: 100;
@@ -46,6 +42,9 @@
 }
 #pdf-container {
     z-index: 10;
+}
+#calibration-number {
+    border: 1px solid gray;
 }
 #scale-indicator {
     position: absolute;

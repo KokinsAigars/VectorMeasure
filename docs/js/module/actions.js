@@ -7,13 +7,12 @@
 
 import {
     canvas,
-    ctx,
     measureCanvas,
     previewCanvas,
-    previewCtx,
-    originalPdfImage, drawingCanvas
+    originalPdfImage,
+    clearCanvasContainer,
+    renderAtCurrentTransform
 } from './canvas.js';
-import { renderAtCurrentTransform } from './canvas.js';
 import {
     ZOOM,
     currentScale,
@@ -23,12 +22,15 @@ import {
     recomputePxPerMeter,
     pxPerMeter,
     setPxPerMeter,
+    setBasePxPerMeter,
     basePxPerMeter,
     originalCanvasWidth,
-    unscaledViewport
+    unscaledViewport,
+    isMeasureOn,
+    setMeasureOn
 } from './state.js';
-import { clearCanvasContainer } from './canvas.js';
 import { clearMeasurementState } from './measure.js';
+import { BtnMeasure } from './ui.js';
 
 let isPanning = false;
 let panStart = { x: 0, y: 0 };
@@ -52,9 +54,11 @@ export function handleSaveClick() {
 }
 
 export function handleMeasureMode() {
+
     handleClearClick();
     measureCanvas.style.pointerEvents = 'auto';
     document.getElementById('info').innerText = 'Click two points to measure.';
+
 }
 
 export function handleClearClick() {
@@ -66,78 +70,9 @@ export function handleClearClick() {
 
     clearMeasurementState();
 
-    document.getElementById('info').innerText = 'Measurements cleared.';
+    // infoEl.textContent = 'Measurements cleared.';
     document.getElementById('measurement-tip').style.display = 'none';
-}
-
-export async function resetPdfView() {
-    const scale = originalCanvasWidth / unscaledViewport.width;
-    setCurrentScale(scale);
-    setPanOffset(0, 0);
-    setPxPerMeter(basePxPerMeter);
-
-    [canvas, measureCanvas, previewCanvas].forEach(c => {
-        c.style.transform = 'none';
-        c.style.left = '0px';
-        c.style.top = '0px';
-    });
-
-    const ctxCanvas = canvas.getContext('2d');
-    ctxCanvas.setTransform(1, 0, 0, 1, 0, 0);
-    ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (originalPdfImage.complete) {
-        ctxCanvas.drawImage(originalPdfImage, 0, 0);
-    } else {
-        originalPdfImage.onload = () => {
-            ctxCanvas.drawImage(originalPdfImage, 0, 0);
-        };
-    }
-
-    requestAnimationFrame(() => {
-        document.getElementById('info').innerText = '🔄 View reset to original state';
-        console.log('Reset scale:', currentScale);
-        console.log('Canvas size:', canvas.width, canvas.height);
-        console.log('Transform:', canvas.style.transform);
-    });
-}
-
-export function flipPdfHorizontal() {
-    const ctxCanvas = canvas.getContext('2d');
-
-    const copyCanvas = document.createElement('canvas');
-    copyCanvas.width = canvas.width;
-    copyCanvas.height = canvas.height;
-    const copyCtx = copyCanvas.getContext('2d');
-    copyCtx.drawImage(canvas, 0, 0);
-
-    ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
-    ctxCanvas.save();
-    ctxCanvas.scale(-1, 1);
-    ctxCanvas.translate(-canvas.width, 0);
-    ctxCanvas.drawImage(copyCanvas, 0, 0);
-    ctxCanvas.restore();
-
-    handleClearClick();
-}
-
-export function flipPdfVertical() {
-    const ctxCanvas = canvas.getContext('2d');
-
-    const copyCanvas = document.createElement('canvas');
-    copyCanvas.width = canvas.width;
-    copyCanvas.height = canvas.height;
-    const copyCtx = copyCanvas.getContext('2d');
-    copyCtx.drawImage(canvas, 0, 0);
-
-    ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
-    ctxCanvas.save();
-    ctxCanvas.scale(1, -1);
-    ctxCanvas.translate(0, -canvas.height);
-    ctxCanvas.drawImage(copyCanvas, 0, 0);
-    ctxCanvas.restore();
-
-    handleClearClick();
+    measureCanvas.style.pointerEvents = 'none';
 }
 
 export function  handleClrBuffer() {
@@ -176,6 +111,7 @@ export async function handleZoomReset() {
 
     setPanOffset(offsetX, offsetY);
     await renderAtCurrentTransform();
+
 }
 
 export function startPan(event) {
@@ -204,3 +140,94 @@ export function endPan() {
     isPanning = false;
 }
 
+export function onMeasureClick() {
+    renderMeasureButton(isMeasureOn());
+    const next = !isMeasureOn();
+    setMeasureOn(next);          // update global-ish state
+    renderMeasureButton(next);   // reflect in UI
+
+    if (next) {
+        // turn ON measuring
+        measureCanvas.style.pointerEvents = 'auto';
+        // infoEl.textContent = 'Click two points to measure.';
+    } else {
+        // turn OFF measuring
+        handleClearClick();
+    }
+}
+
+export function renderMeasureButton(on) {
+    BtnMeasure.classList.toggle('is-on', on);
+    BtnMeasure.setAttribute('aria-pressed', String(on));
+    BtnMeasure.dataset.mode = on ? 'on' : 'off';
+    BtnMeasure.textContent = on ? '✅ Measuring (click to stop)' : '📏 Measure Distance';
+}
+
+
+
+
+export function handleInputCalibrationNumber () {
+    let InputCalibrationNumber = document.getElementById('calibration-number').value;
+    console.log('InputCalibrationNumber: ', InputCalibrationNumber);
+
+    setPxPerMeter(InputCalibrationNumber);
+    setBasePxPerMeter(InputCalibrationNumber);
+
+    //Default: 1px ≈ 0.02652 meters  [1/0.02660 = 37.6]
+    document.getElementById('info').innerText =
+        `✅ Calibrated: 1px ≈ ${(1 / InputCalibrationNumber).toFixed(5)} m`;
+}
+
+
+
+
+
+
+//
+//
+// export function flipPdfHorizontal() {
+//     const ctxCanvas = canvas.getContext('2d');
+//
+//     const copyCanvas = document.createElement('canvas');
+//     copyCanvas.width = canvas.width;
+//     copyCanvas.height = canvas.height;
+//     const copyCtx = copyCanvas.getContext('2d');
+//     copyCtx.drawImage(canvas, 0, 0);
+//
+//     ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
+//     ctxCanvas.save();
+//     ctxCanvas.scale(-1, 1);
+//     ctxCanvas.translate(-canvas.width, 0);
+//     ctxCanvas.drawImage(copyCanvas, 0, 0);
+//     ctxCanvas.restore();
+//
+//     handleClearClick();
+// }
+//
+// export function flipPdfVertical() {
+//     const ctxCanvas = canvas.getContext('2d');
+//
+//     const copyCanvas = document.createElement('canvas');
+//     copyCanvas.width = canvas.width;
+//     copyCanvas.height = canvas.height;
+//     const copyCtx = copyCanvas.getContext('2d');
+//     copyCtx.drawImage(canvas, 0, 0);
+//
+//     ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
+//     ctxCanvas.save();
+//     ctxCanvas.scale(1, -1);
+//     ctxCanvas.translate(0, -canvas.height);
+//     ctxCanvas.drawImage(copyCanvas, 0, 0);
+//     ctxCanvas.restore();
+//
+//     handleClearClick();
+// }
+//
+//
+
+//
+// const on = document.getElementById('measure-btn').dataset.mode === 'on';
+// // or:
+// const on2 = document.getElementById('measure-btn').classList.contains('is-on');
+// // or:
+// const on3 = document.getElementById('measure-btn').getAttribute('aria-pressed') === 'true';

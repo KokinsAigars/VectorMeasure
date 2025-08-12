@@ -17,6 +17,14 @@ export let DivPdfContainer = null;
 export let panOffset = { x: 0, y: 0 };
 export const ZOOM = { min: 0.25, max: 4.0, step: 0.1 };
 
+let _measureOn = false;
+export const isMeasureOn = () => _measureOn;
+export const setMeasureOn = (v) => {
+    _measureOn = v;
+    // broadcast to anyone who cares
+    window.dispatchEvent(new CustomEvent('measure:change', { detail: { on: v } }));
+};
+
 // Mutator functions for external modules
 export function setPxPerMeter(value) {
     pxPerMeter = value;

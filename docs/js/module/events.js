@@ -11,7 +11,7 @@ import { handleCalibrateClick } from './calibration.js'
 import { loadPdfByName } from './loader.js';
 import * as canvas from './canvas.js';
 import { onMeasureClick, onMeasureMove, cancelMeasurement } from './measure.js';
-import {BtnPanToggle} from "./ui.js";
+import {BtnPanToggle, EnterCalibrationNumber, InputCalibrationNumber} from "./ui.js";
 
 // EventListeners
 export function setupEventListeners() {
@@ -25,11 +25,7 @@ export function setupEventListeners() {
     if(ui.BtnClrBuffer) ui.BtnClrBuffer.addEventListener('click', actions.handleClrBuffer);
 
     if(ui.BtnSave) ui.BtnSave.addEventListener('click', actions.handleSaveClick);
-    if(ui.BtnMeasure) ui.BtnMeasure.addEventListener('click', actions.handleMeasureMode);
-    if(ui.BtnClear) ui.BtnClear.addEventListener('click',  actions.handleClearClick);
-    if(ui.BtnResetPdf) ui.BtnResetPdf.addEventListener('click', actions.resetPdfView);
-    if(ui.BtnFlipPdfHorizontal) ui.BtnFlipPdfHorizontal.addEventListener('click', actions.flipPdfHorizontal);
-    if(ui.BtnFlipPdfVertical) ui.BtnFlipPdfVertical.addEventListener('click', actions.flipPdfVertical);
+    if(ui.BtnMeasure) ui.BtnMeasure.addEventListener('click', actions.onMeasureClick);
 
     // Calibrate
     if(ui.BtnCalibrate) ui.BtnCalibrate.addEventListener('click', handleCalibrateClick);
@@ -37,7 +33,7 @@ export function setupEventListeners() {
     // Zoom In/Out/Reset
     if(ui.BtnZoomIn) ui.BtnZoomIn.addEventListener('click', actions.handleZoomIn);
     if(ui.BtnZoomOut) ui.BtnZoomOut.addEventListener('click', actions.handleZoomOut);
-    if(ui.BtnZoomReset) ui.BtnZoomReset.addEventListener('click', actions.handleZoomReset);
+    if(ui.BtnResetPdf) ui.BtnResetPdf.addEventListener('click', actions.handleZoomReset);
 
     // Measurement canvas events
     if(canvas.measureCanvas) {
@@ -96,6 +92,21 @@ export function setupEventListeners() {
     }, { passive: false });
 
     if(ui.BtnPanToggle) BtnPanToggle.addEventListener('click', actions.startPan);
+
+    if(InputCalibrationNumber) InputCalibrationNumber.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            actions.handleInputCalibrationNumber();
+        }
+    });
+    if(EnterCalibrationNumber) EnterCalibrationNumber.addEventListener('click', actions.handleInputCalibrationNumber);
+
+
+
+
+    // if(ui.BtnFlipPdfHorizontal) ui.BtnFlipPdfHorizontal.addEventListener('click', actions.flipPdfHorizontal);
+    // if(ui.BtnFlipPdfVertical) ui.BtnFlipPdfVertical.addEventListener('click', actions.flipPdfVertical);
+    //
+
 
 }
 
