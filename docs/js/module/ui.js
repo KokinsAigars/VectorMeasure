@@ -2,7 +2,7 @@
  * Project Name: “VectorMeasure”
  * License: MIT
  * Contributor(s): Aigars Kokins, ChatGPT-5
- * ui.js
+ * module/ ui.js
  */
 
 export const selector = document.getElementById('pdf-selector');
@@ -18,3 +18,4 @@ export const BtnClrBuffer = document.getElementById('clr-buffer');
 export const BtnZoomIn = document.getElementById('zoom-in-btn');
 export const BtnZoomOut = document.getElementById('zoom-out-btn');
 export const BtnZoomReset = document.getElementById('zoom-reset-btn');
+export const BtnPanToggle = document.getElementById('pan-toggle-btn');

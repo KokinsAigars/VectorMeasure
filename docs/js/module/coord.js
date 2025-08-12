@@ -2,7 +2,7 @@
  * Project Name: “VectorMeasure”
  * License: MIT
  * Contributor(s): Aigars Kokins, ChatGPT-5
- * coord.js
+ * module/ coord.js
  */
 
 import { unscaledViewport, viewport } from './canvas.js';

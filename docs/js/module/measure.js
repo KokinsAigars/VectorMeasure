@@ -2,7 +2,7 @@
  * Project Name: “VectorMeasure”
  * License: MIT
  * Contributor(s): Aigars Kokins, ChatGPT-5
- * measure.js
+ * module/ measure.js
  */
 
 import { measureCanvas, previewCanvas } from './canvas.js';

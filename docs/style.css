@@ -2143,6 +2143,11 @@
   z-index: 100;
   margin-top: 20px;
 }
+#toolbar-b {
+  position: relative;
+  z-index: 100;
+  margin-left: 25px;
+}
 #toolbar2 {
   position: relative;
   z-index: 100;

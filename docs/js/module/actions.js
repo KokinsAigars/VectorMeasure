@@ -2,7 +2,7 @@
  * Project Name: “VectorMeasure”
  * License: MIT
  * Contributor(s): Aigars Kokins, ChatGPT-5
- * actions.js
+ * module/ actions.js
  */
 
 import {
@@ -30,8 +30,11 @@ import {
 import { clearCanvasContainer } from './canvas.js';
 import { clearMeasurementState } from './measure.js';
 
+let isPanning = false;
+let panStart = { x: 0, y: 0 };
 
-function handleSaveClick() {
+
+export function handleSaveClick() {
     const pdfCanvas = canvas;
     const mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = pdfCanvas.width;
@@ -48,13 +51,13 @@ function handleSaveClick() {
     link.click();
 }
 
-function handleMeasureMode() {
+export function handleMeasureMode() {
     handleClearClick();
     measureCanvas.style.pointerEvents = 'auto';
     document.getElementById('info').innerText = 'Click two points to measure.';
 }
 
-function handleClearClick() {
+export function handleClearClick() {
     const ctxMeasure = measureCanvas.getContext('2d');
     ctxMeasure.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
 
@@ -67,7 +70,7 @@ function handleClearClick() {
     document.getElementById('measurement-tip').style.display = 'none';
 }
 
-async function resetPdfView() {
+export async function resetPdfView() {
     const scale = originalCanvasWidth / unscaledViewport.width;
     setCurrentScale(scale);
     setPanOffset(0, 0);
@@ -99,7 +102,7 @@ async function resetPdfView() {
     });
 }
 
-function flipPdfHorizontal() {
+export function flipPdfHorizontal() {
     const ctxCanvas = canvas.getContext('2d');
 
     const copyCanvas = document.createElement('canvas');
@@ -118,7 +121,7 @@ function flipPdfHorizontal() {
     handleClearClick();
 }
 
-function flipPdfVertical() {
+export function flipPdfVertical() {
     const ctxCanvas = canvas.getContext('2d');
 
     const copyCanvas = document.createElement('canvas');
@@ -137,13 +140,13 @@ function flipPdfVertical() {
     handleClearClick();
 }
 
-function  handleClrBuffer() {
+export function  handleClrBuffer() {
     console.log('handleClrBuffer() function called')
 
     clearCanvasContainer();
 }
 
-async function handleZoomIn() {
+export async function handleZoomIn() {
     const next = Math.min(currentScale + ZOOM.step, ZOOM.max);
     if (next === currentScale) return;
     setCurrentScale(next);
@@ -151,7 +154,7 @@ async function handleZoomIn() {
     await renderAtCurrentTransform();
 }
 
-async function handleZoomOut() {
+export async function handleZoomOut() {
     const next = Math.max(currentScale - ZOOM.step, ZOOM.min);
     if (next === currentScale) return;
     setCurrentScale(next);
@@ -159,25 +162,29 @@ async function handleZoomOut() {
     await renderAtCurrentTransform();
 }
 
-async function handleZoomReset() {
-    setCurrentScale(1.0);
-    setPanOffset(0, 0);
+export async function handleZoomReset() {
+    // match initial “fit to container width”
+    const fit = originalCanvasWidth / unscaledViewport.width;
+    setCurrentScale(fit);
     recomputePxPerMeter();
+
+    const container = document.getElementById('pdf-container');
+    const pdfW = unscaledViewport.width  * fit;
+    const pdfH = unscaledViewport.height * fit;
+    const offsetX = (container.clientWidth  - pdfW) / 2;
+    const offsetY = (container.clientHeight - pdfH) / 2;
+
+    setPanOffset(offsetX, offsetY);
     await renderAtCurrentTransform();
 }
 
-
-// --- Pan (drag) support ---
-let isPanning = false;
-let panStart = { x: 0, y: 0 };
-
-function startPan(event) {
+export function startPan(event) {
     isPanning = true;
     panStart = { x: event.clientX - panOffset.x, y: event.clientY - panOffset.y };
     console.log('panStart');
 }
 
-async function movePan(event) {
+export async function movePan(event) {
     if (!isPanning) return;
     const x = event.clientX - panStart.x;
     const y = event.clientY - panStart.y;
@@ -191,25 +198,9 @@ async function movePan(event) {
         c.style.transform = `translate(${x}px, ${y}px)`;
         c.style.transformOrigin = 'top left';
     });
-    console.log('movePan');
 }
 
-function endPan() {
+export function endPan() {
     isPanning = false;
 }
 
-export {
-    handleSaveClick,
-    handleMeasureMode,
-    handleClearClick,
-    resetPdfView,
-    flipPdfHorizontal,
-    flipPdfVertical,
-    handleClrBuffer,
-    handleZoomIn,
-    handleZoomOut,
-    handleZoomReset,
-    startPan,
-    movePan,
-    endPan
-};

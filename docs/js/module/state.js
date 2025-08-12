@@ -2,7 +2,7 @@
  * Project Name: “VectorMeasure”
  * License: MIT
  * Contributor(s): Aigars Kokins, ChatGPT-5
- * state.js
+ * module/ state.js
  */
 
 // Calibration and zoom state
@@ -49,7 +49,7 @@ export function setUnscaledViewport(viewport) {
 // Optional reset helper
 export function resetState() {
     pxPerMeter = basePxPerMeter;
-    currentScale = 1.5;//1.0;
+    currentScale = 1.0;
     panOffset = { x: 0, y: 0 };
 }
 

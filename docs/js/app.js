@@ -5,8 +5,8 @@
  * app.js
  */
 
-import { selector } from './ui.js';
-import { loadPdfByName } from './loader.js';
+import { selector } from './module/ui.js';
+import { loadPdfByName } from './module/loader.js';
 
 // call MAIN() function
 document.addEventListener('DOMContentLoaded', () => {

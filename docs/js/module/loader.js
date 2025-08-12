@@ -2,7 +2,7 @@
  * Project Name: “VectorMeasure”
  * License: MIT
  * Contributor(s): Aigars Kokins, ChatGPT-5
- * loader.js
+ * module/ loader.js
  */
 
 import { setupEventListeners } from './events.js';

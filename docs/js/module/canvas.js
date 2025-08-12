@@ -2,7 +2,7 @@
  * Project Name: “VectorMeasure”
  * License: MIT
  * Contributor(s): Aigars Kokins, ChatGPT-5
- * canvas.js
+ * module/ canvas.js
  */
 
 import * as state from './state.js';
@@ -26,7 +26,7 @@ export let originalPdfImage;
 export let DivPdfContainer;
 export let DrawingScale = null;
 let renderToken = 0;
-export let stageEl;
+
 
 export async function initCanvasRenderPDF(options = {}) {
     clearCanvasContainer();
@@ -40,7 +40,7 @@ export async function initCanvasRenderPDF(options = {}) {
     document.getElementById('info').innerText =
         `📐 Default calibration: 1px ≈ ${metersPerPx.toFixed(5)} meters`;
 
-    // await new Promise(requestAnimationFrame);
+
     const ok = await createPDFCanvas();
     if (!ok) {
         alert('hmm, no pdf loaded')
@@ -49,12 +49,12 @@ export async function initCanvasRenderPDF(options = {}) {
     await createMeasureCanvas();
     await createPreviewCanvas();
     await createDrawingCanvas();
-
-    // requestAnimationFrame(() => {
-        // console.log('Reset scale:', currentScale);
-        // console.log('Canvas size:', canvas.width, canvas.height);
-        // console.log('Transform:', canvas.style.transform);
-    // });
+    await new Promise(requestAnimationFrame);
+    requestAnimationFrame(() => {
+        console.log('Reset scale:', currentScale);
+        console.log('Canvas size:', canvas.width, canvas.height);
+        console.log('Transform:', canvas.style.transform);
+    });
 }
 
 async function loadPDF() {

@@ -29,6 +29,11 @@
     z-index: 100;
     margin-top: 20px;
 }
+#toolbar-b {
+    position: relative;
+    z-index: 100;
+    margin-left: 25px;
+}
 #toolbar2 {
     position: relative;
     z-index: 100;
@@ -59,14 +64,15 @@
 .info-margin{
     margin-top: 20px;
 }
+
 /*  -A4-  297x210 x 4 */
 #pdf-container {
     position: relative;
-    width: 100%;            /* or a max-width like 1000px */
-    max-width: 1400px;      /* optional: to control size on big screens */
+    width: 100%;        /* or a max-width like 1000px */
+    max-width: 1400px;  /* optional: to control size on big screens */
     height: 100%;
     max-height: 1000px;
-    margin: 10px 50px;         /* optional: center the container */
+    margin: 10px 50px;  /* optional: center the container */
     overflow: hidden;
     aspect-ratio: auto; /* let JS control height */
     border: 1px solid #ccc;

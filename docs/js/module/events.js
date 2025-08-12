@@ -2,7 +2,7 @@
  * Project Name: “VectorMeasure”
  * License: MIT
  * Contributor(s): Aigars Kokins, ChatGPT-5
- * events.js
+ * module/ events.js
  */
 
 import * as ui from './ui.js';
@@ -11,6 +11,7 @@ import { handleCalibrateClick } from './calibration.js'
 import { loadPdfByName } from './loader.js';
 import * as canvas from './canvas.js';
 import { onMeasureClick, onMeasureMove, cancelMeasurement } from './measure.js';
+import {BtnPanToggle} from "./ui.js";
 
 // EventListeners
 export function setupEventListeners() {
@@ -93,6 +94,8 @@ export function setupEventListeners() {
         if (e.deltaY < 0) await actions.handleZoomIn();
         else await actions.handleZoomOut();
     }, { passive: false });
+
+    if(ui.BtnPanToggle) BtnPanToggle.addEventListener('click', actions.startPan);
 
 }
 
