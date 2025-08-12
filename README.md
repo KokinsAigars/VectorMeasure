@@ -3,7 +3,8 @@
  * Abbreviation: VM
  * License: MIT
  * Contributor(s): Aigars Kokins, ChatGPT-5
- * 2025.06.03 - init()
+ * 2025.06.03 - init(1)
+ * 2025.08.08 - init(2)
  *
  * The purpose of this project is to test pdf.js functionality
  * https://github.com/mozilla/pdf.js
@@ -22,29 +23,18 @@
  * Add a simple calibration tool to convert to real-world unit
  */
 
+
+    npm install
+    
     
     https://nodejs.org/en/download
     npm install npm@latest
     npm install -g npm-check-updates
+    // full reinstall> npm ci
     npm audit fix --force
 
     npm install
 
     npm run dev
     http://localhost:3000/
-
-
-[//]: # (npx @tailwindcss/cli -i ./src/input.css -o ./docs/style.css --watch)
-
-
-📁 /js/
-File	Purpose
-app.js	Main entry point. Initializes PDF, state, and event listeners.
-canvas.js	Creates and manages PDF canvas and overlay canvases.
-measure.js	Handles user click/move to measure distances.
-calibration.js	Calibrates scale based on user input and last measurement.
-actions.js	Handles UI actions: save image, clear, flip, reset view.
-events.js	Binds all DOM/UI/canvas event listeners.
-state.js	Stores and exposes global app state (scale, calibration, etc.).
-ui.js (optional)	Centralized DOM elements (buttons, inputs, tooltips).
 

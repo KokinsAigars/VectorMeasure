@@ -1,23 +1,23 @@
 {
   "name": "vectormeasure",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "A simple PDF measurement tool",
   "main": "server.js",
-  "author": "Your Name",
+  "author": "Aigars Kokins",
   "license": "MIT",
-  "keywords": [],
+  "keywords": ["pdf", "vector", "html measure"],
   "scripts": {
     "dev": "concurrently \"node server.js\" \"npx @tailwindcss/cli -i ./src/input.css -o ./docs/style.css --watch\""
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.1.8",
-    "tailwindcss": "^4.1.8",
-    "express": "^4.21.2",
-    "npm": "^11.5.2"
+    "@tailwindcss/cli": "^4.1.11",
+    "express": "^5.1.0",
+    "npm": "^11.5.2",
+    "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.1.8",
-    "concurrently": "^9.1.2",
-    "daisyui": "^5.0.43"
+    "@tailwindcss/cli": "^4.1.11",
+    "concurrently": "^9.2.0",
+    "daisyui": "^5.0.50"
   }
 }

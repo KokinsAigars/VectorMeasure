@@ -16,10 +16,12 @@ export function eventToOverlayXY(e, overlayCanvas) {
 
 // Overlay canvas pixels -> page space (scale=1)
 export function overlayToPageXY(xOverlay) {
-    // current overlay size equals viewport size (CSS size), so:
     const sx = unscaledViewport.width  / viewport.width;
     const sy = unscaledViewport.height / viewport.height;
-    return { x: xOverlay.x * sx, y: xOverlay.y * sy };
+    return {
+        x: (xOverlay.x - panOffset.x) * sx,
+        y: (xOverlay.y - panOffset.y) * sy
+    };
 }
 
 // Page space (scale=1) -> overlay canvas pixels

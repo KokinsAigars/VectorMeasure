@@ -49,51 +49,51 @@ export function setupEventListeners() {
         }
     });
 
-    // // Pan via Space + drag on overlays (use previewCanvas for pointer events)
-    // let spaceDown = false;
-    // document.addEventListener('keydown', (e) => {
-    //     if (e.code === 'Space') {
-    //         spaceDown = true;
-    //         // enable pointer events so we can capture drag on preview layer
-    //         canvas.previewCanvas.style.pointerEvents = 'auto';
-    //         canvas.previewCanvas.style.cursor = 'grab';
-    //     }
-    // });
-    //
-    // document.addEventListener('keyup', (e) => {
-    //     if (e.code === 'Space') {
-    //         spaceDown = false;
-    //         canvas.previewCanvas.style.pointerEvents = 'none';
-    //         canvas.previewCanvas.style.cursor = 'default';
-    //         actions.endPan();
-    //     }
-    // });
-    //
-    // canvas.previewCanvas.addEventListener('mousedown', (e) => {
-    //     if (!spaceDown) return;
-    //     canvas.previewCanvas.style.cursor = 'grabbing';
-    //     actions.startPan(e);
-    // });
-    //
-    // document.addEventListener('mousemove', (e) => {
-    //     if (!spaceDown) return;
-    //     actions.movePan(e).then(r => {
-    //         console.log('mousemove')
-    //     });
-    // });
-    //
-    // document.addEventListener('mouseup', () => {
-    //     if (!spaceDown) return;
-    //     canvas.previewCanvas.style.cursor = 'grab';
-    //     actions.endPan();
-    // });
-    //
-    // // wheel zoom centered on cursor (non-touchpad friendly)
-    // canvas.previewCanvas.addEventListener('wheel', async (e) => {
-    //     e.preventDefault();
-    //     if (e.deltaY < 0) await actions.handleZoomIn();
-    //     else await actions.handleZoomOut();
-    // }, { passive: false });
+
+    // --- PAN ---
+    // --- Pan via Space + drag on overlays (use previewCanvas for pointer events)
+    let spaceDown = false;
+    document.addEventListener('keydown', (e) => {
+        if (e.code === 'Space') {
+            spaceDown = true;
+            // enable pointer events so we can capture drag on preview layer
+            canvas.previewCanvas.style.pointerEvents = 'auto';
+            canvas.previewCanvas.style.cursor = 'grab';
+        }
+    });
+
+    document.addEventListener('keyup', (e) => {
+        if (e.code === 'Space') {
+            spaceDown = false;
+            canvas.previewCanvas.style.pointerEvents = 'none';
+            canvas.previewCanvas.style.cursor = 'default';
+            actions.endPan();
+        }
+    });
+
+    canvas.previewCanvas.addEventListener('mousedown', (e) => {
+        if (!spaceDown) return;
+        canvas.previewCanvas.style.cursor = 'grabbing';
+        actions.startPan(e);
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!spaceDown) return;
+        actions.movePan(e);
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (!spaceDown) return;
+        canvas.previewCanvas.style.cursor = 'grab';
+        actions.endPan();
+    });
+
+    // wheel zoom centered on cursor (non-touchpad friendly)
+    canvas.previewCanvas.addEventListener('wheel', async (e) => {
+        e.preventDefault();
+        if (e.deltaY < 0) await actions.handleZoomIn();
+        else await actions.handleZoomOut();
+    }, { passive: false });
 
 }
 

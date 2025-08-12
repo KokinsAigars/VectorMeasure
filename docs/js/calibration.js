@@ -6,28 +6,51 @@
  */
 
 import { getMeasurementPoints, clearMeasurementState } from './measure.js';
-import { setPxPerMeter } from './state.js';
+import { setPxPerMeter, currentScale, setBasePxPerMeter, recomputePxPerMeter, pxPerMeter } from './state.js';
 
+// export function handleCalibrateClick() {
+//     const realWorldMeters = parseFloat(document.getElementById('real-length').value);
+//     const { lastMeasuredStart, lastMeasuredEnd } = getMeasurementPoints();
+//
+//     if (!lastMeasuredStart || !lastMeasuredEnd || isNaN(realWorldMeters) || realWorldMeters <= 0) {
+//         // alert('❌ Measure a distance first, then enter a valid real-world value.');
+//         return;
+//     }
+//
+//     const dx = lastMeasuredEnd.x - lastMeasuredStart.x;
+//     const dy = lastMeasuredEnd.y - lastMeasuredStart.y;
+//     const pixelDistance = Math.sqrt(dx * dx + dy * dy);
+//
+//     const newPxPerMeter = pixelDistance / realWorldMeters;
+//     setPxPerMeter(newPxPerMeter);
+//
+//     document.getElementById('info').innerText =
+//         `✅ Calibrated: 1px = ${(1 / newPxPerMeter).toFixed(5)} m`;
+//
+//     clearMeasurementState();
+//
+//     console.log(`ℹ️ pixelDistance = ${pixelDistance}, meters = ${realWorldMeters}`);
+// }
 export function handleCalibrateClick() {
     const realWorldMeters = parseFloat(document.getElementById('real-length').value);
     const { lastMeasuredStart, lastMeasuredEnd } = getMeasurementPoints();
+    if (!lastMeasuredStart || !lastMeasuredEnd || isNaN(realWorldMeters) || realWorldMeters <= 0) return;
 
-    if (!lastMeasuredStart || !lastMeasuredEnd || isNaN(realWorldMeters) || realWorldMeters <= 0) {
-        // alert('❌ Measure a distance first, then enter a valid real-world value.');
-        return;
-    }
-
+    // distance measured in OVERLAY pixels (at current zoom)
     const dx = lastMeasuredEnd.x - lastMeasuredStart.x;
     const dy = lastMeasuredEnd.y - lastMeasuredStart.y;
-    const pixelDistance = Math.sqrt(dx * dx + dy * dy);
+    const overlayPixelDistance = Math.sqrt(dx*dx + dy*dy);
 
-    const newPxPerMeter = pixelDistance / realWorldMeters;
-    setPxPerMeter(newPxPerMeter);
+    // convert to PAGE pixels (scale=1)
+    const pagePixelDistance = overlayPixelDistance / currentScale;
+
+    // base calibration: pixels-per-meter in page space
+    const newBase = pagePixelDistance / realWorldMeters;
+    setBasePxPerMeter(newBase);
+    recomputePxPerMeter(); // updates live pxPerMeter for current zoom
 
     document.getElementById('info').innerText =
-        `✅ Calibrated: 1px = ${(1 / newPxPerMeter).toFixed(5)} m`;
+        `✅ Calibrated: 1px@zoom = ${(1 / pxPerMeter).toFixed(5)} m  |  base: 1px(page) = ${(1 / newBase).toFixed(5)} m`;
 
     clearMeasurementState();
-
-    console.log(`ℹ️ pixelDistance = ${pixelDistance}, meters = ${realWorldMeters}`);
 }

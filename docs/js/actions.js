@@ -11,7 +11,7 @@ import {
     measureCanvas,
     previewCanvas,
     previewCtx,
-    originalPdfImage
+    originalPdfImage, drawingCanvas
 } from './canvas.js';
 import { renderAtCurrentTransform } from './canvas.js';
 import {
@@ -20,11 +20,12 @@ import {
     setCurrentScale,
     panOffset,
     setPanOffset,
+    recomputePxPerMeter,
     pxPerMeter,
+    setPxPerMeter,
     basePxPerMeter,
     originalCanvasWidth,
-    unscaledViewport,
-    setPxPerMeter
+    unscaledViewport
 } from './state.js';
 import { clearCanvasContainer } from './canvas.js';
 import { clearMeasurementState } from './measure.js';
@@ -146,6 +147,7 @@ async function handleZoomIn() {
     const next = Math.min(currentScale + ZOOM.step, ZOOM.max);
     if (next === currentScale) return;
     setCurrentScale(next);
+    recomputePxPerMeter();
     await renderAtCurrentTransform();
 }
 
@@ -153,14 +155,17 @@ async function handleZoomOut() {
     const next = Math.max(currentScale - ZOOM.step, ZOOM.min);
     if (next === currentScale) return;
     setCurrentScale(next);
+    recomputePxPerMeter();
     await renderAtCurrentTransform();
 }
 
 async function handleZoomReset() {
     setCurrentScale(1.0);
     setPanOffset(0, 0);
+    recomputePxPerMeter();
     await renderAtCurrentTransform();
 }
+
 
 // --- Pan (drag) support ---
 let isPanning = false;
@@ -177,7 +182,7 @@ async function movePan(event) {
     const y = event.clientY - panStart.y;
     setPanOffset(x, y);
     // Pan is purely a CSS translate on overlays; update transform only
-    const overlays = document.querySelectorAll('#measure-canvas, #preview-canvas');
+    const overlays = document.querySelectorAll('#measure-canvas, #preview-canvas, #drawingCanvas');
     overlays.forEach(c => {
         c.style.transform = `translate(${x}px, ${y}px)`;
         c.style.transformOrigin = 'top left';
@@ -187,8 +192,6 @@ async function movePan(event) {
 function endPan() {
     isPanning = false;
 }
-
-
 
 export {
     handleSaveClick,
