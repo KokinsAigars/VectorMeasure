@@ -7,6 +7,8 @@
 
 import { measureCanvas, previewCanvas } from './canvas.js';
 import { pxPerMeter } from './state.js';
+import { addSegment } from './measure_model.js';
+import { overlayToPageXY } from './coord.js';
 
 let startPoint = null;
 let lastMeasuredStart = null;
@@ -122,11 +124,29 @@ function cancelMeasurement() {
     document.getElementById('measurement-tip').style.display = 'none';
 }
 
+function commitSegment(startOverlay, endOverlay) {
+    const aPage = overlayToPageXY(startOverlay);
+    const bPage = overlayToPageXY(endOverlay);
+    addSegment(aPage, bPage);
+}
+
 
 export {
     onMeasureClick,
     onMeasureMove,
     getMeasurementPoints,
     clearMeasurementState,
-    cancelMeasurement
+    cancelMeasurement,
+    commitSegment
 };
+
+
+
+
+
+
+
+
+
+
+
