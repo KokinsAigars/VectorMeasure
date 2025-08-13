@@ -24,8 +24,6 @@ export let drawingCanvas;
 export let previewCtx;
 export let originalPdfImage;
 export let DivPdfContainer;
-export let DrawingScale = null;
-let renderToken = 0;
 
 
 export async function initCanvasRenderPDF(options = {}) {
@@ -203,3 +201,5 @@ export function redrawMeasurements() {
         ctx.stroke();
     });
 }
+
+

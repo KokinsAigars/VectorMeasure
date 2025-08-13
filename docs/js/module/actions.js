@@ -9,7 +9,6 @@ import {
     canvas,
     measureCanvas,
     previewCanvas,
-    originalPdfImage,
     clearCanvasContainer,
     renderAtCurrentTransform
 } from './canvas.js';
@@ -20,10 +19,8 @@ import {
     panOffset,
     setPanOffset,
     recomputePxPerMeter,
-    pxPerMeter,
     setPxPerMeter,
     setBasePxPerMeter,
-    basePxPerMeter,
     originalCanvasWidth,
     unscaledViewport,
     isMeasureOn,
@@ -134,6 +131,7 @@ export async function movePan(event) {
         c.style.transform = `translate(${x}px, ${y}px)`;
         c.style.transformOrigin = 'top left';
     });
+
 }
 
 export function endPan() {
@@ -163,9 +161,6 @@ export function renderMeasureButton(on) {
     BtnMeasure.textContent = on ? '✅ Measuring (click to stop)' : '📏 Measure Distance';
 }
 
-
-
-
 export function handleInputCalibrationNumber() {
     let InputCalibrationNumber = document.getElementById('calibration-number').value;
     console.log('InputCalibrationNumber: ', InputCalibrationNumber);
@@ -178,56 +173,3 @@ export function handleInputCalibrationNumber() {
         `✅ Calibrated: 1px ≈ ${(1 / InputCalibrationNumber).toFixed(5)} m`;
 }
 
-
-
-
-
-
-//
-//
-// export function flipPdfHorizontal() {
-//     const ctxCanvas = canvas.getContext('2d');
-//
-//     const copyCanvas = document.createElement('canvas');
-//     copyCanvas.width = canvas.width;
-//     copyCanvas.height = canvas.height;
-//     const copyCtx = copyCanvas.getContext('2d');
-//     copyCtx.drawImage(canvas, 0, 0);
-//
-//     ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
-//     ctxCanvas.save();
-//     ctxCanvas.scale(-1, 1);
-//     ctxCanvas.translate(-canvas.width, 0);
-//     ctxCanvas.drawImage(copyCanvas, 0, 0);
-//     ctxCanvas.restore();
-//
-//     handleClearClick();
-// }
-//
-// export function flipPdfVertical() {
-//     const ctxCanvas = canvas.getContext('2d');
-//
-//     const copyCanvas = document.createElement('canvas');
-//     copyCanvas.width = canvas.width;
-//     copyCanvas.height = canvas.height;
-//     const copyCtx = copyCanvas.getContext('2d');
-//     copyCtx.drawImage(canvas, 0, 0);
-//
-//     ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
-//     ctxCanvas.save();
-//     ctxCanvas.scale(1, -1);
-//     ctxCanvas.translate(0, -canvas.height);
-//     ctxCanvas.drawImage(copyCanvas, 0, 0);
-//     ctxCanvas.restore();
-//
-//     handleClearClick();
-// }
-//
-//
-
-//
-// const on = document.getElementById('measure-btn').dataset.mode === 'on';
-// // or:
-// const on2 = document.getElementById('measure-btn').classList.contains('is-on');
-// // or:
-// const on3 = document.getElementById('measure-btn').getAttribute('aria-pressed') === 'true';

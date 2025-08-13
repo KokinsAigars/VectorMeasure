@@ -23,7 +23,6 @@ export async function loadPdfByName(planName) {
     const PDFlink = `pdf/${planName}.pdf`;
 
     try {
-
         await initCanvasRenderPDF({
             PDFlink,
             DivPdfContainer,

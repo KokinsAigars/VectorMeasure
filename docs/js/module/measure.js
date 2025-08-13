@@ -18,7 +18,7 @@ let isDrawing = false;
 const previewCtx = () => previewCanvas.getContext('2d');
 const measureCtx = () => measureCanvas.getContext('2d');
 
-function onMeasureClick(event) {
+export function onMeasureClick(event) {
     if (!measureCanvas || !pxPerMeter) return;
 
     const rect = measureCanvas.getBoundingClientRect();
@@ -62,7 +62,7 @@ function onMeasureClick(event) {
     }
 }
 
-function onMeasureMove(event) {
+export function onMeasureMove(event) {
     if (!isDrawing || !startPoint) return;
 
     const rect = previewCanvas.getBoundingClientRect();
@@ -97,18 +97,18 @@ function onMeasureMove(event) {
     tooltip.style.display = 'block';
 }
 
-function getMeasurementPoints() {
+export function getMeasurementPoints() {
     return { lastMeasuredStart, lastMeasuredEnd };
 }
 
-function clearMeasurementState() {
+export function clearMeasurementState() {
     startPoint = null;
     lastMeasuredStart = null;
     lastMeasuredEnd = null;
     isDrawing = false;
 }
 
-function cancelMeasurement() {
+export function cancelMeasurement() {
 
     console.log('cancelMeasurement() is called');
 
@@ -124,23 +124,11 @@ function cancelMeasurement() {
     document.getElementById('measurement-tip').style.display = 'none';
 }
 
-function commitSegment(startOverlay, endOverlay) {
+export function commitSegment(startOverlay, endOverlay) {
     const aPage = overlayToPageXY(startOverlay);
     const bPage = overlayToPageXY(endOverlay);
     addSegment(aPage, bPage);
 }
-
-
-export {
-    onMeasureClick,
-    onMeasureMove,
-    getMeasurementPoints,
-    clearMeasurementState,
-    cancelMeasurement,
-    commitSegment
-};
-
-
 
 
 

@@ -15,16 +15,5 @@ export const BtnClrBuffer = document.getElementById('clr-buffer');
 export const BtnZoomIn = document.getElementById('zoom-in-btn');
 export const BtnZoomOut = document.getElementById('zoom-out-btn');
 export const BtnPanToggle = document.getElementById('pan-toggle-btn');
-
 export const InputCalibrationNumber = document.getElementById('calibration-number');
-export const EnterCalibrationNumber = document.getElementById('enter-calibration-number');
-
-
-
-
-
-
-// export const BtnFlipPdfHorizontal = document.getElementById('flip-pdf-horizontal-btn');
-// export const BtnFlipPdfVertical = document.getElementById('flip-pdf-vertical-btn');
-
 

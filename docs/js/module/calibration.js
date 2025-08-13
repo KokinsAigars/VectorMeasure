@@ -31,6 +31,7 @@ export function handleCalibrateClick() {
 
     clearMeasurementState();
 }
+
 export function toCanvasPoint(evt, canvas) {
     const rect = canvas.getBoundingClientRect();
     // client -> element local
@@ -41,40 +42,4 @@ export function toCanvasPoint(evt, canvas) {
     const y = (localY - panOffset.y) / currentScale;
     return { x, y };
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

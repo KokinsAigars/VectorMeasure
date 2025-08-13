@@ -11,10 +11,7 @@ import { loadPdfByName } from './module/loader.js';
 // call MAIN() function
 document.addEventListener('DOMContentLoaded', () => {
     const pdfPlan = selector.value;
-    // console.log('pdfPlan: ', pdfPlan);
 
-    loadPdfByName(pdfPlan).then(success => {
-        if (success) console.log('Loaded!');
-    });
+    loadPdfByName(pdfPlan).then(success => {if (success) console.log('Loaded!');});
 
 });

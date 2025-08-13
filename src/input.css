@@ -8,8 +8,6 @@
     --breakpoint-lg: 976px;
     /* ... */
 }
-
-
 :root {
     --font-display: "Satoshi", "sans-serif";
     --breakpoint-3xl: 1920px;
@@ -23,6 +21,39 @@
     --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
     /* ... */
 }
+
+.flex-row{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 0 20px;
+    height: 50px;
+    max-height: 50px;
+}
+.f-r-a {
+    background: #f9fbff;
+    font-size: 1.0rem;
+    color: black;
+    max-height: 50px;
+}
+.fra-r{
+    margin-left: 15px;
+}
+#real-length{
+    width: 80px;
+    max-height: 50px;
+}
+#calibration-number {
+    border: 1px solid gray;
+    padding-left: 2px;
+    margin-left: 25px;
+    max-width: 50px;
+    max-height: 50px;
+    background: #ffffff;
+}
+
+
 
 #toolbar {
     position: relative;
@@ -43,9 +74,8 @@
 #pdf-container {
     z-index: 10;
 }
-#calibration-number {
-    border: 1px solid gray;
-}
+
+
 #scale-indicator {
     position: absolute;
     top: 20px;
@@ -57,9 +87,7 @@
     box-shadow: 0 0 3px rgba(0,0,0,0.2);
     z-index: 100;
 }
-#real-length{
-    width: 80px;
-}
+
 .info-margin{
     margin-top: 20px;
 }
@@ -68,7 +96,7 @@
 #pdf-container {
     position: relative;
     width: 100%;        /* or a max-width like 1000px */
-    max-width: 1400px;  /* optional: to control size on big screens */
+    max-width: 90%;  /* optional: to control size on big screens */
     height: 100%;
     max-height: 1000px;
     margin: 10px 50px;  /* optional: center the container */

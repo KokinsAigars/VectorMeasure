@@ -11,7 +11,7 @@ import { handleCalibrateClick } from './calibration.js'
 import { loadPdfByName } from './loader.js';
 import * as canvas from './canvas.js';
 import { onMeasureClick, onMeasureMove, cancelMeasurement } from './measure.js';
-import {BtnPanToggle, EnterCalibrationNumber, InputCalibrationNumber} from "./ui.js";
+import {BtnPanToggle, InputCalibrationNumber} from "./ui.js";
 
 // EventListeners
 export function setupEventListeners() {
@@ -98,14 +98,8 @@ export function setupEventListeners() {
             actions.handleInputCalibrationNumber();
         }
     });
-    if(EnterCalibrationNumber) EnterCalibrationNumber.addEventListener('click', actions.handleInputCalibrationNumber);
 
 
-
-
-    // if(ui.BtnFlipPdfHorizontal) ui.BtnFlipPdfHorizontal.addEventListener('click', actions.flipPdfHorizontal);
-    // if(ui.BtnFlipPdfVertical) ui.BtnFlipPdfVertical.addEventListener('click', actions.flipPdfVertical);
-    //
 
 
 }
