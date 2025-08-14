@@ -110,7 +110,6 @@ export function clearMeasurementState() {
 }
 
 export function cancelMeasurement() {
-
     console.log('cancelMeasurement() is called');
 
     const previewCanvasEl = document.getElementById('preview-canvas');

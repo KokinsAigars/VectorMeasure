@@ -11,6 +11,7 @@ import * as measure from './measure.js';
 import * as canvas from './canvas.js';
 import { handleCalibrateClick } from './calibration.js'
 import { loadPdfByName } from './loader.js';
+import {handleMeasureBtn} from "./actions.js";
 
 // EventListeners
 export function setupEventListeners() {
@@ -37,12 +38,27 @@ export function setupEventListeners() {
     if(ui.BtnZoomOut) ui.BtnZoomOut.addEventListener('click', actions.handleZoomOut);
     if(ui.BtnResetPdf) ui.BtnResetPdf.addEventListener('click', actions.handleZoomReset);
 
+    if(ui.BtnPanToggle) ui.BtnPanToggle.addEventListener('click', actions.startPan);
+
+    if(ui.InputCalibrationNumber) ui.InputCalibrationNumber.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+            actions.handleInputCalibrationNumber();
+        }
+    });
+
+    if(ui.BtnFlipPdfHorizontal) ui.BtnFlipPdfHorizontal.addEventListener('click', actions.flipPdfHorizontal);
+    if(ui.BtnFlipPdfVertical) ui.BtnFlipPdfVertical.addEventListener('click', actions.flipPdfVertical);
+
+    if(ui.BtnAddLine) ui.BtnAddLine.addEventListener('click', actions.handleAddLine);
+    if(ui.BtnDeleteLine) ui.BtnDeleteLine.addEventListener('click', actions.handleDeleteLine);
+    if(ui.BtnAddComment) ui.BtnAddComment.addEventListener('click', actions.handleAddComment);
+
     // Measurement canvas events
     if(canvas.measureCanvas) {
         canvas.measureCanvas.addEventListener('click', measure.canvasOnMeasureClick);
         canvas.measureCanvas.addEventListener('mousemove', measure.onMeasureMove);
     }
-    canvas.previewCanvas.addEventListener('mousedown', (e) => {
+    if(canvas.previewCanvas) canvas.previewCanvas.addEventListener('mousedown', (e) => {
         if (!spaceDown) return;
         canvas.previewCanvas.style.cursor = 'grabbing';
         actions.startPan(e);
@@ -78,47 +94,9 @@ export function setupEventListeners() {
     });
     document.addEventListener('mouseup', () => {
         if (!spaceDown) return;
-        canvas.previewCanvas.style.cursor = 'grab';
+        if(canvas.previewCanvas) canvas.previewCanvas.style.cursor = 'grab';
         actions.endPan();
     });
-
-
-    if(ui.BtnPanToggle) ui.BtnPanToggle.addEventListener('click', actions.startPan);
-
-    if(ui.InputCalibrationNumber) ui.InputCalibrationNumber.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter') {
-            actions.handleInputCalibrationNumber();
-        }
-    });
-
-    if(ui.BtnFlipPdfHorizontal) ui.BtnFlipPdfHorizontal.addEventListener('click', actions.flipPdfHorizontal);
-    if(ui.BtnFlipPdfVertical) ui.BtnFlipPdfVertical.addEventListener('click', actions.flipPdfVertical);
-
-
-
-    // const container = ui.DivPdfContainer;
-    //
-    // let pendingDelta = 0;
-    // let lastPos = { x: 0, y: 0 };
-    // let wheelRAF = null;
-    //
-    // container.addEventListener('wheel', (e) => {
-    //     e.preventDefault();
-    //     pendingDelta += e.deltaY;
-    //     lastPos.x = e.clientX;
-    //     lastPos.y = e.clientY;
-    //
-    //     if (wheelRAF) return;
-    //     wheelRAF = requestAnimationFrame(async () => {
-    //         const dy = pendingDelta;
-    //         const { x, y } = lastPos;
-    //         pendingDelta = 0;
-    //         wheelRAF = null;
-    //
-    //         // single call that does cursor-centered zoom
-    //         await actions.zoomAt(x, y, dy);
-    //     });
-    // }, { passive: false });
 
 
 }

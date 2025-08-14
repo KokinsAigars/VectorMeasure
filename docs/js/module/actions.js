@@ -128,10 +128,11 @@ export function endPan() {
 
 export function handleMeasureBtn() {
     console.log('actions.js > handleMeasureBtn()')
-    renderMeasureButton(isMeasureOn());
+
+    renderButton(BtnMeasure, isMeasureOn());
     const next = !isMeasureOn();
     setMeasureOn(next);          // update global-ish state
-    renderMeasureButton(next);   // reflect in UI
+    renderButton(BtnMeasure, next);   // reflect in UI
 
     if (next) {
         // turn ON measuring
@@ -142,11 +143,11 @@ export function handleMeasureBtn() {
         handleClearClick();
     }
 }
-export function renderMeasureButton(on) {
-    BtnMeasure.classList.toggle('is-on', on);
-    BtnMeasure.setAttribute('aria-pressed', String(on));
-    BtnMeasure.dataset.mode = on ? 'on' : 'off';
-    BtnMeasure.textContent = on ? '✅ Measuring (click to stop)' : '📏 Measure Distance';
+export function renderButton(button, on) {
+    button.classList.toggle('is-on', on);
+    button.setAttribute('aria-pressed', String(on));
+    button.dataset.mode = on ? 'on' : 'off';
+    if (button === BtnMeasure) button.textContent = on ? '✅ Measuring (click to stop)' : '📏 Measure Distance';
 }
 
 export function handleInputCalibrationNumber() {
@@ -198,50 +199,14 @@ export function flipPdfVertical() {
     handleClearClick();
 }
 
+export function handleAddLine() {
+    console.log('AddLine() function called');
+}
+export function handleDeleteLine() {
+    console.log('DeleteLine() function called');
+}
+export function handleAddComment() {
+    console.log('AddComment() function called');
+}
 
 
-// export async function zoomAt(clientX, clientY, deltaY) {
-//     const rect = DivPdfContainer.getBoundingClientRect();
-//
-//     // cursor position relative to container (overlay coords)
-//     const p = { x: clientX - rect.left, y: clientY - rect.top };
-//
-//     // convert delta to discrete steps (trackpads can be large)
-//     const sign = deltaY < 0 ? 1 : -1;
-//     const magnitude = Math.abs(deltaY);
-//
-//     // Tune these to taste:
-//     // - baseSteps: at least 1 step
-//     // - extraSteps kick in for large deltas so big scrolls feel proportional
-//     const baseSteps = 1;
-//     const extraSteps = Math.min(4, Math.floor(magnitude / 120)); // 0..4 extra
-//     const totalSteps = baseSteps + extraSteps;
-//
-//     for (let i = 0; i < totalSteps; i++) {
-//         const oldScale = currentScale;
-//         const next = Math.max(ZOOM.min, Math.min(ZOOM.max, oldScale + sign * ZOOM.step));
-//         if (next === oldScale) break;
-//
-//         const k = next / oldScale;
-//
-//         // keep cursor-anchored point stable: pan' = (1 - k) * p + k * pan
-//         const newPanX = (1 - k) * p.x + k * panOffset.x;
-//         const newPanY = (1 - k) * p.y + k * panOffset.y;
-//
-//         setPanOffset(newPanX, newPanY);
-//         setCurrentScale(next);
-//         recomputePxPerMeter();
-//
-//         // If you added render-cancellation in canvas.js, awaiting is safe & flicker-free
-//         await renderAtCurrentTransform();
-//     }
-// }
-
-//
-// export function handleMeasureMode() {
-//
-//     handleClearClick();
-//     measureCanvas.style.pointerEvents = 'auto';
-//     document.getElementById('info').innerText = 'Click two points to measure.';
-//
-// }

@@ -18,3 +18,6 @@ export const BtnPanToggle = document.getElementById('pan-toggle-btn');
 export const InputCalibrationNumber = document.getElementById('calibration-number');
 export const BtnFlipPdfHorizontal = document.getElementById('flip-pdf-horizontal-btn');
 export const BtnFlipPdfVertical = document.getElementById('flip-pdf-vertical-btn');
+export const BtnAddLine = document.getElementById('add-line-btn');
+export const BtnDeleteLine = document.getElementById('delete-line-btn');
+export const BtnAddComment = document.getElementById('add-comment-btn');
