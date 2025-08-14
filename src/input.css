@@ -9,14 +9,10 @@
     /* ... */
 }
 :root {
+    background: #ffffff;
     --font-display: "Satoshi", "sans-serif";
     --breakpoint-3xl: 1920px;
-    --color-avocado-100: oklch(0.99 0 0);
-    --color-avocado-200: oklch(0.98 0.04 113.22);
-    --color-avocado-300: oklch(0.94 0.11 115.03);
-    --color-avocado-400: oklch(0.92 0.19 114.08);
-    --color-avocado-500: oklch(0.84 0.18 117.33);
-    --color-avocado-600: oklch(0.53 0.12 118.34);
+    --color-600: oklch(0.408 0.088 239.575 / 0.46);
     --ease-fluid: cubic-bezier(0.3, 0, 0, 1);
     --ease-snappy: cubic-bezier(0.2, 0, 0, 1);
     /* ... */
@@ -32,7 +28,7 @@
     max-height: 50px;
 }
 .f-r-a {
-    background: #f9fbff;
+    background: #ffffff;
     font-size: 1.0rem;
     color: black;
     max-height: 50px;
@@ -40,6 +36,12 @@
 .fra-r{
     margin-left: 15px;
 }
+.btn, .input{
+    background: #ffffff;
+    border: 1px solid var(--color-600);
+    color: black;
+}
+
 #real-length{
     width: 80px;
     max-height: 50px;
@@ -95,7 +97,7 @@
 /*  -A4-  297x210 x 4 */
 #pdf-container {
     position: relative;
-    width: 100%;        /* or a max-width like 1000px */
+    width: 90%;        /* or a max-width like 1000px */
     max-width: 90%;  /* optional: to control size on big screens */
     height: 100%;
     max-height: 1000px;

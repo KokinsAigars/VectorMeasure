@@ -1,8 +1,8 @@
 /**
- * Project Name: “VectorMeasure”
- * License: MIT
- * Contributor(s): Aigars Kokins, ChatGPT-5
- * module/ actions.js
+ * Project Name: “VectorMeasure”;
+ * License: MIT;
+ * Contributor(s): Aigars Kokins, ChatGPT-5;
+ * module/ actions.js;
  */
 
 import {
@@ -50,14 +50,6 @@ export function handleSaveClick() {
     link.click();
 }
 
-export function handleMeasureMode() {
-
-    handleClearClick();
-    measureCanvas.style.pointerEvents = 'auto';
-    document.getElementById('info').innerText = 'Click two points to measure.';
-
-}
-
 export function handleClearClick() {
     const ctxMeasure = measureCanvas.getContext('2d');
     ctxMeasure.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
@@ -78,43 +70,6 @@ export function  handleClrBuffer() {
     clearCanvasContainer();
 }
 
-export async function zoomAt(clientX, clientY, deltaY) {
-    const rect = DivPdfContainer.getBoundingClientRect();
-
-    // cursor position relative to container (overlay coords)
-    const p = { x: clientX - rect.left, y: clientY - rect.top };
-
-    // convert delta to discrete steps (trackpads can be large)
-    const sign = deltaY < 0 ? 1 : -1;
-    const magnitude = Math.abs(deltaY);
-
-    // Tune these to taste:
-    // - baseSteps: at least 1 step
-    // - extraSteps kick in for large deltas so big scrolls feel proportional
-    const baseSteps = 1;
-    const extraSteps = Math.min(4, Math.floor(magnitude / 120)); // 0..4 extra
-    const totalSteps = baseSteps + extraSteps;
-
-    for (let i = 0; i < totalSteps; i++) {
-        const oldScale = currentScale;
-        const next = Math.max(ZOOM.min, Math.min(ZOOM.max, oldScale + sign * ZOOM.step));
-        if (next === oldScale) break;
-
-        const k = next / oldScale;
-
-        // keep cursor-anchored point stable: pan' = (1 - k) * p + k * pan
-        const newPanX = (1 - k) * p.x + k * panOffset.x;
-        const newPanY = (1 - k) * p.y + k * panOffset.y;
-
-        setPanOffset(newPanX, newPanY);
-        setCurrentScale(next);
-        recomputePxPerMeter();
-
-        // If you added render-cancellation in canvas.js, awaiting is safe & flicker-free
-        await renderAtCurrentTransform();
-    }
-}
-
 export async function handleZoomIn() {
     const next = Math.min(currentScale + ZOOM.step, ZOOM.max);
     if (next === currentScale) return;
@@ -122,7 +77,6 @@ export async function handleZoomIn() {
     recomputePxPerMeter();
     await renderAtCurrentTransform();
 }
-
 export async function handleZoomOut() {
     const next = Math.max(currentScale - ZOOM.step, ZOOM.min);
     if (next === currentScale) return;
@@ -130,7 +84,6 @@ export async function handleZoomOut() {
     recomputePxPerMeter();
     await renderAtCurrentTransform();
 }
-
 export async function handleZoomReset() {
     // match initial “fit to container width”
     const fit = originalCanvasWidth / unscaledViewport.width;
@@ -173,7 +126,6 @@ export function endPan() {
     isPanning = false;
 }
 
-
 export function handleMeasureBtn() {
     console.log('actions.js > handleMeasureBtn()')
     renderMeasureButton(isMeasureOn());
@@ -197,7 +149,6 @@ export function renderMeasureButton(on) {
     BtnMeasure.textContent = on ? '✅ Measuring (click to stop)' : '📏 Measure Distance';
 }
 
-
 export function handleInputCalibrationNumber() {
     let InputCalibrationNumber = document.getElementById('calibration-number').value;
     console.log('InputCalibrationNumber: ', InputCalibrationNumber);
@@ -209,7 +160,6 @@ export function handleInputCalibrationNumber() {
     document.getElementById('info').innerText =
         `✅ Calibrated: 1px ≈ ${(1 / InputCalibrationNumber).toFixed(5)} m`;
 }
-
 
 export function flipPdfHorizontal() {
     const ctxCanvas = canvas.getContext('2d');
@@ -248,3 +198,50 @@ export function flipPdfVertical() {
     handleClearClick();
 }
 
+
+
+// export async function zoomAt(clientX, clientY, deltaY) {
+//     const rect = DivPdfContainer.getBoundingClientRect();
+//
+//     // cursor position relative to container (overlay coords)
+//     const p = { x: clientX - rect.left, y: clientY - rect.top };
+//
+//     // convert delta to discrete steps (trackpads can be large)
+//     const sign = deltaY < 0 ? 1 : -1;
+//     const magnitude = Math.abs(deltaY);
+//
+//     // Tune these to taste:
+//     // - baseSteps: at least 1 step
+//     // - extraSteps kick in for large deltas so big scrolls feel proportional
+//     const baseSteps = 1;
+//     const extraSteps = Math.min(4, Math.floor(magnitude / 120)); // 0..4 extra
+//     const totalSteps = baseSteps + extraSteps;
+//
+//     for (let i = 0; i < totalSteps; i++) {
+//         const oldScale = currentScale;
+//         const next = Math.max(ZOOM.min, Math.min(ZOOM.max, oldScale + sign * ZOOM.step));
+//         if (next === oldScale) break;
+//
+//         const k = next / oldScale;
+//
+//         // keep cursor-anchored point stable: pan' = (1 - k) * p + k * pan
+//         const newPanX = (1 - k) * p.x + k * panOffset.x;
+//         const newPanY = (1 - k) * p.y + k * panOffset.y;
+//
+//         setPanOffset(newPanX, newPanY);
+//         setCurrentScale(next);
+//         recomputePxPerMeter();
+//
+//         // If you added render-cancellation in canvas.js, awaiting is safe & flicker-free
+//         await renderAtCurrentTransform();
+//     }
+// }
+
+//
+// export function handleMeasureMode() {
+//
+//     handleClearClick();
+//     measureCanvas.style.pointerEvents = 'auto';
+//     document.getElementById('info').innerText = 'Click two points to measure.';
+//
+// }

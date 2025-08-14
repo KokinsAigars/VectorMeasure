@@ -1,8 +1,8 @@
 /**
- * Project Name: “VectorMeasure”
- * License: MIT
- * Contributor(s): Aigars Kokins, ChatGPT-5
- * module/ measure_model.js
+ * Project Name: “VectorMeasure”;
+ * License: MIT;
+ * Contributor(s): Aigars Kokins, ChatGPT-5;
+ * module/ measure_model.js;
  */
 
 // Store segments in page coords (scale=1), e.g. {x,y} in PDF pixels at s=1

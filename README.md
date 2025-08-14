@@ -1,16 +1,16 @@
 /**
- * Project Name: “VectorMeasure”
- * Abbreviation: VM
- * License: MIT
- * Contributor(s): Aigars Kokins, ChatGPT-5
- * 2025.06.03 - init(1)
- * 2025.08.08 - init(2)
- *
- * The purpose of this project is to test pdf.js functionality
- * https://github.com/mozilla/pdf.js
- *
- */
+* Abbreviation: VM
+* License: MIT
+* Contributor(s): Aigars Kokins, ChatGPT-5
+* 2025.06.03 - init(1)
+* 2025.08.08 - init(2)
+*
+* The purpose of this project is to test pdf.js functionality
+* https://github.com/mozilla/pdf.js
+*
+*/
 
+ * Project Name: “VectorMeasure”
 /**
  * Add Canvas and render PDF
  *

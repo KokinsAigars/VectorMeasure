@@ -1,8 +1,8 @@
 /**
- * Project Name: “VectorMeasure”
- * License: MIT
- * Contributor(s): Aigars Kokins, ChatGPT-5
- * module/ ui.js
+ * Project Name: “VectorMeasure”;
+ * License: MIT;
+ * Contributor(s): Aigars Kokins, ChatGPT-5;
+ * module/ ui.js;
  */
 
 export const SelectPDF = document.getElementById('pdf-selector');

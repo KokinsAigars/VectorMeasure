@@ -1,8 +1,8 @@
 /**
- * Project Name: “VectorMeasure”
- * License: MIT
- * Contributor(s): Aigars Kokins, ChatGPT-5
- * module/ canvas.js
+ * Project Name: “VectorMeasure”;
+ * License: MIT;
+ * Contributor(s): Aigars Kokins, ChatGPT-5;
+ * module/ canvas.js;
  */
 
 import * as state from './state.js';

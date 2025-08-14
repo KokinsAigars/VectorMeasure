@@ -1,8 +1,8 @@
 /**
- * Project Name: “VectorMeasure”
- * License: MIT
- * Contributor(s): Aigars Kokins, ChatGPT-5
- * module/ state.js
+ * Project Name: “VectorMeasure”;
+ * License: MIT;
+ * Contributor(s): Aigars Kokins, ChatGPT-5;
+ * module/ state.js;
  */
 
 // Calibration and zoom state

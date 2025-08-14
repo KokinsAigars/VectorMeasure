@@ -1,8 +1,8 @@
 /**
- * Project Name: “VectorMeasure”
- * License: MIT
- * Contributor(s): Aigars Kokins, ChatGPT-5
- * module/ events.js
+ * Project Name: “VectorMeasure”;
+ * License: MIT;
+ * Contributor(s): Aigars Kokins, ChatGPT-5;
+ * module/ events.js;
  */
 
 import * as ui from './ui.js';
@@ -96,46 +96,29 @@ export function setupEventListeners() {
 
 
 
-    // wheel zoom centered on cursor (non-touchpad friendly)
+    // const container = ui.DivPdfContainer;
+    //
     // let pendingDelta = 0;
+    // let lastPos = { x: 0, y: 0 };
     // let wheelRAF = null;
-    // ui.DivPdfContainer.addEventListener('wheel', (e) => {
-    //         e.preventDefault();
-    //         pendingDelta += e.deltaY;
     //
-    //         if (wheelRAF) return;
+    // container.addEventListener('wheel', (e) => {
+    //     e.preventDefault();
+    //     pendingDelta += e.deltaY;
+    //     lastPos.x = e.clientX;
+    //     lastPos.y = e.clientY;
     //
-    //         wheelRAF = requestAnimationFrame(async () => {
-    //             const dy = pendingDelta;
-    //             pendingDelta = 0;
-    //             wheelRAF = null;
+    //     if (wheelRAF) return;
+    //     wheelRAF = requestAnimationFrame(async () => {
+    //         const dy = pendingDelta;
+    //         const { x, y } = lastPos;
+    //         pendingDelta = 0;
+    //         wheelRAF = null;
     //
-    //             if (dy < 0) await actions.handleZoomIn();
-    //             else await actions.handleZoomOut();
-    //         });
-    //     }, { passive: false } // Options: to call preventDefault() / please wait for me before doing the default scrolling/zooming
-    // );
-    const container = ui.DivPdfContainer;
+    //         // single call that does cursor-centered zoom
+    //         await actions.zoomAt(x, y, dy);
+    //     });
+    // }, { passive: false });
 
-    let pendingDelta = 0;
-    let lastPos = { x: 0, y: 0 };
-    let wheelRAF = null;
 
-    container.addEventListener('wheel', (e) => {
-        e.preventDefault();
-        pendingDelta += e.deltaY;
-        lastPos.x = e.clientX;
-        lastPos.y = e.clientY;
-
-        if (wheelRAF) return;
-        wheelRAF = requestAnimationFrame(async () => {
-            const dy = pendingDelta;
-            const { x, y } = lastPos;
-            pendingDelta = 0;
-            wheelRAF = null;
-
-            // single call that does cursor-centered zoom
-            await actions.zoomAt(x, y, dy);
-        });
-    }, { passive: false });
 }
