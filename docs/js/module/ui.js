@@ -5,7 +5,7 @@
  * module/ ui.js
  */
 
-export const selector = document.getElementById('pdf-selector');
+export const SelectPDF = document.getElementById('pdf-selector');
 export const DivPdfContainer = document.getElementById('pdf-container');
 export const BtnCalibrate = document.getElementById('calibrate-btn');
 export const BtnSave = document.getElementById('save-btn');
@@ -16,4 +16,5 @@ export const BtnZoomIn = document.getElementById('zoom-in-btn');
 export const BtnZoomOut = document.getElementById('zoom-out-btn');
 export const BtnPanToggle = document.getElementById('pan-toggle-btn');
 export const InputCalibrationNumber = document.getElementById('calibration-number');
-
+export const BtnFlipPdfHorizontal = document.getElementById('flip-pdf-horizontal-btn');
+export const BtnFlipPdfVertical = document.getElementById('flip-pdf-vertical-btn');

@@ -11,13 +11,12 @@ export let basePxPerMeter = 37.6;   // For reset/view recalibration [Store calib
 export let currentScale = 1;
 let metersPerPixel = null;       // <-- calibration in UN-SCALED canvas pixels
 let lastCalibPxLen = null;       // remember the picked segment px length (unscaled)
-
 export let originalCanvasWidth = null;
 export let unscaledViewport = null;
 export let DivPdfContainer = null;
-
 export let panOffset = { x: 0, y: 0 };
-export const ZOOM = { min: 0.25, max: 4.0, step: 0.1 };
+// export const ZOOM = { min: 0.25, max: 4.0, step: 0.1 };
+export const ZOOM = { min: 0.25, max: 4.0, step: 0.05 };
 
 let _measureOn = false;
 export const isMeasureOn = () => _measureOn;

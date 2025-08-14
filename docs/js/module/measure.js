@@ -18,7 +18,8 @@ let isDrawing = false;
 const previewCtx = () => previewCanvas.getContext('2d');
 const measureCtx = () => measureCanvas.getContext('2d');
 
-export function onMeasureClick(event) {
+export function canvasOnMeasureClick(event) {
+    console.log('measure.js > onMeasureClick()')
     if (!measureCanvas || !pxPerMeter) return;
 
     const rect = measureCanvas.getBoundingClientRect();
@@ -129,12 +130,4 @@ export function commitSegment(startOverlay, endOverlay) {
     const bPage = overlayToPageXY(endOverlay);
     addSegment(aPage, bPage);
 }
-
-
-
-
-
-
-
-
 

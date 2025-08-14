@@ -24,7 +24,7 @@ export let drawingCanvas;
 export let previewCtx;
 export let originalPdfImage;
 export let DivPdfContainer;
-
+let currentRenderTask = null;
 
 export async function initCanvasRenderPDF(options = {}) {
     clearCanvasContainer();
@@ -102,6 +102,12 @@ async function createPDFCanvas() {
 export async function renderAtCurrentTransform() {
     if (!pdfPage || !canvas) return false;
 
+    // cancel previous render if still running
+    if (currentRenderTask) {
+        try { currentRenderTask.cancel(); } catch {}
+        currentRenderTask = null;
+    }
+
     viewport = pdfPage.getViewport({ scale: state.currentScale });
 
     const needResize = canvas.width !== viewport.width || canvas.height !== viewport.height;
@@ -115,7 +121,18 @@ export async function renderAtCurrentTransform() {
     const ctx = canvas.getContext('2d');
     ctx.setTransform(1,0,0,1,0,0);
     ctx.clearRect(0,0,canvas.width,canvas.height);
-    await pdfPage.render({ canvasContext: ctx, viewport }).promise;
+
+    // start and await render
+    currentRenderTask = pdfPage.render({ canvasContext: ctx, viewport });
+    try {
+        await currentRenderTask.promise;
+    } catch (err) {
+        if (err && err.name !== 'RenderingCancelledException') throw err;
+        // if cancelled, just exit; a newer render will run
+        return false;
+    } finally {
+        currentRenderTask = null;
+    }
 
     // sync overlays
     const t = `translate(${state.panOffset.x}px, ${state.panOffset.y}px)`;
@@ -129,9 +146,8 @@ export async function renderAtCurrentTransform() {
         c.style.transformOrigin = 'top left';
     });
 
-    // redraw stored lines if size changed (or always, cheap enough)
+    // redraw stored lines if size changed
     redrawMeasurements();
-
     return true;
 }
 

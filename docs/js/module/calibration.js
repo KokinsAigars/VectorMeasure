@@ -6,7 +6,7 @@
  */
 
 import { getMeasurementPoints, clearMeasurementState } from './measure.js';
-import { setPxPerMeter, currentScale, setBasePxPerMeter, recomputePxPerMeter, pxPerMeter } from './state.js';
+import {setPxPerMeter, currentScale, setBasePxPerMeter, recomputePxPerMeter, pxPerMeter, panOffset} from './state.js';
 
 export function handleCalibrateClick() {
     const realWorldMeters = parseFloat(document.getElementById('real-length').value);
