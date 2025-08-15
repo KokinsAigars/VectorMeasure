@@ -7,17 +7,13 @@
   "license": "MIT",
   "keywords": ["pdf", "vector", "html measure"],
   "scripts": {
-    "dev": "concurrently \"node server.js\" \"npx @tailwindcss/cli -i ./src/input.css -o ./docs/style.css --watch\""
+    "dev": "concurrently \"node server.js\""
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.1.11",
     "express": "^5.1.0",
-    "npm": "^11.5.2",
-    "tailwindcss": "^4.1.11"
+    "npm": "^11.5.2"
   },
   "devDependencies": {
-    "@tailwindcss/cli": "^4.1.11",
-    "concurrently": "^9.2.0",
-    "daisyui": "^5.0.50"
+    "concurrently": "^9.2.0"
   }
 }
