@@ -12,8 +12,8 @@ import { loadPdfByName } from './loader.js';
 import { BtnPanToggle } from "./ui.js";
 
 export let isPanning = false;
+export let panMode = false;
 let panStart = { x: 0, y: 0 }
-let isButtonOn = false;
 
 export async function handleZoomIn() {
     if(debugLog) console.log('actions.js > handleZoomIn() is called');
@@ -75,23 +75,13 @@ export function renderButton(button, on) {
     // if (button === BtnAddLine) button.textContent = on ? '✅ Add Line' : 'Line';
 }
 
-
 export function handlePanBtn() {
     if(debugLog) console.log('actions.js > handlePanBtn() is called');
 
-    isButtonOn = !isButtonOn;
-
-    renderButton(BtnPanToggle, isButtonOn);
-
-    if(isButtonOn) {
-        isPanning = true;
-        pdfCanvas.style.pointerEvents = 'auto';
-        pdfCanvas.style.cursor = 'grab';
-    } else {
-        isPanning = false;
-        pdfCanvas.style.pointerEvents = 'none';
-        pdfCanvas.style.cursor = 'default';
-    }
+    panMode = !panMode;
+    renderButton(BtnPanToggle, panMode);
+    pdfCanvas.style.pointerEvents = panMode ? 'auto' : 'none';
+    pdfCanvas.style.cursor = panMode ? 'grab' : 'default';
 }
 
 export async function handleResetView() {

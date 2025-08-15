@@ -9,7 +9,6 @@ import { debugLog } from './debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
 import { pdfCanvas } from './canvas.js';
-import {isPanning} from "./actions.js";
 
 // EventListeners
 export function setupEventListeners() {
@@ -26,7 +25,7 @@ export function setupEventListeners() {
     // --- Pan via Space + drag
     let spaceDown = false;
     if (pdfCanvas) pdfCanvas.addEventListener('mousedown', (e) => {
-        if (!spaceDown) return;
+        if (!spaceDown && !actions.panMode) return;
         pdfCanvas.style.cursor = 'grabbing';
         actions.startPan(e);
     });
@@ -41,18 +40,22 @@ export function setupEventListeners() {
     document.addEventListener('keyup', (e) => {
         if (e.code === 'Space') {
             spaceDown = false;
-            pdfCanvas.style.pointerEvents = 'none';
-            pdfCanvas.style.cursor = 'default';
+            // keep interactive if Pan button is ON
+            if (!actions.panMode) {
+                pdfCanvas.style.pointerEvents = 'none';
+                pdfCanvas.style.cursor = 'default';
+            }
             actions.endPan();
         }
     });
     document.addEventListener('mousemove', (e) => {
-        if (!spaceDown) return;
+        // move only while dragging (isPanning is true during mouse drag)
+        if (!spaceDown && !actions.isPanning) return;
         actions.movePan(e);
     });
     document.addEventListener('mouseup', () => {
-        if (!spaceDown) return;
-        if (pdfCanvas) pdfCanvas.style.cursor = 'grab';
+        if (!actions.isPanning) return;
+        if (pdfCanvas) pdfCanvas.style.cursor = (spaceDown || actions.panMode) ? 'grab' : 'default';
         actions.endPan();
     });
 
