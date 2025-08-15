@@ -5,38 +5,41 @@
  * module/ loader.js;
  */
 
+import { debugLog } from './debug.js';
 import { setupEventListeners } from './events.js';
 import { initCanvasRenderPDF } from './canvas.js';
-import { DivPdfContainer } from './ui.js';
+// import {attachInput, wireToolButtons} from "./input.js";
 
 let isLoadingPdf = false;
 let currentLoadId = 0;
 
-export async function loadPdfByName(planName) {
+export async function loadPdfByName(_PdfPlanPath, _PxPerMeter) {
+    if(debugLog) console.log('loader.js > loadPdfByName() is called')
+
     if (isLoadingPdf) {
-        console.warn('PDF load in progress — skipping duplicate call');
+        console.log('PDF load in progress — skipping duplicate call');
         return false;
     }
     isLoadingPdf = true;
     const thisLoadId = ++currentLoadId;
 
-    const PDFlink = `pdf/${planName}.pdf`;
-
     try {
         await initCanvasRenderPDF({
-            PDFlink,
-            DivPdfContainer,
-            pxPerMeter: 44.5,
+            PDFlink: _PdfPlanPath,
+            pxPerMeter: _PxPerMeter,
             workerSrc: 'js/pdfjs/pdf.worker.mjs'
         });
 
         // Make sure no newer call was made while we were loading
         if (thisLoadId !== currentLoadId) {
-            console.warn('A newer PDF load was triggered — this one will be ignored');
+            console.log('A newer PDF load was triggered — this one will be ignored');
             return false;
         }
 
         setupEventListeners();
+        // wireToolButtons();
+        // attachInput();
+
         return true;
 
     } catch (err) {

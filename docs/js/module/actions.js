@@ -5,112 +5,49 @@
  * module/ actions.js;
  */
 
-import {
-    canvas,
-    measureCanvas,
-    previewCanvas,
-    clearCanvasContainer,
-    renderAtCurrentTransform
-} from './canvas.js';
-import {
-    ZOOM,
-    currentScale,
-    setCurrentScale,
-    panOffset,
-    setPanOffset,
-    recomputePxPerMeter,
-    setPxPerMeter,
-    setBasePxPerMeter,
-    originalCanvasWidth,
-    unscaledViewport,
-    isMeasureOn,
-    setMeasureOn
-} from './state.js';
-import { clearMeasurementState } from './measure.js';
-import { DivPdfContainer, BtnMeasure } from './ui.js';
+import { debugLog } from './debug.js';
+import * as state from './state.js';
+import {clearCanvasContainer, drawingCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
+import { PdfPlanPath, PdfPlanReversePath, PdfPlanVerticalPath, pxPerMeter } from "./state.js";
+import { loadPdfByName } from './loader.js';
 
 let isPanning = false;
 let panStart = { x: 0, y: 0 };
 
-
-export function handleSaveClick() {
-    const pdfCanvas = canvas;
-    const mergedCanvas = document.createElement('canvas');
-    mergedCanvas.width = pdfCanvas.width;
-    mergedCanvas.height = pdfCanvas.height;
-
-    const mergedCtx = mergedCanvas.getContext('2d');
-    mergedCtx.drawImage(pdfCanvas, 0, 0);
-    mergedCtx.drawImage(measureCanvas, 0, 0);
-
-    const imageData = mergedCanvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.href = imageData;
-    link.download = 'VectorMeasure.png';
-    link.click();
-}
-
-export function handleClearClick() {
-    const ctxMeasure = measureCanvas.getContext('2d');
-    ctxMeasure.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
-
-    const ctxPreview = previewCanvas.getContext('2d');
-    ctxPreview.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-
-    clearMeasurementState();
-
-    // infoEl.textContent = 'Measurements cleared.';
-    document.getElementById('measurement-tip').style.display = 'none';
-    measureCanvas.style.pointerEvents = 'none';
-}
-
-export function  handleClrBuffer() {
-    console.log('handleClrBuffer() function called')
-
-    clearCanvasContainer();
-}
-
 export async function handleZoomIn() {
-    const next = Math.min(currentScale + ZOOM.step, ZOOM.max);
-    if (next === currentScale) return;
-    setCurrentScale(next);
-    recomputePxPerMeter();
+    if(debugLog) console.log('actions.js > handleZoomIn() is called');
+
+    const next = Math.min(state.currentScale + state.ZOOM.step, state.ZOOM.max);
+    if (next === state.currentScale) return;
+    state.setCurrentScale(next);
+    state.recomputePxPerMeter();
     await renderAtCurrentTransform();
 }
+
 export async function handleZoomOut() {
-    const next = Math.max(currentScale - ZOOM.step, ZOOM.min);
-    if (next === currentScale) return;
-    setCurrentScale(next);
-    recomputePxPerMeter();
+    if(debugLog) console.log('actions.js > handleZoomOut() is called');
+
+    const next = Math.max(state.currentScale - state.ZOOM.step, state.ZOOM.min);
+    if (next === state.currentScale) return;
+    state.setCurrentScale(next);
+    state.recomputePxPerMeter();
     await renderAtCurrentTransform();
-}
-export async function handleZoomReset() {
-    // match initial “fit to container width”
-    const fit = originalCanvasWidth / unscaledViewport.width;
-    setCurrentScale(fit);
-    recomputePxPerMeter();
-
-    const container = document.getElementById('pdf-container');
-    const pdfW = unscaledViewport.width  * fit;
-    const pdfH = unscaledViewport.height * fit;
-    const offsetX = (container.clientWidth  - pdfW) / 2;
-    const offsetY = (container.clientHeight - pdfH) / 2;
-
-    setPanOffset(offsetX, offsetY);
-    await renderAtCurrentTransform();
-
 }
 
 export function startPan(event) {
+    if(debugLog) console.log('actions.js > startPan(event) is called');
+
     isPanning = true;
-    panStart = { x: event.clientX - panOffset.x, y: event.clientY - panOffset.y };
-    console.log('panStart');
+    panStart = { x: event.clientX - state.panOffset.x, y: event.clientY - state.panOffset.y };
 }
+
 export function movePan(event) {
+    if(debugLog) console.log('actions.js > movePan(event) is called');
+
     if (!isPanning) return;
     const x = event.clientX - panStart.x;
     const y = event.clientY - panStart.y;
-    setPanOffset(x, y);
+    state.setPanOffset(x, y);
 
     // Pan is CSS translate on overlays; update transform only
     const all = document.querySelectorAll(
@@ -120,93 +57,65 @@ export function movePan(event) {
         c.style.transform = `translate(${x}px, ${y}px)`;
         c.style.transformOrigin = 'top left';
     });
-
 }
+
 export function endPan() {
+    if(debugLog) console.log('actions.js > endPan() is called');
+
     isPanning = false;
 }
 
-export function handleMeasureBtn() {
-    console.log('actions.js > handleMeasureBtn()')
+export async function handleResetView() {
+    if(debugLog) console.log('actions.js > handleResetView() is called');
 
-    renderButton(BtnMeasure, isMeasureOn());
-    const next = !isMeasureOn();
-    setMeasureOn(next);          // update global-ish state
-    renderButton(BtnMeasure, next);   // reflect in UI
+    clearCanvasContainer()
 
-    if (next) {
-        // turn ON measuring
-        measureCanvas.style.pointerEvents = 'auto';
-        // infoEl.textContent = 'Click two points to measure.';
-    } else {
-        // turn OFF measuring
-        handleClearClick();
-    }
-}
-export function renderButton(button, on) {
-    button.classList.toggle('is-on', on);
-    button.setAttribute('aria-pressed', String(on));
-    button.dataset.mode = on ? 'on' : 'off';
-    if (button === BtnMeasure) button.textContent = on ? '✅ Measuring (click to stop)' : '📏 Measure Distance';
-}
-
-export function handleInputCalibrationNumber() {
-    let InputCalibrationNumber = document.getElementById('calibration-number').value;
-    console.log('InputCalibrationNumber: ', InputCalibrationNumber);
-
-    setPxPerMeter(InputCalibrationNumber);
-    setBasePxPerMeter(InputCalibrationNumber);
-
-    //Default: 1px ≈ 0.02652 meters  [1/0.02660 = 37.6]
-    document.getElementById('info').innerText =
-        `✅ Calibrated: 1px ≈ ${(1 / InputCalibrationNumber).toFixed(5)} m`;
+    loadPdfByName(PdfPlanPath, pxPerMeter).then(success => {
+        if (success) {
+            if(debugLog) console.log('Loaded! ', PdfPlanPath);
+        }
+    });
 }
 
 export function flipPdfHorizontal() {
-    const ctxCanvas = canvas.getContext('2d');
+    if(debugLog) console.log('actions.js > flipPdfHorizontal() is called');
 
-    const copyCanvas = document.createElement('canvas');
-    copyCanvas.width = canvas.width;
-    copyCanvas.height = canvas.height;
-    const copyCtx = copyCanvas.getContext('2d');
-    copyCtx.drawImage(canvas, 0, 0);
+    clearCanvasContainer()
 
-    ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
-    ctxCanvas.save();
-    ctxCanvas.scale(-1, 1);
-    ctxCanvas.translate(-canvas.width, 0);
-    ctxCanvas.drawImage(copyCanvas, 0, 0);
-    ctxCanvas.restore();
-
-    handleClearClick();
+    loadPdfByName(PdfPlanReversePath, pxPerMeter).then(success => {
+        if (success) {
+            if(debugLog) console.log('Loaded! ', PdfPlanReversePath);
+        }
+    });
 }
+
 export function flipPdfVertical() {
-    const ctxCanvas = canvas.getContext('2d');
+    if(debugLog) console.log('actions.js > flipPdfVertical() is called');
 
-    const copyCanvas = document.createElement('canvas');
-    copyCanvas.width = canvas.width;
-    copyCanvas.height = canvas.height;
-    const copyCtx = copyCanvas.getContext('2d');
-    copyCtx.drawImage(canvas, 0, 0);
+    clearCanvasContainer()
 
-    ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
-    ctxCanvas.save();
-    ctxCanvas.scale(1, -1);
-    ctxCanvas.translate(0, -canvas.height);
-    ctxCanvas.drawImage(copyCanvas, 0, 0);
-    ctxCanvas.restore();
-
-    handleClearClick();
+    loadPdfByName(PdfPlanVerticalPath, pxPerMeter).then(success => {
+        if (success) {
+            if(debugLog) console.log('Loaded! ', PdfPlanVerticalPath);
+        }
+    });
 }
 
-export function handleAddLine() {
-    console.log('AddLine() function called');
-}
-export function handleDeleteLine() {
-    console.log('DeleteLine() function called');
-}
-export function handleAddComment() {
-    console.log('AddComment() function called');
+export function handleSaveClick() {
+
+    const mergedCanvas = document.createElement('canvas');
+    mergedCanvas.width = pdfCanvas.width;
+    mergedCanvas.height = pdfCanvas.height;
+
+    const mergedCtx = mergedCanvas.getContext('2d');
+    mergedCtx.drawImage(pdfCanvas, 0, 0);
+    mergedCtx.drawImage(drawingCanvas, 0, 0);
+
+    const imageData = mergedCanvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = imageData;
+    link.download = 'VectorMeasure.png';
+    link.click();
 }
 
 
