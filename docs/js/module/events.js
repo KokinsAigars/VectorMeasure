@@ -9,6 +9,7 @@ import { debugLogLevelA } from './debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
 import { pdfCanvas, measureCanvas, drawingCanvas } from './canvas.js';
+import * as measure from './measure.js';
 
 // EventListeners
 export function setupEventListeners() {
@@ -91,6 +92,14 @@ export function setupEventListeners() {
         console.log(`[${actions.activeTool}] mouseup`, end);
         // TODO: finalize draw/delete/comment
     });
+
+    // 'Escape'
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            measure.cancelMeasurement();
+        }
+    });
+
 
 }
 
