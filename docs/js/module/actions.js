@@ -8,11 +8,12 @@
 import { debugLog } from './debug.js';
 import * as state from './state.js';
 import {clearCanvasContainer, drawingCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
-import { PdfPlanPath, PdfPlanReversePath, PdfPlanVerticalPath, pxPerMeter } from "./state.js";
 import { loadPdfByName } from './loader.js';
+import { BtnPanToggle } from "./ui.js";
 
-let isPanning = false;
-let panStart = { x: 0, y: 0 };
+export let isPanning = false;
+let panStart = { x: 0, y: 0 }
+let isButtonOn = false;
 
 export async function handleZoomIn() {
     if(debugLog) console.log('actions.js > handleZoomIn() is called');
@@ -65,14 +66,42 @@ export function endPan() {
     isPanning = false;
 }
 
+export function renderButton(button, on) {
+    button.classList.toggle('is-on', on);
+    button.setAttribute('aria-pressed', String(on));
+    button.dataset.mode = on ? 'on' : 'off';
+    if (button === BtnPanToggle) button.textContent = on ? '✅ Pan' : 'Pan';
+    // if (button === BtnMeasure) button.textContent = on ? '✅ Measuring (click to stop)' : '📏 Measure Distance';
+    // if (button === BtnAddLine) button.textContent = on ? '✅ Add Line' : 'Line';
+}
+
+
+export function handlePanBtn() {
+    if(debugLog) console.log('actions.js > handlePanBtn() is called');
+
+    isButtonOn = !isButtonOn;
+
+    renderButton(BtnPanToggle, isButtonOn);
+
+    if(isButtonOn) {
+        isPanning = true;
+        pdfCanvas.style.pointerEvents = 'auto';
+        pdfCanvas.style.cursor = 'grab';
+    } else {
+        isPanning = false;
+        pdfCanvas.style.pointerEvents = 'none';
+        pdfCanvas.style.cursor = 'default';
+    }
+}
+
 export async function handleResetView() {
     if(debugLog) console.log('actions.js > handleResetView() is called');
 
     clearCanvasContainer()
 
-    loadPdfByName(PdfPlanPath, pxPerMeter).then(success => {
+    loadPdfByName(state.PdfPlanPath, state.pxPerMeter).then(success => {
         if (success) {
-            if(debugLog) console.log('Loaded! ', PdfPlanPath);
+            if(debugLog) console.log('Loaded! ', state.PdfPlanPath);
         }
     });
 }
@@ -82,9 +111,9 @@ export function flipPdfHorizontal() {
 
     clearCanvasContainer()
 
-    loadPdfByName(PdfPlanReversePath, pxPerMeter).then(success => {
+    loadPdfByName(state.PdfPlanReversePath, state.pxPerMeter).then(success => {
         if (success) {
-            if(debugLog) console.log('Loaded! ', PdfPlanReversePath);
+            if(debugLog) console.log('Loaded! ', state.PdfPlanReversePath);
         }
     });
 }
@@ -94,9 +123,9 @@ export function flipPdfVertical() {
 
     clearCanvasContainer()
 
-    loadPdfByName(PdfPlanVerticalPath, pxPerMeter).then(success => {
+    loadPdfByName(state.PdfPlanVerticalPath, state.pxPerMeter).then(success => {
         if (success) {
-            if(debugLog) console.log('Loaded! ', PdfPlanVerticalPath);
+            if(debugLog) console.log('Loaded! ', state.PdfPlanVerticalPath);
         }
     });
 }

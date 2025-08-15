@@ -10,7 +10,7 @@ export const DivInfo = document.getElementById('info')
 
 export const BtnZoomIn = document.getElementById('zoom-in-btn');
 export const BtnZoomOut = document.getElementById('zoom-out-btn');
-export const BtnPanToggle = document.getElementById('pan-toggle-btn');
+export const BtnPanToggle = document.getElementById('pan-btn');
 export const BtnResetPdf = document.getElementById('reset-pdf-btn');
 export const BtnFlipPdfHorizontal = document.getElementById('flip-pdf-horizontal-btn');
 export const BtnFlipPdfVertical = document.getElementById('flip-pdf-vertical-btn');

@@ -9,6 +9,7 @@ import { debugLog } from './debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
 import { pdfCanvas } from './canvas.js';
+import {isPanning} from "./actions.js";
 
 // EventListeners
 export function setupEventListeners() {
@@ -16,7 +17,7 @@ export function setupEventListeners() {
 
     if (ui.BtnZoomIn) ui.BtnZoomIn.addEventListener('click', actions.handleZoomIn);
     if (ui.BtnZoomOut) ui.BtnZoomOut.addEventListener('click', actions.handleZoomOut);
-    if (ui.BtnPanToggle) ui.BtnPanToggle.addEventListener('click', actions.startPan);
+    if (ui.BtnPanToggle) ui.BtnPanToggle.addEventListener('click', actions.handlePanBtn);
     if (ui.BtnResetPdf) ui.BtnResetPdf.addEventListener('click', actions.handleResetView);
     if (ui.BtnFlipPdfHorizontal) ui.BtnFlipPdfHorizontal.addEventListener('click', actions.flipPdfHorizontal);
     if (ui.BtnFlipPdfVertical) ui.BtnFlipPdfVertical.addEventListener('click', actions.flipPdfVertical);
