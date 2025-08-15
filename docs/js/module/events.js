@@ -5,14 +5,14 @@
  * module/ events.js;
  */
 
-import { debugLog } from './debug.js';
+import { debugLogLevelA } from './debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
-import { pdfCanvas } from './canvas.js';
+import { pdfCanvas, measureCanvas, drawingCanvas } from './canvas.js';
 
 // EventListeners
 export function setupEventListeners() {
-    if (debugLog) console.log('events.js > setupEventListeners() function called');
+    if (debugLogLevelA) console.log('events.js > setupEventListeners() function called');
 
     if (ui.BtnZoomIn) ui.BtnZoomIn.addEventListener('click', actions.handleZoomIn);
     if (ui.BtnZoomOut) ui.BtnZoomOut.addEventListener('click', actions.handleZoomOut);
@@ -21,6 +21,10 @@ export function setupEventListeners() {
     if (ui.BtnFlipPdfHorizontal) ui.BtnFlipPdfHorizontal.addEventListener('click', actions.flipPdfHorizontal);
     if (ui.BtnFlipPdfVertical) ui.BtnFlipPdfVertical.addEventListener('click', actions.flipPdfVertical);
     if (ui.BtnSave) ui.BtnSave.addEventListener('click', actions.handleSaveClick);
+    if (ui.BtnMeasure) ui.BtnMeasure.addEventListener('click', actions.handleMeasureBtn);
+    if (ui.BtnAddLine) ui.BtnAddLine.addEventListener('click', actions.handleAddLineBtn);
+    if (ui.BtnDeleteLine) ui.BtnDeleteLine.addEventListener('click', actions.handleDeleteLineBtn);
+    if (ui.BtnAddComment) ui.BtnAddComment.addEventListener('click', actions.handleAddCommentBtn);
 
     // --- Pan via Space + drag
     let spaceDown = false;
@@ -57,6 +61,35 @@ export function setupEventListeners() {
         if (!actions.isPanning) return;
         if (pdfCanvas) pdfCanvas.style.cursor = (spaceDown || actions.panMode) ? 'grab' : 'default';
         actions.endPan();
+    });
+
+    // MEASURE — simple click stub
+    measureCanvas.addEventListener('click', (e) => {
+        if (actions.activeTool !== actions.TOOL.MEASURE) return;
+        // TODO: replace with your measurement logic
+        console.log('[MEASURE] click at', e.offsetX, e.offsetY);
+    });
+
+    // DRAW / DELETE / COMMENT — simple stubs
+    let drawing = false, start = null;
+    drawingCanvas.addEventListener('mousedown', (e) => {
+        if (![actions.TOOL.DRAW, actions.TOOL.DELETE, actions.TOOL.COMMENT].includes(actions.activeTool)) return;
+        drawing = true;
+        start = { x: e.offsetX, y: e.offsetY };
+        console.log(`[${actions.activeTool}] mousedown`, start);
+    });
+    document.addEventListener('mousemove', (e) => {
+        if (!drawing) return;
+        if (![actions.TOOL.DRAW, actions.TOOL.DELETE, actions.TOOL.COMMENT].includes(actions.activeTool)) return;
+        // TODO: preview line / hover-delete / comment cursor etc.
+    });
+    document.addEventListener('mouseup', (e) => {
+        if (!drawing) return;
+        drawing = false;
+        if (![actions.TOOL.DRAW, actions.TOOL.DELETE, actions.TOOL.COMMENT].includes(actions.activeTool)) return;
+        const end = { x: e.offsetX, y: e.offsetY };
+        console.log(`[${actions.activeTool}] mouseup`, end);
+        // TODO: finalize draw/delete/comment
     });
 
 }

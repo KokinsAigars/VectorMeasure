@@ -5,7 +5,7 @@
  * module/ canvas.js;
  */
 
-import { debugLog } from './debug.js';
+import { debugLogLevelA } from './debug.js';
 import { DivInfo, DivPdfContainer } from "./ui.js";
 import * as state from './state.js';
 
@@ -26,7 +26,7 @@ let originalCanvasWidth = null;
 let currentRenderTask = null;
 
 export async function initCanvasRenderPDF(options = {}) {
-    if(debugLog) console.log('canvas.js > initCanvasRenderPDF() is called');
+    if(debugLogLevelA) console.log('canvas.js > initCanvasRenderPDF() is called');
 
     // Function Options
     PDFlink = options.PDFlink;
@@ -44,14 +44,14 @@ export async function initCanvasRenderPDF(options = {}) {
 }
 
 async function loadPDF() {
-    if(debugLog) console.log('canvas.js > loadPDF() is called');
+    if(debugLogLevelA) console.log('canvas.js > loadPDF() is called');
 
     pdfDoc = await pdfjsLib.getDocument(PDFlink).promise;
     pdfPage = await pdfDoc.getPage(1);
 }
 
 async function createPDFCanvas() {
-    if(debugLog) console.log('canvas.js > createPDFCanvas() is called');
+    if(debugLogLevelA) console.log('canvas.js > createPDFCanvas() is called');
 
     await loadPDF();
     if (!pdfPage) {
@@ -81,14 +81,14 @@ async function createPDFCanvas() {
     await pdfPage.render({ canvasContext: pdfCanvasCtx, viewport }).promise;
 
     //Save a PNG copy of the PDF page
-    originalPdfImage = new Image();
-    originalPdfImage.src = pdfCanvas.toDataURL('image/png');
+    // originalPdfImage = new Image();
+    // originalPdfImage.src = pdfCanvas.toDataURL('image/png');
 
     return true;
 }
 
 async function createPdfCanvas() {
-    if(debugLog) console.log('canvas.js > createPdfCanvas() is called');
+    if(debugLogLevelA) console.log('canvas.js > createPdfCanvas() is called');
 
     pdfCanvas = document.createElement('canvas');
     pdfCanvas.id = 'pdf-canvas';
@@ -103,7 +103,7 @@ async function createPdfCanvas() {
 }
 
 async function createMeasureCanvas() {
-    if(debugLog) console.log('canvas.js > createMeasureCanvas() is called');
+    if(debugLogLevelA) console.log('canvas.js > createMeasureCanvas() is called');
 
     measureCanvas = document.createElement('canvas');
     measureCanvas.id = 'measure-canvas';
@@ -117,7 +117,7 @@ async function createMeasureCanvas() {
 }
 
 async function createPreviewCanvas() {
-    if(debugLog) console.log('canvas.js > createPreviewCanvas() is called');
+    if(debugLogLevelA) console.log('canvas.js > createPreviewCanvas() is called');
 
     previewCanvas = document.createElement('canvas');
     previewCanvas.id = 'preview-canvas';
@@ -132,7 +132,7 @@ async function createPreviewCanvas() {
 }
 
 async function createDrawingCanvas() {
-    if(debugLog) console.log('canvas.js > createDrawingCanvas() is called');
+    if(debugLogLevelA) console.log('canvas.js > createDrawingCanvas() is called');
 
     drawingCanvas = document.createElement('canvas');
     drawingCanvas.id = 'drawing-canvas';
@@ -146,7 +146,7 @@ async function createDrawingCanvas() {
 }
 
 export function clearCanvasContainer() {
-    if(debugLog) console.log('canvas.js > clearCanvasContainer() is called');
+    if(debugLogLevelA) console.log('canvas.js > clearCanvasContainer() is called');
 
     if (DivPdfContainer) {
         DivPdfContainer.innerHTML = '';
@@ -158,7 +158,7 @@ export function clearCanvasContainer() {
 }
 
 export async function renderAtCurrentTransform() {
-    if(debugLog) console.log('canvas.js > renderAtCurrentTransform() is called');
+    if(debugLogLevelA) console.log('canvas.js > renderAtCurrentTransform() is called');
 
     if (!pdfPage || !pdfCanvas) return false;
 

@@ -5,7 +5,7 @@
  * module/ loader.js;
  */
 
-import { debugLog } from './debug.js';
+import { debugLogLevelA } from './debug.js';
 import { setupEventListeners } from './events.js';
 import { initCanvasRenderPDF } from './canvas.js';
 // import {attachInput, wireToolButtons} from "./input.js";
@@ -14,7 +14,7 @@ let isLoadingPdf = false;
 let currentLoadId = 0;
 
 export async function loadPdfByName(_PdfPlanPath, _PxPerMeter) {
-    if(debugLog) console.log('loader.js > loadPdfByName() is called')
+    if(debugLogLevelA) console.log('loader.js > loadPdfByName() is called')
 
     if (isLoadingPdf) {
         console.log('PDF load in progress — skipping duplicate call');
@@ -37,7 +37,6 @@ export async function loadPdfByName(_PdfPlanPath, _PxPerMeter) {
         }
 
         setupEventListeners();
-        // wireToolButtons();
         // attachInput();
 
         return true;

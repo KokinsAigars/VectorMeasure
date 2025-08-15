@@ -5,18 +5,74 @@
  * module/ actions.js;
  */
 
-import { debugLog } from './debug.js';
+import {debugLogLevelA} from './debug.js';
+import * as ui from "./ui.js";
 import * as state from './state.js';
-import {clearCanvasContainer, drawingCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
-import { loadPdfByName } from './loader.js';
-import { BtnPanToggle } from "./ui.js";
+import {clearCanvasContainer, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
+import {loadPdfByName} from './loader.js';
 
 export let isPanning = false;
 export let panMode = false;
 let panStart = { x: 0, y: 0 }
 
+export const TOOL = Object.freeze({
+    NONE: 'NONE',
+    PAN: 'PAN',
+    MEASURE: 'MEASURE',
+    DRAW: 'DRAW',
+    DELETE: 'DELETE',
+    COMMENT: 'COMMENT',
+});
+export let activeTool = TOOL.NONE;
+
+function setCanvasInteractivity() {
+    if(debugLogLevelA) console.log('actions.js > setCanvasInteractivity() is called');
+
+    // pdfCanvas (Pan)
+    pdfCanvas.style.pointerEvents = (activeTool === TOOL.PAN) ? 'auto' : 'none';
+    pdfCanvas.style.cursor       = (activeTool === TOOL.PAN) ? 'grab' : 'default';
+
+    // measureCanvas (Measure)
+    measureCanvas.style.pointerEvents = (activeTool === TOOL.MEASURE) ? 'auto' : 'none';
+    measureCanvas.style.cursor        = (activeTool === TOOL.MEASURE) ? 'crosshair' : 'default';
+
+    // drawingCanvas (Draw/Delete/Comment)
+    const useDrawing = [TOOL.DRAW, TOOL.DELETE, TOOL.COMMENT].includes(activeTool);
+    drawingCanvas.style.pointerEvents = useDrawing ? 'auto' : 'none';
+    drawingCanvas.style.cursor =
+        activeTool === TOOL.DRAW ? 'crosshair' :
+            activeTool === TOOL.DELETE ? 'not-allowed' :
+                activeTool === TOOL.COMMENT ? 'text' : 'default';
+}
+
+function renderAllButtons() {
+    if(debugLogLevelA) console.log('actions.js > renderAllButtons() is called');
+    // OFF by default
+    [ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnAddComment, ui.BtnPanToggle]
+        .forEach(btn => btn && renderButton(btn, false));
+
+    // turn ON only the active one
+    if (activeTool === TOOL.PAN)       renderButton(ui.BtnPanToggle, true);
+    if (activeTool === TOOL.MEASURE)   renderButton(ui.BtnMeasure, true);
+    if (activeTool === TOOL.DRAW)      renderButton(ui.BtnAddLine, true);
+    if (activeTool === TOOL.DELETE)    renderButton(ui.BtnDeleteLine, true);
+    if (activeTool === TOOL.COMMENT)   renderButton(ui.BtnAddComment, true);
+}
+
+function setTool(next) {
+    if(debugLogLevelA) console.log('actions.js > setTool('+ next +') is called');
+
+    // toggle if same button pressed
+    activeTool = (activeTool === next) ? TOOL.NONE : next;
+
+    // keep old panMode variables in sync
+    panMode = (activeTool === TOOL.PAN);
+    renderAllButtons();
+    setCanvasInteractivity();
+}
+
 export async function handleZoomIn() {
-    if(debugLog) console.log('actions.js > handleZoomIn() is called');
+    if(debugLogLevelA) console.log('actions.js > handleZoomIn() is called');
 
     const next = Math.min(state.currentScale + state.ZOOM.step, state.ZOOM.max);
     if (next === state.currentScale) return;
@@ -26,7 +82,7 @@ export async function handleZoomIn() {
 }
 
 export async function handleZoomOut() {
-    if(debugLog) console.log('actions.js > handleZoomOut() is called');
+    if(debugLogLevelA) console.log('actions.js > handleZoomOut() is called');
 
     const next = Math.max(state.currentScale - state.ZOOM.step, state.ZOOM.min);
     if (next === state.currentScale) return;
@@ -36,14 +92,14 @@ export async function handleZoomOut() {
 }
 
 export function startPan(event) {
-    if(debugLog) console.log('actions.js > startPan(event) is called');
+    if(debugLogLevelA) console.log('actions.js > startPan(event) is called');
 
     isPanning = true;
     panStart = { x: event.clientX - state.panOffset.x, y: event.clientY - state.panOffset.y };
 }
 
 export function movePan(event) {
-    if(debugLog) console.log('actions.js > movePan(event) is called');
+    if(debugLogLevelA) console.log('actions.js > movePan(event) is called');
 
     if (!isPanning) return;
     const x = event.clientX - panStart.x;
@@ -61,66 +117,100 @@ export function movePan(event) {
 }
 
 export function endPan() {
-    if(debugLog) console.log('actions.js > endPan() is called');
+    if(debugLogLevelA) console.log('actions.js > endPan() is called');
 
     isPanning = false;
 }
 
-export function renderButton(button, on) {
-    button.classList.toggle('is-on', on);
-    button.setAttribute('aria-pressed', String(on));
-    button.dataset.mode = on ? 'on' : 'off';
-    if (button === BtnPanToggle) button.textContent = on ? '✅ Pan' : 'Pan';
-    // if (button === BtnMeasure) button.textContent = on ? '✅ Measuring (click to stop)' : '📏 Measure Distance';
-    // if (button === BtnAddLine) button.textContent = on ? '✅ Add Line' : 'Line';
-}
-
-export function handlePanBtn() {
-    if(debugLog) console.log('actions.js > handlePanBtn() is called');
-
-    panMode = !panMode;
-    renderButton(BtnPanToggle, panMode);
-    pdfCanvas.style.pointerEvents = panMode ? 'auto' : 'none';
-    pdfCanvas.style.cursor = panMode ? 'grab' : 'default';
-}
-
 export async function handleResetView() {
-    if(debugLog) console.log('actions.js > handleResetView() is called');
+    if(debugLogLevelA) console.log('actions.js > handleResetView() is called');
 
-    clearCanvasContainer()
+    clearCanvasContainer();
+
+    isPanning = false;
+    panMode = false;
+    activeTool = TOOL.NONE;
+
+    [ui.BtnPanToggle, ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnAddComment]
+        .forEach(btn => btn && renderButton(btn, false));
 
     loadPdfByName(state.PdfPlanPath, state.pxPerMeter).then(success => {
         if (success) {
-            if(debugLog) console.log('Loaded! ', state.PdfPlanPath);
+            if(debugLogLevelA) console.log('Loaded! ', state.PdfPlanPath);
         }
     });
 }
 
 export function flipPdfHorizontal() {
-    if(debugLog) console.log('actions.js > flipPdfHorizontal() is called');
+    if(debugLogLevelA) console.log('actions.js > flipPdfHorizontal() is called');
 
     clearCanvasContainer()
 
     loadPdfByName(state.PdfPlanReversePath, state.pxPerMeter).then(success => {
         if (success) {
-            if(debugLog) console.log('Loaded! ', state.PdfPlanReversePath);
+            if(debugLogLevelA) console.log('Loaded! ', state.PdfPlanReversePath);
         }
     });
 }
 
 export function flipPdfVertical() {
-    if(debugLog) console.log('actions.js > flipPdfVertical() is called');
+    if(debugLogLevelA) console.log('actions.js > flipPdfVertical() is called');
 
     clearCanvasContainer()
 
     loadPdfByName(state.PdfPlanVerticalPath, state.pxPerMeter).then(success => {
         if (success) {
-            if(debugLog) console.log('Loaded! ', state.PdfPlanVerticalPath);
+            if(debugLogLevelA) console.log('Loaded! ', state.PdfPlanVerticalPath);
         }
     });
 }
 
+export function renderButton(button, on) {
+    if(debugLogLevelA) console.log('actions.js > renderButton('+ button +', '+ on +') is called');
+
+    button.classList.toggle('is-on', on);
+    button.setAttribute('aria-pressed', String(on));
+    button.dataset.mode = on ? 'on' : 'off';
+
+    if (button === ui.BtnPanToggle)   button.textContent = on ? '✅ Pan' : 'Pan';
+    if (button === ui.BtnMeasure)     button.textContent = on ? '✅ Measuring' : '📏 Measure Distance';
+    if (button === ui.BtnAddLine)     button.textContent = on ? '✅ Line' : 'Line';
+    if (button === ui.BtnDeleteLine)  button.textContent = on ? '✅ Delete' : 'Delete Line';
+    if (button === ui.BtnAddComment)  button.textContent = on ? '✅ Comment' : 'Comment';
+}
+
+export function handlePanBtn() {
+    if(debugLogLevelA) console.log('actions.js > handlePanBtn() is called');
+
+    setTool(TOOL.PAN);
+}
+
+export function handleMeasureBtn() {
+    if(debugLogLevelA) console.log('actions.js > handleMeasureBtn() is called');
+
+    setTool(TOOL.MEASURE);
+}
+
+export function handleAddLineBtn() {
+    if(debugLogLevelA) console.log('actions.js > handleAddLineBtn() is called');
+
+    setTool(TOOL.DRAW);
+}
+
+export function handleDeleteLineBtn() {
+    if(debugLogLevelA) console.log('actions.js > handleDeleteLineBtn() is called');
+
+    setTool(TOOL.DELETE);
+}
+
+export function handleAddCommentBtn() {
+    if(debugLogLevelA) console.log('actions.js > handleAddCommentBtn() is called');
+
+    setTool(TOOL.COMMENT);
+}
+
 export function handleSaveClick() {
+    if(debugLogLevelA) console.log('actions.js > handleSaveClick() is called');
 
     const mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = pdfCanvas.width;
@@ -136,5 +226,3 @@ export function handleSaveClick() {
     link.download = 'VectorMeasure.png';
     link.click();
 }
-
-

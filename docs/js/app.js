@@ -5,7 +5,7 @@
  * app.js;
  */
 
-import { debugLog } from './module/debug.js';
+import { debugLogLevelA, debugLogLevelB } from './module/debug.js';
 import { loadPdfByName } from './module/loader.js';
 import {
     setPxPerMeter,
@@ -19,7 +19,7 @@ import {
 
 // call MAIN() function
 document.addEventListener('DOMContentLoaded', () => {
-    if(debugLog) console.log('DOMContentLoaded')
+    if(debugLogLevelA) console.log('DOMContentLoaded')
 
     setPxPerMeter( 44.5);
     setBasePxPerMeter(44.5);
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadPdfByName(PdfPlanPath, pxPerMeter).then(success => {
         if (success) {
-            if(debugLog) console.log('Loaded! ', PdfPlanPath);
+            if(debugLogLevelB) console.log('Loaded! ', PdfPlanPath);
         }
     });
 });
