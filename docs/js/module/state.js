@@ -28,7 +28,7 @@ export function setPdfPlanPath(value) {
 export function setPdfPlanReversePath(value) {
     if(debugLogLevelA) console.log('state.js > setPdfPlanReversePath('+ value +') is called');
 
-    PdfPlanReversePath = 'pdf/PLANS_CUBE.pdf';
+    PdfPlanReversePath = value;
 }
 
 export function setPdfPlanVerticalPath(value) {

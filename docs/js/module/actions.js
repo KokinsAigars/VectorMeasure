@@ -11,6 +11,7 @@ import * as state from './state.js';
 import {clearCanvasContainer, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
 import {loadPdfByName} from './loader.js';
 import { setMeasureActive } from './events.js';
+import {setPdfPlanReversePath} from "./state.js";
 
 export let isPanning = false;
 export let panMode = false;

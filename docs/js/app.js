@@ -17,6 +17,7 @@ import {
     PdfPlanPath
 } from './module/state.js';
 
+
 // call MAIN() function
 document.addEventListener('DOMContentLoaded', () => {
     if(debugLogLevelA) console.log('DOMContentLoaded')
@@ -24,8 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setPxPerMeter( 44.5);
     setBasePxPerMeter(44.5);
     setPdfPlanPath('pdf/PLANS_Tukums.pdf');
-    setPdfPlanReversePath('pdf/PLANS_CUBE.pdf');
-    setPdfPlanVerticalPath('pdf/PLANS_CUBE.pdf');
+    setPdfPlanReversePath('pdf/PLANS_Tukums_reverse.pdf');
+    setPdfPlanVerticalPath('pdf/PLANS_Tukums_vertical.pdf');
 
     loadPdfByName(PdfPlanPath, pxPerMeter).then(success => {
         if (success) {
