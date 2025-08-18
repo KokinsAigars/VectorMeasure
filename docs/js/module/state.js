@@ -34,47 +34,38 @@ export function setPdfPlanVerticalPath(value) {
 
     PdfPlanVerticalPath = value;
 }
-
-
 export function setPxPerMeter(value) {
     if(debugLogLevelA) console.log('state.js > setPxPerMeter(value) is called');
 
     pxPerMeter = value;
 }
-
 export function setBasePxPerMeter(value) {
     if(debugLogLevelA) console.log('state.js > setBasePxPerMeter(value) is called');
 
     basePxPerMeter = value;
 }
-
 export function setCurrentScale(value) {
     if(debugLogLevelA) console.log('state.js > setCurrentScale(value) is called');
 
     currentScale = value;
 }
-
 export function setOriginalCanvasWidth(value) {
     if(debugLogLevelA) console.log('state.js > setOriginalCanvasWidth(value) is called');
 
     originalCanvasWidth = value;
 }
-
 export function setUnscaledViewport(viewport) {
     if(debugLogLevelA) console.log('state.js > setUnscaledViewport(viewport) is called');
 
     unscaledViewport = viewport;
 }
-
 export function recomputePxPerMeter() {
     if(debugLogLevelA) console.log('state.js > recomputePxPerMeter() is called');
 
     pxPerMeter = basePxPerMeter * currentScale;
 }
-
 export function setPanOffset(x, y) {
     if(debugLogLevelA) console.log('state.js > setPanOffset(x, y) is called');
 
     panOffset = { x, y };
 }
-

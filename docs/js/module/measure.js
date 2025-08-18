@@ -25,6 +25,8 @@ const measureCtx = () => measureCanvas.getContext('2d');
  * Turn measurement mode on/off.
  */
 export function setMeasureActive(on) {
+    if(debugLogLevelA) console.log('measure.js > setMeasureActive() is called');
+
     if (on === measuring) return; // no-op
     measuring = on;
 
@@ -40,7 +42,8 @@ export function setMeasureActive(on) {
 
         if (DivInfo) DivInfo.innerText = 'Click two points to measure. (Esc to cancel)';
 
-    } else {
+    }
+    else {
         measureCanvas.removeEventListener('click',     handleMeasureClick);
         measureCanvas.removeEventListener('mousemove', handleMeasureMove);
         measureCanvas.removeEventListener('mouseleave', handleLeave);
@@ -61,6 +64,8 @@ function handleKeydown(e)       { if (e.key === 'Escape') cancelCurrentMeasure()
 function handleLeave()          { hideTipAndPreview(); }
 
 function hideTipAndPreview() {
+    if(debugLogLevelA) console.log('measure.js > hideTipAndPreview() is called');
+
     if (DivMeasurementTip) DivMeasurementTip.style.display = 'none';
 
     const p_ctx = previewCanvas.getContext('2d');
@@ -68,6 +73,8 @@ function hideTipAndPreview() {
 }
 
 export function cancelCurrentMeasure() {
+    if(debugLogLevelA) console.log('measure.js > cancelCurrentMeasure() is called');
+
     // reset transient state + visuals
     clearMeasurementState();
     hideTipAndPreview();

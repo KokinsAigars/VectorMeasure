@@ -5,5 +5,5 @@
  * module/ debug.js;
  */
 
-export const debugLogLevelA = false;
-export const debugLogLevelB = false;
+export const debugLogLevelA = true;
+export const debugLogLevelB = true;

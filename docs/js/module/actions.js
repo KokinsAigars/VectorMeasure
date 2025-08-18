@@ -11,6 +11,7 @@ import * as state from './state.js';
 import {clearCanvasContainer, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
 import {loadPdfByName} from './loader.js';
 import {setMeasureActive, cancelCurrentMeasure} from './measure.js';
+import {BtnMeasure} from "./ui.js";
 
 export let isPanning = false;
 export let panMode = false;
@@ -25,6 +26,7 @@ export const TOOL = Object.freeze({
     COMMENT: 'COMMENT',
 });
 export let activeTool = TOOL.NONE;
+
 
 
 function setCanvasInteractivity() {
@@ -49,6 +51,7 @@ function setCanvasInteractivity() {
 
 function renderAllButtons() {
     if(debugLogLevelA) console.log('actions.js > renderAllButtons() is called');
+
     // OFF by default
     [ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnAddComment, ui.BtnPanToggle]
         .forEach(btn => btn && renderButton(btn, false));
@@ -67,11 +70,48 @@ function setTool(next) {
     // toggle if same button pressed
     activeTool = (activeTool === next) ? TOOL.NONE : next;
 
-    // keep old panMode variables in sync
-    panMode = (activeTool === TOOL.PAN);
+    // panMode = (activeTool === TOOL.PAN);
     renderAllButtons();
     setCanvasInteractivity();
 }
+
+export function handleMeasureBtn() {
+    if(debugLogLevelA) console.log('actions.js > handleMeasureBtn() is called');
+
+    let isOn = ui.BtnMeasure.dataset;
+    // console.log('isOn: ', isOn.mode);
+    if(isOn.mode === 'off') {
+        console.log('measureOn');
+        measureOn = true;
+        setTool(TOOL.MEASURE);
+        setMeasureActive(true);
+    }
+    else {
+        console.log('measureOff');
+        setTool(TOOL.NONE);
+        cancelCurrentMeasure()
+    }
+
+    measureOn = !measureOn;
+}
+
+export function offBtn() {
+    if (debugLogLevelA) console.log('actions.js > offBtn() is called');
+
+    isPanning = false;
+    panMode = false;
+    panStart = { x: 0, y: 0 }
+    measureOn = false;
+    activeTool = TOOL.NONE;
+    setTool(TOOL.NONE);
+    cancelCurrentMeasure();
+
+    [ui.BtnPanToggle, ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnAddComment]
+        .forEach(btn => btn && renderButton(btn, false));
+}
+
+
+
 
 export async function handleZoomIn() {
     if(debugLogLevelA) console.log('actions.js > handleZoomIn() is called');
@@ -127,14 +167,8 @@ export function endPan() {
 export async function handleResetView() {
     if(debugLogLevelA) console.log('actions.js > handleResetView() is called');
 
+    offBtn();
     clearCanvasContainer();
-
-    isPanning = false;
-    panMode = false;
-    activeTool = TOOL.NONE;
-
-    [ui.BtnPanToggle, ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnAddComment]
-        .forEach(btn => btn && renderButton(btn, false));
 
     loadPdfByName(state.PdfPlanPath, state.pxPerMeter).then(success => {
         if (success) {
@@ -146,7 +180,8 @@ export async function handleResetView() {
 export function flipPdfHorizontal() {
     if(debugLogLevelA) console.log('actions.js > flipPdfHorizontal() is called');
 
-    clearCanvasContainer()
+    offBtn();
+    clearCanvasContainer();
 
     loadPdfByName(state.PdfPlanReversePath, state.pxPerMeter).then(success => {
         if (success) {
@@ -158,7 +193,8 @@ export function flipPdfHorizontal() {
 export function flipPdfVertical() {
     if(debugLogLevelA) console.log('actions.js > flipPdfVertical() is called');
 
-    clearCanvasContainer()
+    offBtn();
+    clearCanvasContainer();
 
     loadPdfByName(state.PdfPlanVerticalPath, state.pxPerMeter).then(success => {
         if (success) {
@@ -237,26 +273,7 @@ export function handleSaveClick() {
 
 
 
-export function handleMeasureBtn() {
-    if(debugLogLevelA) console.log('actions.js > handleMeasureBtn() is called');
-
-    measureOn = !measureOn;
-    setTool(TOOL.MEASURE);
-    setMeasureActive(measureOn);
-
-    if (!measureOn) {
-        console.log('measureOff');
-        setTool(TOOL.NONE);
-        cancelCurrentMeasure()
-    }
-}
 
 
 
-// If you have a central "activateTool" switcher, ensure it turns measure OFF:
-// export function activateTool(tool) {
-//     if (tool !== 'MEASURE' && measureOn) {
-//         measureOn = false;
-//         setMeasureActive(false);
-//     }
-// }
+

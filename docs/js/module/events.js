@@ -70,7 +70,7 @@ export function setupEventListeners() {
     // MEASURE — simple click stub
     measureCanvas.addEventListener('click', (e) => {
         if (actions.activeTool !== actions.TOOL.MEASURE) return;
-        console.log('[MEASURE] click at', e.offsetX, e.offsetY);
+        console.log('[MEASURE] events.js> measureCanvas.addEventListener(), click at', e.offsetX, e.offsetY);
         measure.setMeasureActive(true);
     });
 
