@@ -22,20 +22,19 @@ export let PdfPlanVerticalPath = null;
 export function setPdfPlanPath(value) {
     if(debugLogLevelA) console.log('state.js > setPdfPlanPath('+ value +') is called');
 
-    PdfPlanPath = 'pdf/PLANS_Tukums.pdf';
+    PdfPlanPath = value;
 }
-
 export function setPdfPlanReversePath(value) {
     if(debugLogLevelA) console.log('state.js > setPdfPlanReversePath('+ value +') is called');
 
     PdfPlanReversePath = value;
 }
-
 export function setPdfPlanVerticalPath(value) {
     if(debugLogLevelA) console.log('state.js > setPdfPlanVerticalPath('+ value +') is called');
 
     PdfPlanVerticalPath = value;
 }
+
 
 export function setPxPerMeter(value) {
     if(debugLogLevelA) console.log('state.js > setPxPerMeter(value) is called');

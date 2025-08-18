@@ -10,14 +10,12 @@ import * as ui from "./ui.js";
 import * as state from './state.js';
 import {clearCanvasContainer, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
 import {loadPdfByName} from './loader.js';
-import { setMeasureActive } from './events.js';
-import {setPdfPlanReversePath} from "./state.js";
+import {setMeasureActive, cancelCurrentMeasure} from './measure.js';
 
 export let isPanning = false;
 export let panMode = false;
 export let panStart = { x: 0, y: 0 }
 export let measureOn = false;
-
 export const TOOL = Object.freeze({
     NONE: 'NONE',
     PAN: 'PAN',
@@ -26,8 +24,8 @@ export const TOOL = Object.freeze({
     DELETE: 'DELETE',
     COMMENT: 'COMMENT',
 });
-
 export let activeTool = TOOL.NONE;
+
 
 function setCanvasInteractivity() {
     if(debugLogLevelA) console.log('actions.js > setCanvasInteractivity() is called');
@@ -201,12 +199,6 @@ export function handlePanBtn() {
     setTool(TOOL.PAN);
 }
 
-export function handleMeasureBtn() {
-    if(debugLogLevelA) console.log('actions.js > handleMeasureBtn() is called');
-
-    setTool(TOOL.MEASURE);
-}
-
 export function handleAddLineBtn() {
     if(debugLogLevelA) console.log('actions.js > handleAddLineBtn() is called');
 
@@ -243,10 +235,23 @@ export function handleSaveClick() {
     link.click();
 }
 
-export function handleMeasureButtonClick() {
+
+
+export function handleMeasureBtn() {
+    if(debugLogLevelA) console.log('actions.js > handleMeasureBtn() is called');
+
     measureOn = !measureOn;
+    setTool(TOOL.MEASURE);
     setMeasureActive(measureOn);
+
+    if (!measureOn) {
+        console.log('measureOff');
+        setTool(TOOL.NONE);
+        cancelCurrentMeasure()
+    }
 }
+
+
 
 // If you have a central "activateTool" switcher, ensure it turns measure OFF:
 // export function activateTool(tool) {

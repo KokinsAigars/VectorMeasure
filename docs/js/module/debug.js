@@ -6,4 +6,4 @@
  */
 
 export const debugLogLevelA = false;
-export const debugLogLevelB = true;
+export const debugLogLevelB = false;
