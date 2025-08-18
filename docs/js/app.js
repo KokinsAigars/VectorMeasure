@@ -17,7 +17,6 @@ import {
     PdfPlanPath
 } from './module/state.js';
 
-
 // call MAIN() function
 document.addEventListener('DOMContentLoaded', () => {
     if(debugLogLevelA) console.log('DOMContentLoaded')
@@ -34,5 +33,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
-
