@@ -5,112 +5,106 @@
  * module/ actions.js;
  */
 
-import {
-    canvas,
-    measureCanvas,
-    previewCanvas,
-    clearCanvasContainer,
-    renderAtCurrentTransform
-} from './canvas.js';
-import {
-    ZOOM,
-    currentScale,
-    setCurrentScale,
-    panOffset,
-    setPanOffset,
-    recomputePxPerMeter,
-    setPxPerMeter,
-    setBasePxPerMeter,
-    originalCanvasWidth,
-    unscaledViewport,
-    isMeasureOn,
-    setMeasureOn
-} from './state.js';
-import { clearMeasurementState } from './measure.js';
-import { DivPdfContainer, BtnMeasure } from './ui.js';
+import {debugLogLevelA} from './debug.js';
+import * as ui from "./ui.js";
+import * as state from './state.js';
+import {clearCanvasContainer, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
+import {loadPdfByName} from './loader.js';
 
-let isPanning = false;
-let panStart = { x: 0, y: 0 };
+export let isPanning = false;
+export let panMode = false;
+let panStart = { x: 0, y: 0 }
 
+export const TOOL = Object.freeze({
+    NONE: 'NONE',
+    PAN: 'PAN',
+    MEASURE: 'MEASURE',
+    DRAW: 'DRAW',
+    DELETE: 'DELETE',
+    COMMENT: 'COMMENT',
+});
+export let activeTool = TOOL.NONE;
 
-export function handleSaveClick() {
-    const pdfCanvas = canvas;
-    const mergedCanvas = document.createElement('canvas');
-    mergedCanvas.width = pdfCanvas.width;
-    mergedCanvas.height = pdfCanvas.height;
+function setCanvasInteractivity() {
+    if(debugLogLevelA) console.log('actions.js > setCanvasInteractivity() is called');
 
-    const mergedCtx = mergedCanvas.getContext('2d');
-    mergedCtx.drawImage(pdfCanvas, 0, 0);
-    mergedCtx.drawImage(measureCanvas, 0, 0);
+    // pdfCanvas (Pan)
+    pdfCanvas.style.pointerEvents = (activeTool === TOOL.PAN) ? 'auto' : 'none';
+    pdfCanvas.style.cursor       = (activeTool === TOOL.PAN) ? 'grab' : 'default';
 
-    const imageData = mergedCanvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.href = imageData;
-    link.download = 'VectorMeasure.png';
-    link.click();
+    // measureCanvas (Measure)
+    measureCanvas.style.pointerEvents = (activeTool === TOOL.MEASURE) ? 'auto' : 'none';
+    measureCanvas.style.cursor        = (activeTool === TOOL.MEASURE) ? 'crosshair' : 'default';
+
+    // drawingCanvas (Draw/Delete/Comment)
+    const useDrawing = [TOOL.DRAW, TOOL.DELETE, TOOL.COMMENT].includes(activeTool);
+    drawingCanvas.style.pointerEvents = useDrawing ? 'auto' : 'none';
+    drawingCanvas.style.cursor =
+        activeTool === TOOL.DRAW ? 'crosshair' :
+            activeTool === TOOL.DELETE ? 'not-allowed' :
+                activeTool === TOOL.COMMENT ? 'text' : 'default';
 }
 
-export function handleClearClick() {
-    const ctxMeasure = measureCanvas.getContext('2d');
-    ctxMeasure.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
+function renderAllButtons() {
+    if(debugLogLevelA) console.log('actions.js > renderAllButtons() is called');
+    // OFF by default
+    [ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnAddComment, ui.BtnPanToggle]
+        .forEach(btn => btn && renderButton(btn, false));
 
-    const ctxPreview = previewCanvas.getContext('2d');
-    ctxPreview.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-
-    clearMeasurementState();
-
-    // infoEl.textContent = 'Measurements cleared.';
-    document.getElementById('measurement-tip').style.display = 'none';
-    measureCanvas.style.pointerEvents = 'none';
+    // turn ON only the active one
+    if (activeTool === TOOL.PAN)       renderButton(ui.BtnPanToggle, true);
+    if (activeTool === TOOL.MEASURE)   renderButton(ui.BtnMeasure, true);
+    if (activeTool === TOOL.DRAW)      renderButton(ui.BtnAddLine, true);
+    if (activeTool === TOOL.DELETE)    renderButton(ui.BtnDeleteLine, true);
+    if (activeTool === TOOL.COMMENT)   renderButton(ui.BtnAddComment, true);
 }
 
-export function  handleClrBuffer() {
-    console.log('handleClrBuffer() function called')
+function setTool(next) {
+    if(debugLogLevelA) console.log('actions.js > setTool('+ next +') is called');
 
-    clearCanvasContainer();
+    // toggle if same button pressed
+    activeTool = (activeTool === next) ? TOOL.NONE : next;
+
+    // keep old panMode variables in sync
+    panMode = (activeTool === TOOL.PAN);
+    renderAllButtons();
+    setCanvasInteractivity();
 }
 
 export async function handleZoomIn() {
-    const next = Math.min(currentScale + ZOOM.step, ZOOM.max);
-    if (next === currentScale) return;
-    setCurrentScale(next);
-    recomputePxPerMeter();
+    if(debugLogLevelA) console.log('actions.js > handleZoomIn() is called');
+
+    const next = Math.min(state.currentScale + state.ZOOM.step, state.ZOOM.max);
+    if (next === state.currentScale) return;
+    state.setCurrentScale(next);
+    state.recomputePxPerMeter();
     await renderAtCurrentTransform();
 }
+
 export async function handleZoomOut() {
-    const next = Math.max(currentScale - ZOOM.step, ZOOM.min);
-    if (next === currentScale) return;
-    setCurrentScale(next);
-    recomputePxPerMeter();
+    if(debugLogLevelA) console.log('actions.js > handleZoomOut() is called');
+
+    const next = Math.max(state.currentScale - state.ZOOM.step, state.ZOOM.min);
+    if (next === state.currentScale) return;
+    state.setCurrentScale(next);
+    state.recomputePxPerMeter();
     await renderAtCurrentTransform();
-}
-export async function handleZoomReset() {
-    // match initial “fit to container width”
-    const fit = originalCanvasWidth / unscaledViewport.width;
-    setCurrentScale(fit);
-    recomputePxPerMeter();
-
-    const container = document.getElementById('pdf-container');
-    const pdfW = unscaledViewport.width  * fit;
-    const pdfH = unscaledViewport.height * fit;
-    const offsetX = (container.clientWidth  - pdfW) / 2;
-    const offsetY = (container.clientHeight - pdfH) / 2;
-
-    setPanOffset(offsetX, offsetY);
-    await renderAtCurrentTransform();
-
 }
 
 export function startPan(event) {
+    if(debugLogLevelA) console.log('actions.js > startPan(event) is called');
+
     isPanning = true;
-    panStart = { x: event.clientX - panOffset.x, y: event.clientY - panOffset.y };
-    console.log('panStart');
+    panStart = { x: event.clientX - state.panOffset.x, y: event.clientY - state.panOffset.y };
 }
+
 export function movePan(event) {
+    if(debugLogLevelA) console.log('actions.js > movePan(event) is called');
+
     if (!isPanning) return;
     const x = event.clientX - panStart.x;
     const y = event.clientY - panStart.y;
-    setPanOffset(x, y);
+    state.setPanOffset(x, y);
 
     // Pan is CSS translate on overlays; update transform only
     const all = document.querySelectorAll(
@@ -120,93 +114,115 @@ export function movePan(event) {
         c.style.transform = `translate(${x}px, ${y}px)`;
         c.style.transformOrigin = 'top left';
     });
-
 }
+
 export function endPan() {
+    if(debugLogLevelA) console.log('actions.js > endPan() is called');
+
     isPanning = false;
 }
 
-export function handleMeasureBtn() {
-    console.log('actions.js > handleMeasureBtn()')
+export async function handleResetView() {
+    if(debugLogLevelA) console.log('actions.js > handleResetView() is called');
 
-    renderButton(BtnMeasure, isMeasureOn());
-    const next = !isMeasureOn();
-    setMeasureOn(next);          // update global-ish state
-    renderButton(BtnMeasure, next);   // reflect in UI
+    clearCanvasContainer();
 
-    if (next) {
-        // turn ON measuring
-        measureCanvas.style.pointerEvents = 'auto';
-        // infoEl.textContent = 'Click two points to measure.';
-    } else {
-        // turn OFF measuring
-        handleClearClick();
-    }
-}
-export function renderButton(button, on) {
-    button.classList.toggle('is-on', on);
-    button.setAttribute('aria-pressed', String(on));
-    button.dataset.mode = on ? 'on' : 'off';
-    if (button === BtnMeasure) button.textContent = on ? '✅ Measuring (click to stop)' : '📏 Measure Distance';
-}
+    isPanning = false;
+    panMode = false;
+    activeTool = TOOL.NONE;
 
-export function handleInputCalibrationNumber() {
-    let InputCalibrationNumber = document.getElementById('calibration-number').value;
-    console.log('InputCalibrationNumber: ', InputCalibrationNumber);
+    [ui.BtnPanToggle, ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnAddComment]
+        .forEach(btn => btn && renderButton(btn, false));
 
-    setPxPerMeter(InputCalibrationNumber);
-    setBasePxPerMeter(InputCalibrationNumber);
-
-    //Default: 1px ≈ 0.02652 meters  [1/0.02660 = 37.6]
-    document.getElementById('info').innerText =
-        `✅ Calibrated: 1px ≈ ${(1 / InputCalibrationNumber).toFixed(5)} m`;
+    loadPdfByName(state.PdfPlanPath, state.pxPerMeter).then(success => {
+        if (success) {
+            if(debugLogLevelA) console.log('Loaded! ', state.PdfPlanPath);
+        }
+    });
 }
 
 export function flipPdfHorizontal() {
-    const ctxCanvas = canvas.getContext('2d');
+    if(debugLogLevelA) console.log('actions.js > flipPdfHorizontal() is called');
 
-    const copyCanvas = document.createElement('canvas');
-    copyCanvas.width = canvas.width;
-    copyCanvas.height = canvas.height;
-    const copyCtx = copyCanvas.getContext('2d');
-    copyCtx.drawImage(canvas, 0, 0);
+    clearCanvasContainer()
 
-    ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
-    ctxCanvas.save();
-    ctxCanvas.scale(-1, 1);
-    ctxCanvas.translate(-canvas.width, 0);
-    ctxCanvas.drawImage(copyCanvas, 0, 0);
-    ctxCanvas.restore();
-
-    handleClearClick();
+    loadPdfByName(state.PdfPlanReversePath, state.pxPerMeter).then(success => {
+        if (success) {
+            if(debugLogLevelA) console.log('Loaded! ', state.PdfPlanReversePath);
+        }
+    });
 }
+
 export function flipPdfVertical() {
-    const ctxCanvas = canvas.getContext('2d');
+    if(debugLogLevelA) console.log('actions.js > flipPdfVertical() is called');
 
-    const copyCanvas = document.createElement('canvas');
-    copyCanvas.width = canvas.width;
-    copyCanvas.height = canvas.height;
-    const copyCtx = copyCanvas.getContext('2d');
-    copyCtx.drawImage(canvas, 0, 0);
+    clearCanvasContainer()
 
-    ctxCanvas.clearRect(0, 0, canvas.width, canvas.height);
-    ctxCanvas.save();
-    ctxCanvas.scale(1, -1);
-    ctxCanvas.translate(0, -canvas.height);
-    ctxCanvas.drawImage(copyCanvas, 0, 0);
-    ctxCanvas.restore();
-
-    handleClearClick();
+    loadPdfByName(state.PdfPlanVerticalPath, state.pxPerMeter).then(success => {
+        if (success) {
+            if(debugLogLevelA) console.log('Loaded! ', state.PdfPlanVerticalPath);
+        }
+    });
 }
 
-export function handleAddLine() {
-    console.log('AddLine() function called');
-}
-export function handleDeleteLine() {
-    console.log('DeleteLine() function called');
-}
-export function handleAddComment() {
-    console.log('AddComment() function called');
+export function renderButton(button, on) {
+    if(debugLogLevelA) console.log('actions.js > renderButton('+ button +', '+ on +') is called');
+
+    button.classList.toggle('is-on', on);
+    button.setAttribute('aria-pressed', String(on));
+    button.dataset.mode = on ? 'on' : 'off';
+
+    if (button === ui.BtnPanToggle)   button.textContent = on ? '✅ Pan' : 'Pan';
+    if (button === ui.BtnMeasure)     button.textContent = on ? '✅ Measuring' : '📏 Measure Distance';
+    if (button === ui.BtnAddLine)     button.textContent = on ? '✅ Line' : 'Line';
+    if (button === ui.BtnDeleteLine)  button.textContent = on ? '✅ Delete' : 'Delete Line';
+    if (button === ui.BtnAddComment)  button.textContent = on ? '✅ Comment' : 'Comment';
 }
 
+export function handlePanBtn() {
+    if(debugLogLevelA) console.log('actions.js > handlePanBtn() is called');
 
+    setTool(TOOL.PAN);
+}
+
+export function handleMeasureBtn() {
+    if(debugLogLevelA) console.log('actions.js > handleMeasureBtn() is called');
+
+    setTool(TOOL.MEASURE);
+}
+
+export function handleAddLineBtn() {
+    if(debugLogLevelA) console.log('actions.js > handleAddLineBtn() is called');
+
+    setTool(TOOL.DRAW);
+}
+
+export function handleDeleteLineBtn() {
+    if(debugLogLevelA) console.log('actions.js > handleDeleteLineBtn() is called');
+
+    setTool(TOOL.DELETE);
+}
+
+export function handleAddCommentBtn() {
+    if(debugLogLevelA) console.log('actions.js > handleAddCommentBtn() is called');
+
+    setTool(TOOL.COMMENT);
+}
+
+export function handleSaveClick() {
+    if(debugLogLevelA) console.log('actions.js > handleSaveClick() is called');
+
+    const mergedCanvas = document.createElement('canvas');
+    mergedCanvas.width = pdfCanvas.width;
+    mergedCanvas.height = pdfCanvas.height;
+
+    const mergedCtx = mergedCanvas.getContext('2d');
+    mergedCtx.drawImage(pdfCanvas, 0, 0);
+    mergedCtx.drawImage(drawingCanvas, 0, 0);
+
+    const imageData = mergedCanvas.toDataURL('image/png');
+    const link = document.createElement('a');
+    link.href = imageData;
+    link.download = 'VectorMeasure.png';
+    link.click();
+}

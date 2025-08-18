@@ -38,3 +38,11 @@
     npm run dev
     http://localhost:3000/
 
+
+
+// const on = document.getElementById('measure-btn').dataset.mode === 'on';
+// const on2 = document.getElementById('measure-btn').classList.contains('is-on');
+// const on3 = document.getElementById('measure-btn').getAttribute('aria-pressed') === 'true';
+
+
+

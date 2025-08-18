@@ -5,38 +5,35 @@
  * module/ canvas.js;
  */
 
+import { debugLogLevelA } from './debug.js';
+import { DivInfo, DivPdfContainer } from "./ui.js";
 import * as state from './state.js';
-import { getSegments } from './measure_model.js';
-import { pageToOverlayXY } from './coord.js';
 
 export let pdfDoc = null;
 export let pdfPage = null;
-export let PDFlink;
+export let PDFlink= null;
 export let viewport = null;
-export let unscaledViewport = null;
-export let originalCanvasWidth;
-export let currentScale = 1.5;
-export let canvas;
-export let ctx;
-export let measureCanvas;
-export let previewCanvas;
-export let drawingCanvas;
-export let previewCtx;
-export let originalPdfImage;
-export let DivPdfContainer;
+export let currentScale  = null;
+export let pdfCanvas= null;
+export let pdfCanvasCtx= null;
+export let originalPdfImage= null;
+export let measureCanvas= null;
+export let previewCanvas= null;
+export let previewCanvasCtx = null;
+export let drawingCanvas= null;
+let unscaledViewport = null;
+let originalCanvasWidth = null;
 let currentRenderTask = null;
 
 export async function initCanvasRenderPDF(options = {}) {
-    clearCanvasContainer();
+    if(debugLogLevelA) console.log('canvas.js > initCanvasRenderPDF() is called');
 
     // Function Options
-    PDFlink = options.PDFlink; //console.log('PDFlink: ', PDFlink);
-    DivPdfContainer = options.DivPdfContainer;
+    PDFlink = options.PDFlink;
     const metersPerPx = 1 / options.pxPerMeter;
     if (options.workerSrc) pdfjsLib.GlobalWorkerOptions.workerSrc = options.workerSrc;
 
-    document.getElementById('info').innerText =
-        `📐 Default calibration: 1px ≈ ${metersPerPx.toFixed(5)} meters`;
+    DivInfo.innerText =`📐 Default calibration: 1px ≈ ${metersPerPx.toFixed(5)} meters`;
 
     const ok = await createPDFCanvas();
     if (!ok) return;
@@ -47,13 +44,15 @@ export async function initCanvasRenderPDF(options = {}) {
 }
 
 async function loadPDF() {
+    if(debugLogLevelA) console.log('canvas.js > loadPDF() is called');
 
     pdfDoc = await pdfjsLib.getDocument(PDFlink).promise;
     pdfPage = await pdfDoc.getPage(1);
-
 }
 
 async function createPDFCanvas() {
+    if(debugLogLevelA) console.log('canvas.js > createPDFCanvas() is called');
+
     await loadPDF();
     if (!pdfPage) {
         console.error('No PDF page loaded!');
@@ -63,7 +62,7 @@ async function createPDFCanvas() {
     //pdfPage.getViewport() returns information about the PDF page size at a given zoom level.
     unscaledViewport = pdfPage.getViewport({ scale: 1 });
 
-    //fit PDF into container
+    //fit PDF into a container
     const desiredWidth = DivPdfContainer.clientWidth;
     const scale = desiredWidth / unscaledViewport.width;
     viewport = pdfPage.getViewport({ scale: scale });
@@ -71,87 +70,41 @@ async function createPDFCanvas() {
     //Store scale & dimensions in local and global stat
     currentScale = scale;
     originalCanvasWidth = desiredWidth;
+
     state.setCurrentScale(scale);
     state.setOriginalCanvasWidth(desiredWidth);
     state.setUnscaledViewport(unscaledViewport);
 
-    //Create the <canvas> element
-    canvas = document.createElement('canvas');
-    canvas.id = 'pdf-canvas';
-    canvas.width = viewport.width;
-    canvas.height = viewport.height;
-    canvas.style.position = 'absolute';
-    canvas.style.top = '0';
-    canvas.style.left = '0';
-
-    //Prepare the drawing context and size container
-    ctx = canvas.getContext('2d');
-    DivPdfContainer.style.height = `${viewport.height}px`;
-    DivPdfContainer.appendChild(canvas);
+    await createPdfCanvas();
 
     //Render the PDF page into the canvas
-    await pdfPage.render({ canvasContext: ctx, viewport }).promise;
+    await pdfPage.render({ canvasContext: pdfCanvasCtx, viewport }).promise;
 
     //Save a PNG copy of the PDF page
-    originalPdfImage = new Image();
-    originalPdfImage.src = canvas.toDataURL('image/png');
+    // originalPdfImage = new Image();
+    // originalPdfImage.src = pdfCanvas.toDataURL('image/png');
 
     return true;
 }
 
-export async function renderAtCurrentTransform() {
-    if (!pdfPage || !canvas) return false;
+async function createPdfCanvas() {
+    if(debugLogLevelA) console.log('canvas.js > createPdfCanvas() is called');
 
-    // cancel previous render if still running
-    if (currentRenderTask) {
-        try { currentRenderTask.cancel(); } catch {}
-        currentRenderTask = null;
-    }
-
-    viewport = pdfPage.getViewport({ scale: state.currentScale });
-
-    const needResize = canvas.width !== viewport.width || canvas.height !== viewport.height;
-    if (needResize) {
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        // keep container height synced with zoom
-        DivPdfContainer.style.height = `${viewport.height}px`;
-    }
-
-    const ctx = canvas.getContext('2d');
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-
-    // start and await render
-    currentRenderTask = pdfPage.render({ canvasContext: ctx, viewport });
-    try {
-        await currentRenderTask.promise;
-    } catch (err) {
-        if (err && err.name !== 'RenderingCancelledException') throw err;
-        // if cancelled, just exit; a newer render will run
-        return false;
-    } finally {
-        currentRenderTask = null;
-    }
-
-    // sync overlays
-    const t = `translate(${state.panOffset.x}px, ${state.panOffset.y}px)`;
-    [measureCanvas, previewCanvas, drawingCanvas].forEach(c => {
-        if (!c) return;
-        if (needResize) {
-            c.width  = canvas.width;
-            c.height = canvas.height;
-        }
-        c.style.transform = t;
-        c.style.transformOrigin = 'top left';
-    });
-
-    // redraw stored lines if size changed
-    redrawMeasurements();
-    return true;
+    pdfCanvas = document.createElement('canvas');
+    pdfCanvas.id = 'pdf-canvas';
+    pdfCanvas.width = viewport.width;
+    pdfCanvas.height = viewport.height;
+    pdfCanvas.style.position = 'absolute';
+    pdfCanvas.style.top = '0';
+    pdfCanvas.style.left = '0';
+    pdfCanvasCtx = pdfCanvas.getContext('2d');
+    DivPdfContainer.style.height = `${viewport.height}px`;
+    DivPdfContainer.appendChild(pdfCanvas);
 }
 
 async function createMeasureCanvas() {
+    if(debugLogLevelA) console.log('canvas.js > createMeasureCanvas() is called');
+
     measureCanvas = document.createElement('canvas');
     measureCanvas.id = 'measure-canvas';
     measureCanvas.width = viewport.width;
@@ -162,7 +115,10 @@ async function createMeasureCanvas() {
     measureCanvas.style.pointerEvents = 'none';
     DivPdfContainer.appendChild(measureCanvas);
 }
+
 async function createPreviewCanvas() {
+    if(debugLogLevelA) console.log('canvas.js > createPreviewCanvas() is called');
+
     previewCanvas = document.createElement('canvas');
     previewCanvas.id = 'preview-canvas';
     previewCanvas.width = viewport.width;
@@ -171,10 +127,13 @@ async function createPreviewCanvas() {
     previewCanvas.style.top = '0';
     previewCanvas.style.left = '0';
     previewCanvas.style.pointerEvents = 'none';
-    previewCtx = previewCanvas.getContext('2d');
+    previewCanvasCtx = previewCanvas.getContext('2d');
     DivPdfContainer.appendChild(previewCanvas);
 }
+
 async function createDrawingCanvas() {
+    if(debugLogLevelA) console.log('canvas.js > createDrawingCanvas() is called');
+
     drawingCanvas = document.createElement('canvas');
     drawingCanvas.id = 'drawing-canvas';
     drawingCanvas.width = viewport.width;
@@ -187,35 +146,71 @@ async function createDrawingCanvas() {
 }
 
 export function clearCanvasContainer() {
-    //console.log('clearCanvasContainer() function called')
+    if(debugLogLevelA) console.log('canvas.js > clearCanvasContainer() is called');
 
-    if (state.DivPdfContainer) {
-        state.DivPdfContainer.innerHTML = '';
+    if (DivPdfContainer) {
+        DivPdfContainer.innerHTML = '';
     }
 
-    [canvas, measureCanvas, previewCanvas, drawingCanvas].forEach(c => {
+    [pdfCanvas, measureCanvas, previewCanvas, drawingCanvas].forEach(c => {
         if (c && c.parentNode) c.parentNode.removeChild(c);
     });
-
 }
 
-export function redrawMeasurements() {
-    if (!measureCanvas) return;
-    const ctx = measureCanvas.getContext('2d');
-    ctx.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
+export async function renderAtCurrentTransform() {
+    if(debugLogLevelA) console.log('canvas.js > renderAtCurrentTransform() is called');
 
-    const segs = getSegments();
-    ctx.strokeStyle = 'rgba(255,0,0,1)';
-    ctx.lineWidth = 4;
+    if (!pdfPage || !pdfCanvas) return false;
 
-    segs.forEach(({a,b}) => {
-        const A = pageToOverlayXY(a);
-        const B = pageToOverlayXY(b);
-        ctx.beginPath();
-        ctx.moveTo(A.x, A.y);
-        ctx.lineTo(B.x, B.y);
-        ctx.stroke();
+    // cancel previous render if still running
+    if (currentRenderTask) {
+        try { currentRenderTask.cancel(); } catch {}
+        currentRenderTask = null;
+    }
+
+    viewport = pdfPage.getViewport({ scale: state.currentScale });
+
+    const needResize = pdfCanvas.width !== viewport.width || pdfCanvas.height !== viewport.height;
+    if (needResize) {
+        pdfCanvas.width = viewport.width;
+        pdfCanvas.height = viewport.height;
+        // keep container height synced with zoom
+        DivPdfContainer.style.height = `${viewport.height}px`;
+    }
+
+    pdfCanvasCtx = pdfCanvas.getContext('2d');
+    pdfCanvasCtx.setTransform(1,0,0,1,0,0);
+    pdfCanvasCtx.clearRect(0,0, pdfCanvas.width, pdfCanvas.height);
+
+    // start and await render
+    currentRenderTask = pdfPage.render({ canvasContext: pdfCanvasCtx, viewport });
+    try {
+        await currentRenderTask.promise;
+
+    } catch (err) {
+        if (err && err.name !== 'RenderingCancelledException') throw err;
+        // if canceled, just exit; a newer render will run
+        return false;
+    } finally {
+        currentRenderTask = null;
+    }
+
+    // sync overlays
+    const t = `translate(${state.panOffset.x}px, ${state.panOffset.y}px)`;
+    [measureCanvas, previewCanvas, drawingCanvas].forEach(c => {
+        if (!c) return;
+        if (needResize) {
+            c.width  = pdfCanvas.width;
+            c.height = pdfCanvas.height;
+        }
+        c.style.transform = t;
+        c.style.transformOrigin = 'top left';
     });
+
+    // redraw stored lines if size changed
+    // redrawMeasurements();
+
+    return true;
 }
 
 

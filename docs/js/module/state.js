@@ -5,69 +5,77 @@
  * module/ state.js;
  */
 
+import { debugLogLevelA } from './debug.js';
+
 // Calibration and zoom state
 export let pxPerMeter = 37.6;       // Default: 1px ≈ 0.02652 meters  [1/0.02660 = 37.6]
 export let basePxPerMeter = 37.6;   // For reset/view recalibration [Store calibration relative to scale 1.0]
 export let currentScale = 1;
 export let originalCanvasWidth = null;
 export let unscaledViewport = null;
-export let DivPdfContainer = null;
 export let panOffset = { x: 0, y: 0 };
 export const ZOOM = { min: 0.25, max: 4.0, step: 0.1 };
+export let PdfPlanPath = null;
+export let PdfPlanReversePath = null;
+export let PdfPlanVerticalPath = null;
 
-let _measureOn = false;
-export const isMeasureOn = () => _measureOn;
-export const setMeasureOn = (v) => {
-    _measureOn = v;
-    // broadcast to anyone who cares
-    window.dispatchEvent(new CustomEvent('measure:change', { detail: { on: v } }));
-};
+export function setPdfPlanPath(value) {
+    if(debugLogLevelA) console.log('state.js > setPdfPlanPath('+ value +') is called');
 
-// Mutator functions for external modules
+    PdfPlanPath = 'pdf/PLANS_Tukums.pdf';
+}
+
+export function setPdfPlanReversePath(value) {
+    if(debugLogLevelA) console.log('state.js > setPdfPlanReversePath('+ value +') is called');
+
+    PdfPlanReversePath = 'pdf/PLANS_CUBE.pdf';
+}
+
+export function setPdfPlanVerticalPath(value) {
+    if(debugLogLevelA) console.log('state.js > setPdfPlanVerticalPath('+ value +') is called');
+
+    PdfPlanVerticalPath = value;
+}
+
 export function setPxPerMeter(value) {
+    if(debugLogLevelA) console.log('state.js > setPxPerMeter(value) is called');
+
     pxPerMeter = value;
 }
 
 export function setBasePxPerMeter(value) {
+    if(debugLogLevelA) console.log('state.js > setBasePxPerMeter(value) is called');
+
     basePxPerMeter = value;
 }
 
-export function recomputePxPerMeter() {
-    pxPerMeter = basePxPerMeter * currentScale;
-}
-
 export function setCurrentScale(value) {
+    if(debugLogLevelA) console.log('state.js > setCurrentScale(value) is called');
+
     currentScale = value;
 }
 
-export function setPanOffset(x, y) {
-    panOffset = { x, y };
-}
-
 export function setOriginalCanvasWidth(value) {
+    if(debugLogLevelA) console.log('state.js > setOriginalCanvasWidth(value) is called');
+
     originalCanvasWidth = value;
 }
 
 export function setUnscaledViewport(viewport) {
+    if(debugLogLevelA) console.log('state.js > setUnscaledViewport(viewport) is called');
+
     unscaledViewport = viewport;
 }
 
-// Optional reset helper
-export function resetState() {
-    pxPerMeter = basePxPerMeter;
-    currentScale = 1.0;
-    panOffset = { x: 0, y: 0 };
+export function recomputePxPerMeter() {
+    if(debugLogLevelA) console.log('state.js > recomputePxPerMeter() is called');
+
+    pxPerMeter = basePxPerMeter * currentScale;
 }
 
-// Bundle export (if needed elsewhere)
-export const getState = () => ({
-    pxPerMeter,
-    basePxPerMeter,
-    currentScale,
-    panOffset,
-    originalCanvasWidth,
-    unscaledViewport
-});
+export function setPanOffset(x, y) {
+    if(debugLogLevelA) console.log('state.js > setPanOffset(x, y) is called');
 
-
+    panOffset = { x, y };
+}
 

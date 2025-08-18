@@ -1,14 +1,14 @@
 ### 🧩 Module Map
 
-- `app.js` – Main initializer
-- `actions.js` – Toolbar functionality
-- `calibration.js` – Applies real-world scaling
+- `app.js` – Main initializer - loads initial parameters
+- `actions.js` – Toolbar (html buttons) functionality (functions)
+
 - `canvas.js` – Renders PDF and overlays
-- `coord.js` – C
+
+- `debug.js` – Global parameters for debugging. e.g. console.log() 
 - `events.js` – Wires up EventListeners
-- `loader.js` – Loads pdf and initial parameters
-- `measure.js` – Handles drawing + preview
-- `measure_model.js` – M
+- `loader.js` – Loads pdf(s)
+
 - `state.js` – Central source of shared variables
 - `ui.js` – Selects UI elements as variables
 
@@ -19,18 +19,9 @@ pdfjs/pdf.mjs
 
 
 
-ui - ui elements
-events - add EventListener to ui elements
-action - add function to ui elements
 
 
-app.js > loader.js > canvas.js
-
-
-
-
-// const on = document.getElementById('measure-btn').dataset.mode === 'on';
-// const on2 = document.getElementById('measure-btn').classList.contains('is-on');
-// const on3 = document.getElementById('measure-btn').getAttribute('aria-pressed') === 'true';
-
-
+- `calibration.js` – Applies real-world scaling
+- `coord.js` – C
+- `measure.js` – H
+- `measure_model.js` – M
