@@ -10,10 +10,12 @@ import * as ui from "./ui.js";
 import * as state from './state.js';
 import {clearCanvasContainer, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
 import {loadPdfByName} from './loader.js';
+import { setMeasureActive } from './events.js';
 
 export let isPanning = false;
 export let panMode = false;
-let panStart = { x: 0, y: 0 }
+export let panStart = { x: 0, y: 0 }
+export let measureOn = false;
 
 export const TOOL = Object.freeze({
     NONE: 'NONE',
@@ -23,6 +25,7 @@ export const TOOL = Object.freeze({
     DELETE: 'DELETE',
     COMMENT: 'COMMENT',
 });
+
 export let activeTool = TOOL.NONE;
 
 function setCanvasInteractivity() {
@@ -172,11 +175,23 @@ export function renderButton(button, on) {
     button.setAttribute('aria-pressed', String(on));
     button.dataset.mode = on ? 'on' : 'off';
 
-    if (button === ui.BtnPanToggle)   button.textContent = on ? '✅ Pan' : 'Pan';
-    if (button === ui.BtnMeasure)     button.textContent = on ? '✅ Measuring' : '📏 Measure Distance';
-    if (button === ui.BtnAddLine)     button.textContent = on ? '✅ Line' : 'Line';
-    if (button === ui.BtnDeleteLine)  button.textContent = on ? '✅ Delete' : 'Delete Line';
-    if (button === ui.BtnAddComment)  button.textContent = on ? '✅ Comment' : 'Comment';
+    if (button === ui.BtnPanToggle) {
+        button.textContent = on ? '✅ Pan' : 'Pan';
+    } else if (button === ui.BtnMeasure) {
+        if (on) {
+            button.textContent = '✅ Measuring';
+            ui.DivInfo.innerText = 'Click two points to measure. (Esc to cancel)';
+        } else {
+            button.textContent = '📏 Measure Distance';
+            ui.DivInfo.innerText = '';
+        }
+    } else if (button === ui.BtnAddLine) {
+        button.textContent = on ? '✅ Line' : 'Line';
+    } else if (button === ui.BtnDeleteLine) {
+        button.textContent = on ? '✅ Delete' : 'Delete Line';
+    } else if (button === ui.BtnAddComment) {
+        button.textContent = on ? '✅ Comment' : 'Comment';
+    }
 }
 
 export function handlePanBtn() {
@@ -226,3 +241,16 @@ export function handleSaveClick() {
     link.download = 'VectorMeasure.png';
     link.click();
 }
+
+export function handleMeasureButtonClick() {
+    measureOn = !measureOn;
+    setMeasureActive(measureOn);
+}
+
+// If you have a central "activateTool" switcher, ensure it turns measure OFF:
+// export function activateTool(tool) {
+//     if (tool !== 'MEASURE' && measureOn) {
+//         measureOn = false;
+//         setMeasureActive(false);
+//     }
+// }

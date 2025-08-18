@@ -8,8 +8,11 @@
 import { debugLogLevelA } from './debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
-import { pdfCanvas, measureCanvas, drawingCanvas } from './canvas.js';
 import * as measure from './measure.js';
+import { pdfCanvas, measureCanvas, previewCanvas, drawingCanvas } from './canvas.js';
+import {handleCalibrateClick} from "./calibration.js";
+import {DivInfo} from "./ui.js";
+
 
 // EventListeners
 export function setupEventListeners() {
@@ -65,11 +68,11 @@ export function setupEventListeners() {
     });
 
     // MEASURE — simple click stub
-    measureCanvas.addEventListener('click', (e) => {
-        if (actions.activeTool !== actions.TOOL.MEASURE) return;
-        // TODO: replace with your measurement logic
-        console.log('[MEASURE] click at', e.offsetX, e.offsetY);
-    });
+    // measureCanvas.addEventListener('click', (e) => {
+    //     if (actions.activeTool !== actions.TOOL.MEASURE) return;
+    //     // TODO: replace with your measurement logic
+    //     console.log('[MEASURE] click at', e.offsetX, e.offsetY);
+    // });
 
     // DRAW / DELETE / COMMENT — simple stubs
     let drawing = false, start = null;
@@ -100,6 +103,71 @@ export function setupEventListeners() {
         }
     });
 
+    if (ui.BtnMeasure) ui.BtnMeasure.addEventListener('click', actions.handleMeasureButtonClick);
 
+    if (ui.BtnCalibrate) ui.BtnCalibrate.addEventListener('click', handleCalibrateClick);
 }
+
+
+let measuring = false;
+
+// --- named handlers so we can remove them later ---
+function handleMeasureClick(e)  { measure.canvasOnMeasureClick(e); }
+function handleMeasureMove(e)   { measure.onMeasureMove(e); }
+function handleKeydown(e)       { if (e.key === 'Escape') cancelCurrentMeasure(); }
+function handleLeave()          { hideTipAndPreview(); }
+
+function hideTipAndPreview() {
+    const tip = ui.DivMeasurementTip;
+    if (tip) tip.style.display = 'none';
+
+    const p_ctx = previewCanvas.getContext('2d');
+    p_ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+}
+
+function cancelCurrentMeasure() {
+    // reset transient state + visuals
+    measure.clearMeasurementState();
+    hideTipAndPreview();
+
+    // also clear the permanent line if the user cancels midway
+    const m_ctx = measureCanvas.getContext('2d');
+    m_ctx.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
+}
+
+/**
+ * Turn measurement mode on/off.
+ */
+export function setMeasureActive(on) {
+    if (on === measuring) return; // no-op
+    measuring = on;
+
+    if (on) {
+        // Let this canvas receive clicks/mousemove
+        measureCanvas.style.pointerEvents = 'auto';
+        previewCanvas.style.pointerEvents = 'none'; // purely visual overlay
+
+        measureCanvas.addEventListener('click',     handleMeasureClick);
+        measureCanvas.addEventListener('mousemove', handleMeasureMove);
+        measureCanvas.addEventListener('mouseleave', handleLeave);
+        window.addEventListener('keydown', handleKeydown);
+
+        if (ui.DivInfo) ui.DivInfo.innerText = 'Click two points to measure. (Esc to cancel)';
+
+    } else {
+        measureCanvas.removeEventListener('click',     handleMeasureClick);
+        measureCanvas.removeEventListener('mousemove', handleMeasureMove);
+        measureCanvas.removeEventListener('mouseleave', handleLeave);
+        window.removeEventListener('keydown', handleKeydown);
+
+        measureCanvas.style.pointerEvents = 'none';
+        cancelCurrentMeasure();
+
+        if (ui.DivInfo) ui.DivInfo.innerText = '';
+    }
+}
+
+export function isMeasureActive() { return measuring; }
+
+
 

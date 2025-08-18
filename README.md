@@ -1,10 +1,13 @@
+
+work in active phase
+
 /**
 * Abbreviation: VM
 * License: MIT
 * Contributor(s): Aigars Kokins, ChatGPT-5
 * 2025.06.03 - init(1)
 * 2025.08.08 - init(2)
-*
+* 2025.08.15 - init(3) V3
 * The purpose of this project is to test pdf.js functionality
 * https://github.com/mozilla/pdf.js
 *

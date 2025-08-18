@@ -8,7 +8,6 @@
 import { debugLogLevelA } from './debug.js';
 import { setupEventListeners } from './events.js';
 import { initCanvasRenderPDF } from './canvas.js';
-// import {attachInput, wireToolButtons} from "./input.js";
 
 let isLoadingPdf = false;
 let currentLoadId = 0;
@@ -37,7 +36,6 @@ export async function loadPdfByName(_PdfPlanPath, _PxPerMeter) {
         }
 
         setupEventListeners();
-        // attachInput();
 
         return true;
 
@@ -50,3 +48,4 @@ export async function loadPdfByName(_PdfPlanPath, _PxPerMeter) {
     }
 
 }
+
