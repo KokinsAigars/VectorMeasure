@@ -8,6 +8,7 @@
 import { debugLogLevelA } from './debug.js';
 import { DivInfo, DivPdfContainer } from "./ui.js";
 import * as state from './state.js';
+import { redrawAllLines } from './draw.js';
 
 export let pdfDoc = null;
 export let pdfPage = null;
@@ -209,6 +210,8 @@ export async function renderAtCurrentTransform() {
 
     // redraw stored lines if size changed
     // redrawMeasurements();
+
+    redrawAllLines();
 
     return true;
 }

@@ -11,8 +11,10 @@ import * as state from './state.js';
 import {clearCanvasContainer, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
 import {loadPdfByName} from './loader.js';
 import {setMeasureActive, cancelCurrentMeasure} from './measure.js';
+import { cancelDrawing } from './draw.js';
 
 export let isPanning = false;
+export let isPointerDown = false;
 export let panMode = false;
 export let panStart = { x: 0, y: 0 }
 export let measureOn = false;
@@ -67,9 +69,12 @@ function setTool(next) {
     // toggle if same button pressed
     activeTool = (activeTool === next) ? TOOL.NONE : next;
 
-    // panMode = (activeTool === TOOL.PAN);
     renderAllButtons();
     setCanvasInteractivity();
+
+    if (activeTool !== TOOL.DRAW) {
+        try { cancelDrawing(); } catch {}
+    }
 }
 
 export function handleMeasureBtn() {
@@ -229,7 +234,11 @@ export function renderButton(button, on) {
 export function handlePanBtn() {
     if(debugLogLevelA) console.log('actions.js > handlePanBtn() is called');
 
-    setTool(TOOL.PAN);
+    if( activeTool !== 'PAN') {
+        setTool(TOOL.PAN);
+    } else {
+        setTool(TOOL.NONE);
+    }
 }
 
 export function handleAddLineBtn() {

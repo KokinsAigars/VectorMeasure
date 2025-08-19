@@ -12,12 +12,16 @@ export let pxPerMeter = 37.6;       // Default: 1px ≈ 0.02652 meters  [1/0.026
 export let basePxPerMeter = 37.6;   // For reset/view recalibration [Store calibration relative to scale 1.0]
 export let currentScale = 1;
 export let originalCanvasWidth = null;
+export let panStart= { x: 0, y: 0 };
 export let unscaledViewport = null;
 export let panOffset = { x: 0, y: 0 };
 export const ZOOM = { min: 0.25, max: 4.0, step: 0.1 };
 export let PdfPlanPath = null;
 export let PdfPlanReversePath = null;
 export let PdfPlanVerticalPath = null;
+export let scale = 1;
+
+
 
 export function setPdfPlanPath(value) {
     if(debugLogLevelA) console.log('state.js > setPdfPlanPath('+ value +') is called');

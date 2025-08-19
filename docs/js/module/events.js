@@ -8,8 +8,9 @@
 import { debugLogLevelA } from './debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
-import { drawingCanvas, pdfCanvas} from './canvas.js';
+import {drawingCanvas, pdfCanvas} from './canvas.js';
 import {handleCalibrateClick} from "./calibration.js";
+import { onDrawMouseDown, onDrawMouseMove, onDrawMouseUp, onDeleteHover, onDeleteClick, clearDeleteHover } from "./draw.js";
 
 
 // EventListeners
@@ -29,6 +30,7 @@ export function setupEventListeners() {
     if (ui.BtnAddComment) ui.BtnAddComment.addEventListener('click', actions.handleAddCommentBtn);
     if (ui.BtnCalibrate) ui.BtnCalibrate.addEventListener('click', handleCalibrateClick);
 
+
     // --- Pan via Space + drag
     let spaceDown = false;
     if (pdfCanvas) pdfCanvas.addEventListener('mousedown', (e) => {
@@ -47,7 +49,6 @@ export function setupEventListeners() {
     document.addEventListener('keyup', (e) => {
         if (e.code === 'Space') {
             spaceDown = false;
-            // keep interactive if Pan button is ON
             if (!actions.panMode) {
                 pdfCanvas.style.pointerEvents = 'none';
                 pdfCanvas.style.cursor = 'default';
@@ -66,30 +67,38 @@ export function setupEventListeners() {
         actions.endPan();
     });
 
-    // DRAW / DELETE / COMMENT — simple stubs
-    let drawing = false, start = null;
-    drawingCanvas.addEventListener('mousedown', (e) => {
-        if (![actions.TOOL.DRAW, actions.TOOL.DELETE, actions.TOOL.COMMENT].includes(actions.activeTool)) return;
-        drawing = true;
-        start = { x: e.offsetX, y: e.offsetY };
-        console.log(`[${actions.activeTool}] mousedown`, start);
-    });
-    document.addEventListener('mousemove', () => {
-        if (!drawing) return;
-        if (![actions.TOOL.DRAW, actions.TOOL.DELETE, actions.TOOL.COMMENT].includes(actions.activeTool)) {
-            return;
-        }
-        // TODO: preview line / hover-delete / comment cursor etc.
+    // DRAW — click-drag to draw a single segment
+    if (drawingCanvas) {
+        drawingCanvas.addEventListener('mousedown', (e) => {
+            if (actions.activeTool !== actions.TOOL.DRAW) return;
+            onDrawMouseDown(e);
+        });
+    }
+    document.addEventListener('mousemove', (e) => {
+        if (actions.activeTool !== actions.TOOL.DRAW) return;
+        onDrawMouseMove(e);
     });
     document.addEventListener('mouseup', (e) => {
-        if (!drawing) return;
-        drawing = false;
-        if (![actions.TOOL.DRAW, actions.TOOL.DELETE, actions.TOOL.COMMENT].includes(actions.activeTool)) return;
-        const end = { x: e.offsetX, y: e.offsetY };
-        console.log(`[${actions.activeTool}] mouseup`, end);
-        // TODO: finalize draw/delete/comment
+        if (actions.activeTool !== actions.TOOL.DRAW) return;
+        onDrawMouseUp(e);
     });
 
-}
+    // DELETE LINE — hover to highlight, click to delete
+    if (drawingCanvas) {
+        drawingCanvas.addEventListener('mousemove', (e) => {
+            if (actions.activeTool !== actions.TOOL.DELETE) return;
+            onDeleteHover(e);
+        });
 
+        drawingCanvas.addEventListener('mouseleave', () => {
+            if (actions.activeTool !== actions.TOOL.DELETE) return;
+            clearDeleteHover();
+        });
+
+        drawingCanvas.addEventListener('click', (e) => {
+            if (actions.activeTool !== actions.TOOL.DELETE) return;
+            onDeleteClick(e);
+        });
+    }
+}
 
