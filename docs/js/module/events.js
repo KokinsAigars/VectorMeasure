@@ -8,9 +8,8 @@
 import { debugLogLevelA } from './debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
-import {drawingCanvas, measureCanvas, pdfCanvas} from './canvas.js';
+import { drawingCanvas, pdfCanvas} from './canvas.js';
 import {handleCalibrateClick} from "./calibration.js";
-import * as measure from "./measure.js";
 
 
 // EventListeners
@@ -65,13 +64,6 @@ export function setupEventListeners() {
         if (!actions.isPanning) return;
         if (pdfCanvas) pdfCanvas.style.cursor = (spaceDown || actions.panMode) ? 'grab' : 'default';
         actions.endPan();
-    });
-
-    // MEASURE — simple click stub
-    measureCanvas.addEventListener('click', (e) => {
-        if (actions.activeTool !== actions.TOOL.MEASURE) return;
-        console.log('[MEASURE] events.js> measureCanvas.addEventListener(), click at', e.offsetX, e.offsetY);
-        measure.setMeasureActive(true);
     });
 
     // DRAW / DELETE / COMMENT — simple stubs
