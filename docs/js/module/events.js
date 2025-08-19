@@ -8,9 +8,9 @@
 import { debugLogLevelA } from './debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
-import * as measure from './measure.js';
-import { pdfCanvas, measureCanvas, previewCanvas, drawingCanvas } from './canvas.js';
+import {drawingCanvas, measureCanvas, pdfCanvas} from './canvas.js';
 import {handleCalibrateClick} from "./calibration.js";
+import * as measure from "./measure.js";
 
 
 // EventListeners
@@ -82,9 +82,11 @@ export function setupEventListeners() {
         start = { x: e.offsetX, y: e.offsetY };
         console.log(`[${actions.activeTool}] mousedown`, start);
     });
-    document.addEventListener('mousemove', (e) => {
+    document.addEventListener('mousemove', () => {
         if (!drawing) return;
-        if (![actions.TOOL.DRAW, actions.TOOL.DELETE, actions.TOOL.COMMENT].includes(actions.activeTool)) return;
+        if (![actions.TOOL.DRAW, actions.TOOL.DELETE, actions.TOOL.COMMENT].includes(actions.activeTool)) {
+            return;
+        }
         // TODO: preview line / hover-delete / comment cursor etc.
     });
     document.addEventListener('mouseup', (e) => {

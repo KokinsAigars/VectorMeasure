@@ -11,7 +11,6 @@ import * as state from './state.js';
 import {clearCanvasContainer, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
 import {loadPdfByName} from './loader.js';
 import {setMeasureActive, cancelCurrentMeasure} from './measure.js';
-import {BtnMeasure} from "./ui.js";
 
 export let isPanning = false;
 export let panMode = false;
@@ -26,8 +25,6 @@ export const TOOL = Object.freeze({
     COMMENT: 'COMMENT',
 });
 export let activeTool = TOOL.NONE;
-
-
 
 function setCanvasInteractivity() {
     if(debugLogLevelA) console.log('actions.js > setCanvasInteractivity() is called');
@@ -110,9 +107,6 @@ export function offBtn() {
         .forEach(btn => btn && renderButton(btn, false));
 }
 
-
-
-
 export async function handleZoomIn() {
     if(debugLogLevelA) console.log('actions.js > handleZoomIn() is called');
 
@@ -169,6 +163,7 @@ export async function handleResetView() {
 
     offBtn();
     clearCanvasContainer();
+    setMeasureActive(false);
 
     loadPdfByName(state.PdfPlanPath, state.pxPerMeter).then(success => {
         if (success) {
@@ -182,6 +177,7 @@ export function flipPdfHorizontal() {
 
     offBtn();
     clearCanvasContainer();
+    setMeasureActive(false);
 
     loadPdfByName(state.PdfPlanReversePath, state.pxPerMeter).then(success => {
         if (success) {
@@ -195,6 +191,7 @@ export function flipPdfVertical() {
 
     offBtn();
     clearCanvasContainer();
+    setMeasureActive(false);
 
     loadPdfByName(state.PdfPlanVerticalPath, state.pxPerMeter).then(success => {
         if (success) {

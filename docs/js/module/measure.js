@@ -7,9 +7,8 @@
 
 import { debugLogLevelA } from "./debug.js";
 import { DivInfo, DivMeasurementTip } from "./ui.js";
-import { measureCanvas, previewCanvas, renderAtCurrentTransform } from './canvas.js';
+import { measureCanvas, previewCanvas } from './canvas.js';
 import * as state from './state.js';
-import { isPanning, panStart } from './actions.js';
 
 let startPoint = null;
 let isDrawing = false;
@@ -17,13 +16,6 @@ let lastMeasuredStart = null;
 let lastMeasuredEnd = null;
 let measuring = false;
 
-const previewCtx = () => previewCanvas.getContext('2d');
-const measureCtx = () => measureCanvas.getContext('2d');
-
-
-/**
- * Turn measurement mode on/off.
- */
 export function setMeasureActive(on) {
     if(debugLogLevelA) console.log('measure.js > setMeasureActive() is called');
 
@@ -35,19 +27,23 @@ export function setMeasureActive(on) {
         measureCanvas.style.pointerEvents = 'auto';
         previewCanvas.style.pointerEvents = 'none'; // purely visual overlay
 
-        measureCanvas.addEventListener('click',     handleMeasureClick);
-        measureCanvas.addEventListener('mousemove', handleMeasureMove);
-        measureCanvas.addEventListener('mouseleave', handleLeave);
-        window.addEventListener('keydown', handleKeydown);
+        measureCanvas.addEventListener('click',     (e) => { canvasOnMeasureClick(e); });
+        measureCanvas.addEventListener('mousemove', (e) => { onMeasureMove(e); });
+        measureCanvas.addEventListener('mouseleave', () => { hideTipAndPreview(); });
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') cancelCurrentMeasure();
+        });
 
         if (DivInfo) DivInfo.innerText = 'Click two points to measure. (Esc to cancel)';
 
     }
     else {
-        measureCanvas.removeEventListener('click',     handleMeasureClick);
-        measureCanvas.removeEventListener('mousemove', handleMeasureMove);
-        measureCanvas.removeEventListener('mouseleave', handleLeave);
-        window.removeEventListener('keydown', handleKeydown);
+        measureCanvas.removeEventListener('click',     (e) => { canvasOnMeasureClick(e) });
+        measureCanvas.removeEventListener('mousemove', (e) => { onMeasureMove(e); });
+        measureCanvas.removeEventListener('mouseleave', () => { hideTipAndPreview(); });
+        window.removeEventListener('keydown', (e) => {
+            if (e.key === 'Escape') cancelCurrentMeasure();
+        });
 
         measureCanvas.style.pointerEvents = 'none';
         cancelCurrentMeasure();
@@ -55,13 +51,6 @@ export function setMeasureActive(on) {
         if (DivInfo) DivInfo.innerText = '';
     }
 }
-
-
-// --- named handlers so we can remove them later ---
-function handleMeasureClick(e)  { canvasOnMeasureClick(e); }
-function handleMeasureMove(e)   { onMeasureMove(e); }
-function handleKeydown(e)       { if (e.key === 'Escape') cancelCurrentMeasure(); }
-function handleLeave()          { hideTipAndPreview(); }
 
 function hideTipAndPreview() {
     if(debugLogLevelA) console.log('measure.js > hideTipAndPreview() is called');
@@ -82,17 +71,19 @@ export function cancelCurrentMeasure() {
     // also clear the permanent line if the user cancels midway
     const m_ctx = measureCanvas.getContext('2d');
     m_ctx.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
+
+    const c_tx = previewCanvas.getContext('2d');
+    c_tx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 }
 
+export function clearMeasurementState() {
+    console.log('measure.js > clearMeasurementState() is called');
 
-export function isMeasureActive() { return measuring; }
-
-
-
-
-
-
-
+    startPoint = null;
+    lastMeasuredStart = null;
+    lastMeasuredEnd = null;
+    isDrawing = false;
+}
 
 export function onMeasureMove(event) {
     console.log('measure.js > onMeasureMove(event) is called');
@@ -103,15 +94,15 @@ export function onMeasureMove(event) {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    const ctx = previewCtx();
-    ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    const p_ctx = previewCanvas.getContext('2d');
+    p_ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 
-    ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-    ctx.lineWidth = 4;
-    ctx.beginPath();
-    ctx.moveTo(startPoint.x, startPoint.y);
-    ctx.lineTo(x, y);
-    ctx.stroke();
+    p_ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+    p_ctx.lineWidth = 4;
+    p_ctx.beginPath();
+    p_ctx.moveTo(startPoint.x, startPoint.y);
+    p_ctx.lineTo(x, y);
+    p_ctx.stroke();
 
     const dx = x - startPoint.x;
     const dy = y - startPoint.y;
@@ -140,19 +131,19 @@ export function canvasOnMeasureClick(event) {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    const ctx = measureCtx();
+    const m_ctx = measureCanvas.getContext('2d');
 
     if (!startPoint) {
-        ctx.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
+        m_ctx.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
         startPoint = { x, y };
         isDrawing = true;
     } else {
-        ctx.strokeStyle = 'rgba(255, 0, 0)';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(startPoint.x, startPoint.y);
-        ctx.lineTo(x, y);
-        ctx.stroke();
+        m_ctx.strokeStyle = 'rgba(255, 0, 0)';
+        m_ctx.lineWidth = 4;
+        m_ctx.beginPath();
+        m_ctx.moveTo(startPoint.x, startPoint.y);
+        m_ctx.lineTo(x, y);
+        m_ctx.stroke();
 
         lastMeasuredStart = startPoint;
         lastMeasuredEnd = { x, y };
@@ -169,7 +160,8 @@ export function canvasOnMeasureClick(event) {
 
         document.getElementById('info').innerText = `📏 Segment: ${displayDistance}`;
 
-        previewCtx().clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+        const p_ctx = previewCanvas.getContext('2d');
+        p_ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
         startPoint = null;
         isDrawing = false;
 
@@ -183,25 +175,3 @@ export function getMeasurementPoints() {
     return { lastMeasuredStart, lastMeasuredEnd };
 }
 
-export function clearMeasurementState() {
-    console.log('measure.js > clearMeasurementState() is called');
-
-    startPoint = null;
-    lastMeasuredStart = null;
-    lastMeasuredEnd = null;
-    isDrawing = false;
-}
-
-export function cancelMeasurement() {
-    if (debugLogLevelA) console.log('measure.js > cancelMeasurement() is called');
-
-    const ctx = previewCanvas.getContext('2d');
-
-    ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-
-    startPoint = null;
-    isDrawing = false;
-
-    DivInfo.innerText = 'Measuring mode stopped by ESC.';
-    DivMeasurementTip.style.display = 'none';
-}
