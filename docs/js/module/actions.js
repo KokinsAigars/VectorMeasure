@@ -14,7 +14,6 @@ import {setMeasureActive, cancelCurrentMeasure} from './measure.js';
 import { cancelDrawing } from './draw.js';
 
 export let isPanning = false;
-export let isPointerDown = false;
 export let panMode = false;
 export let panStart = { x: 0, y: 0 }
 export let measureOn = false;
@@ -52,7 +51,7 @@ function renderAllButtons() {
     if(debugLogLevelA) console.log('actions.js > renderAllButtons() is called');
 
     // OFF by default
-    [ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnAddComment, ui.BtnPanToggle]
+    [ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnComment, ui.BtnPanToggle]
         .forEach(btn => btn && renderButton(btn, false));
 
     // turn ON only the active one
@@ -60,7 +59,7 @@ function renderAllButtons() {
     if (activeTool === TOOL.MEASURE)   renderButton(ui.BtnMeasure, true);
     if (activeTool === TOOL.DRAW)      renderButton(ui.BtnAddLine, true);
     if (activeTool === TOOL.DELETE)    renderButton(ui.BtnDeleteLine, true);
-    if (activeTool === TOOL.COMMENT)   renderButton(ui.BtnAddComment, true);
+    if (activeTool === TOOL.COMMENT)   renderButton(ui.BtnComment, true);
 }
 
 function setTool(next) {
@@ -108,7 +107,7 @@ export function offBtn() {
     setTool(TOOL.NONE);
     cancelCurrentMeasure();
 
-    [ui.BtnPanToggle, ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnAddComment]
+    [ui.BtnPanToggle, ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnComment]
         .forEach(btn => btn && renderButton(btn, false));
 }
 
@@ -226,7 +225,7 @@ export function renderButton(button, on) {
         button.textContent = on ? '✅ Line' : 'Line';
     } else if (button === ui.BtnDeleteLine) {
         button.textContent = on ? '✅ Delete' : 'Delete Line';
-    } else if (button === ui.BtnAddComment) {
+    } else if (button === ui.BtnComment) {
         button.textContent = on ? '✅ Comment' : 'Comment';
     }
 }
@@ -257,6 +256,10 @@ export function handleAddCommentBtn() {
     if(debugLogLevelA) console.log('actions.js > handleAddCommentBtn() is called');
 
     setTool(TOOL.COMMENT);
+
+    // ui.CommentLayer.style.pointerEvents =
+    //     (activeTool === TOOL.COMMENT) ? 'auto' : 'none';
+
 }
 
 export function handleSaveClick() {

@@ -2,10 +2,11 @@
  * Project Name: “VectorMeasure”;
  * License: MIT;
  * Contributor(s): Aigars Kokins, ChatGPT-5;
+ * app_initialized() on 'DOMContentLoaded'
  * app.js;
  */
 
-import { debugLogLevelA, debugLogLevelB } from './module/debug.js';
+import {debugLogLevelLoading, debugLogLevelSuccess} from './module/debug.js';
 import { loadPdfByName } from './module/loader.js';
 import {
     setPxPerMeter,
@@ -19,7 +20,7 @@ import {
 
 // call MAIN() function
 document.addEventListener('DOMContentLoaded', () => {
-    if(debugLogLevelA) console.log('DOMContentLoaded')
+    if(debugLogLevelLoading) console.log('DOMContentLoaded')
 
     setPxPerMeter( 44.5);
     setBasePxPerMeter(44.5);
@@ -29,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadPdfByName(PdfPlanPath, pxPerMeter).then(success => {
         if (success) {
-            if(debugLogLevelB) console.log('Loaded! ', PdfPlanPath);
+            if(debugLogLevelLoading || debugLogLevelSuccess) console.log('Loaded! ', PdfPlanPath);
         }
     });
 });

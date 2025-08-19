@@ -5,10 +5,11 @@
  * module/ canvas.js;
  */
 
-import { debugLogLevelA } from './debug.js';
+import {debugLogLevelA, debugLogLevelLoading} from './debug.js';
 import { DivInfo, DivPdfContainer } from "./ui.js";
 import * as state from './state.js';
 import { redrawAllLines } from './draw.js';
+import {applyCommentTransform} from './comments.js';
 
 export let pdfDoc = null;
 export let pdfPage = null;
@@ -17,7 +18,6 @@ export let viewport = null;
 export let currentScale  = null;
 export let pdfCanvas= null;
 export let pdfCanvasCtx= null;
-export let originalPdfImage= null;
 export let measureCanvas= null;
 export let previewCanvas= null;
 export let previewCanvasCtx = null;
@@ -27,7 +27,7 @@ let originalCanvasWidth = null;
 let currentRenderTask = null;
 
 export async function initCanvasRenderPDF(options = {}) {
-    if(debugLogLevelA) console.log('canvas.js > initCanvasRenderPDF() is called');
+    if(debugLogLevelLoading) console.log('canvas.js > initCanvasRenderPDF() is called');
 
     // Function Options
     PDFlink = options.PDFlink;
@@ -45,14 +45,14 @@ export async function initCanvasRenderPDF(options = {}) {
 }
 
 async function loadPDF() {
-    if(debugLogLevelA) console.log('canvas.js > loadPDF() is called');
+    if(debugLogLevelLoading) console.log('canvas.js > loadPDF() is called');
 
     pdfDoc = await pdfjsLib.getDocument(PDFlink).promise;
     pdfPage = await pdfDoc.getPage(1);
 }
 
 async function createPDFCanvas() {
-    if(debugLogLevelA) console.log('canvas.js > createPDFCanvas() is called');
+    if(debugLogLevelLoading) console.log('canvas.js > createPDFCanvas() is called');
 
     await loadPDF();
     if (!pdfPage) {
@@ -76,20 +76,16 @@ async function createPDFCanvas() {
     state.setOriginalCanvasWidth(desiredWidth);
     state.setUnscaledViewport(unscaledViewport);
 
-    await createPdfCanvas();
+    await createPdfElementCanvas();
 
     //Render the PDF page into the canvas
     await pdfPage.render({ canvasContext: pdfCanvasCtx, viewport }).promise;
 
-    //Save a PNG copy of the PDF page
-    // originalPdfImage = new Image();
-    // originalPdfImage.src = pdfCanvas.toDataURL('image/png');
-
     return true;
 }
 
-async function createPdfCanvas() {
-    if(debugLogLevelA) console.log('canvas.js > createPdfCanvas() is called');
+async function createPdfElementCanvas() {
+    if(debugLogLevelLoading) console.log('canvas.js > createPdfElementCanvas() is called');
 
     pdfCanvas = document.createElement('canvas');
     pdfCanvas.id = 'pdf-canvas';
@@ -104,7 +100,7 @@ async function createPdfCanvas() {
 }
 
 async function createMeasureCanvas() {
-    if(debugLogLevelA) console.log('canvas.js > createMeasureCanvas() is called');
+    if(debugLogLevelLoading) console.log('canvas.js > createMeasureCanvas() is called');
 
     measureCanvas = document.createElement('canvas');
     measureCanvas.id = 'measure-canvas';
@@ -118,7 +114,7 @@ async function createMeasureCanvas() {
 }
 
 async function createPreviewCanvas() {
-    if(debugLogLevelA) console.log('canvas.js > createPreviewCanvas() is called');
+    if(debugLogLevelLoading) console.log('canvas.js > createPreviewCanvas() is called');
 
     previewCanvas = document.createElement('canvas');
     previewCanvas.id = 'preview-canvas';
@@ -133,7 +129,7 @@ async function createPreviewCanvas() {
 }
 
 async function createDrawingCanvas() {
-    if(debugLogLevelA) console.log('canvas.js > createDrawingCanvas() is called');
+    if(debugLogLevelLoading) console.log('canvas.js > createDrawingCanvas() is called');
 
     drawingCanvas = document.createElement('canvas');
     drawingCanvas.id = 'drawing-canvas';
@@ -145,6 +141,8 @@ async function createDrawingCanvas() {
     drawingCanvas.style.pointerEvents = 'none';
     DivPdfContainer.appendChild(drawingCanvas);
 }
+
+
 
 export function clearCanvasContainer() {
     if(debugLogLevelA) console.log('canvas.js > clearCanvasContainer() is called');
@@ -212,6 +210,8 @@ export async function renderAtCurrentTransform() {
     // redrawMeasurements();
 
     redrawAllLines();
+
+    applyCommentTransform();
 
     return true;
 }

@@ -18,10 +18,12 @@ export const BtnFlipPdfVertical = document.getElementById('flip-pdf-vertical-btn
 export const BtnMeasure = document.getElementById('measure-btn');
 export const BtnAddLine = document.getElementById('add-line-btn');
 export const BtnDeleteLine = document.getElementById('delete-line-btn');
-export const BtnAddComment = document.getElementById('add-comment-btn');
+
 export const BtnSave = document.getElementById('save-btn');
 
 export const DivMeasurementTip = document.getElementById('measurement-tip');
 
 export const BtnCalibrate = document.getElementById('calibrate-btn');
 
+export const BtnComment = document.getElementById('add-comment-btn');
+export const CommentLayer = document.getElementById('comment-layer');

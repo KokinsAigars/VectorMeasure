@@ -5,15 +5,17 @@
  * module/ loader.js;
  */
 
-import { debugLogLevelA } from './debug.js';
-import { setupEventListeners } from './events.js';
+import {debugLogLevelLoading} from './debug.js';
 import { initCanvasRenderPDF } from './canvas.js';
+// import {pxPerMeter} from "./state";
+import {setupEventListeners} from "./events.js";
+import {initComments} from "./comments.js";
 
 let isLoadingPdf = false;
 let currentLoadId = 0;
 
 export async function loadPdfByName(_PdfPlanPath, _PxPerMeter) {
-    if(debugLogLevelA) console.log('loader.js > loadPdfByName() is called')
+    if(debugLogLevelLoading) console.log('loader.js > loadPdfByName() is called')
 
     if (isLoadingPdf) {
         console.log('PDF load in progress — skipping duplicate call');
@@ -36,6 +38,7 @@ export async function loadPdfByName(_PdfPlanPath, _PxPerMeter) {
         }
 
         setupEventListeners();
+        initComments();
 
         return true;
 
@@ -48,4 +51,3 @@ export async function loadPdfByName(_PdfPlanPath, _PxPerMeter) {
     }
 
 }
-

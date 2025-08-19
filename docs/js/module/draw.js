@@ -107,13 +107,12 @@ export function redrawAllLines() {
     }
 }
 
-/** Optional export if you ever want to wipe all drawn content */
-export function clearAllLines() {
-    lines.length = 0;
-    if (!drawingCanvas) return;
-    const ctx = drawingCanvas.getContext('2d');
-    ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-}
+// export function clearAllLines() {
+//     lines.length = 0;
+//     if (!drawingCanvas) return;
+//     const ctx = drawingCanvas.getContext('2d');
+//     ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+// }
 
 // Utility: shortest distance from point to segment (screen space)
 function distPointToSeg(px, py, x1, y1, x2, y2) {
@@ -157,12 +156,12 @@ export function onDeleteHover(e) {
     const idx = findLineIndexAtEvent(e);
     if (idx < 0) return;
 
-    const pctx = previewCanvas.getContext('2d');
+    const p_ctx = previewCanvas.getContext('2d');
     const s = state.currentScale || 1;
     const L = lines[idx];
 
     // red dashed highlight
-    stroke(pctx, L.x1 * s, L.y1 * s, L.x2 * s, L.y2 * s, '#e53935', 4, [8, 6]);
+    stroke(p_ctx, L.x1 * s, L.y1 * s, L.x2 * s, L.y2 * s, '#e53935', 4);
 }
 // Public: click to delete line
 export function onDeleteClick(e) {

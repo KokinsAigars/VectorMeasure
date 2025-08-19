@@ -5,17 +5,16 @@
  * module/ events.js;
  */
 
-import { debugLogLevelA } from './debug.js';
+import {debugLogLevelLoading} from './debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
 import {drawingCanvas, pdfCanvas} from './canvas.js';
 import {handleCalibrateClick} from "./calibration.js";
 import { onDrawMouseDown, onDrawMouseMove, onDrawMouseUp, onDeleteHover, onDeleteClick, clearDeleteHover } from "./draw.js";
 
-
 // EventListeners
 export function setupEventListeners() {
-    if (debugLogLevelA) console.log('events.js > setupEventListeners() function called');
+    if (debugLogLevelLoading) console.log('events.js > setupEventListeners() function called');
 
     if (ui.BtnZoomIn) ui.BtnZoomIn.addEventListener('click', actions.handleZoomIn);
     if (ui.BtnZoomOut) ui.BtnZoomOut.addEventListener('click', actions.handleZoomOut);
@@ -27,7 +26,7 @@ export function setupEventListeners() {
     if (ui.BtnMeasure) ui.BtnMeasure.addEventListener('click', actions.handleMeasureBtn);
     if (ui.BtnAddLine) ui.BtnAddLine.addEventListener('click', actions.handleAddLineBtn);
     if (ui.BtnDeleteLine) ui.BtnDeleteLine.addEventListener('click', actions.handleDeleteLineBtn);
-    if (ui.BtnAddComment) ui.BtnAddComment.addEventListener('click', actions.handleAddCommentBtn);
+    if (ui.BtnComment) ui.BtnComment.addEventListener('click', actions.handleAddCommentBtn);
     if (ui.BtnCalibrate) ui.BtnCalibrate.addEventListener('click', handleCalibrateClick);
 
 
