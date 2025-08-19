@@ -68,6 +68,9 @@ function setTool(next) {
     // toggle if same button pressed
     activeTool = (activeTool === next) ? TOOL.NONE : next;
 
+    // reflect pan state for space-less panning
+    panMode = (activeTool === TOOL.PAN);
+
     renderAllButtons();
     setCanvasInteractivity();
 
@@ -233,7 +236,7 @@ export function renderButton(button, on) {
 export function handlePanBtn() {
     if(debugLogLevelA) console.log('actions.js > handlePanBtn() is called');
 
-    if( activeTool !== 'PAN') {
+    if( activeTool !== TOOL.PAN) {
         setTool(TOOL.PAN);
     } else {
         setTool(TOOL.NONE);

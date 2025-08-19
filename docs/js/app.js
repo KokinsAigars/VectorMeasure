@@ -2,7 +2,7 @@
  * Project Name: “VectorMeasure”;
  * License: MIT;
  * Contributor(s): Aigars Kokins, ChatGPT-5;
- * app_initialized() on 'DOMContentLoaded'
+ * app is initialized on 'DOMContentLoaded'
  * app.js;
  */
 
