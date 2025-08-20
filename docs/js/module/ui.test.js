@@ -2,18 +2,18 @@
  * Project Name: “VectorMeasure”;
  * License: MIT;
  * Contributor(s): Aigars Kokins, ChatGPT-5;
- * A unit test
+ * --TEST--
  * module/ ui.test.js;
  */
 
 import { it, expect, beforeAll } from 'vitest';
 import * as testCond from '@cond';
 import * as ui from "./ui.js";
-import {development} from "@cond";
 
 beforeAll(() => {
     console.log('beforeAll hook');
-    console.log('testCond.production: ', testCond.production);
+    console.log('!testCond.production: ', !testCond.production);
+    console.log('!testCond.development: ', !testCond.development);
 })
 
 it.skipIf(!testCond.production)('ui.js element selection 1', () => {
@@ -46,7 +46,6 @@ it.skipIf(!testCond.production)('ui.js element selection 1', () => {
     expect(elements.every(Boolean)).toBe(true);
 });
 
-
 it.skipIf(!testCond.production)('ui.js element selection 2', () => {
 
     const elements = [
@@ -76,31 +75,4 @@ it.skipIf(!testCond.development)('finds #pdf-container', () => {
     const el = document.getElementById('pdf-container');
     expect(el).not.toBeNull();
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
