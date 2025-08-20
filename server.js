@@ -1,8 +1,7 @@
 /**
- * Project Name: “VectorMeasure”
- * Abbreviation: VM
- * License: MIT
- * Contributor(s): Aigars Kokins
+ * Project Name: “VectorMeasure”;
+ * License: MIT;
+ * Contributor(s): Aigars Kokins, ChatGPT-5;
  * server.js
  */
 

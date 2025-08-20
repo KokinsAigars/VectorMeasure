@@ -7,7 +7,6 @@
 
 import {debugLogLevelLoading} from './debug.js';
 import { initCanvasRenderPDF } from './canvas.js';
-// import {pxPerMeter} from "./state";
 import {setupEventListeners} from "./events.js";
 import {initComments} from "./comments.js";
 

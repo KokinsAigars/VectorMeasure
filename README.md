@@ -43,9 +43,20 @@ work in active phase
 
 
 
-// const on = document.getElementById('measure-btn').dataset.mode === 'on';
-// const on2 = document.getElementById('measure-btn').classList.contains('is-on');
-// const on3 = document.getElementById('measure-btn').getAttribute('aria-pressed') === 'true';
+TESTING environment
+Test runner && Assertion Library
+Jest || Vitest
+https://jestjs.io/
+https://vitest.dev/
 
+    npm install --save-dev vitest
+    npm test
+    npm run test:watch
 
+Testing using DOM
 
+    npm i -D vitest @vitest/browser playwright
+    npx playwright install
+    npx vitest --project=browser
+
+    npm run coverage
