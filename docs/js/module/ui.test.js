@@ -9,13 +9,14 @@
 import { it, expect, beforeAll } from 'vitest';
 import * as testCond from '@cond';
 import * as ui from "./ui.js";
+import {development} from "@cond";
 
 beforeAll(() => {
     console.log('beforeAll hook');
     console.log('testCond.production: ', testCond.production);
 })
 
-it.skipIf(testCond.production)('ui.js element selection', () => {
+it.skipIf(!testCond.production)('ui.js element selection 1', () => {
 
     const elements = [
         ui.BtnZoomIn,
@@ -46,7 +47,7 @@ it.skipIf(testCond.production)('ui.js element selection', () => {
 });
 
 
-it.skipIf(testCond.production)('ui.js element selection 2', () => {
+it.skipIf(!testCond.production)('ui.js element selection 2', () => {
 
     const elements = [
         document.getElementById('zoom-in-btn'),
@@ -71,7 +72,10 @@ it.skipIf(testCond.production)('ui.js element selection 2', () => {
     expect(elements.every(Boolean)).toBe(true);
 });
 
-
+it.skipIf(!testCond.development)('finds #pdf-container', () => {
+    const el = document.getElementById('pdf-container');
+    expect(el).not.toBeNull();
+});
 
 
 

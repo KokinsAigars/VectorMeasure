@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "dev": "concurrently \"node server.js\"",
-    "test": "vitest --run --reporter verbose --environment happy-dom",
+    "test": "vitest --run --reporter verbose",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage"
   },

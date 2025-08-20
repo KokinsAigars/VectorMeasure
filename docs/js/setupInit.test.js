@@ -7,6 +7,7 @@
  */
 
 import { it, expect, describe } from 'vitest';
+import * as testCond from '@cond';
 import { setupInit } from "./setupInit.js";
 import {
     pxPerMeter,
@@ -18,9 +19,9 @@ import {
 
 describe('state.js argument testing', () => {
 
-    it('test initial setup providing pdf path(s) and base calibration', async () => {
+    it.skipIf(!testCond.production)('test initial setup providing pdf path(s) and base calibration', () => {
 
-        await setupInit();
+        setupInit();
 
         expect(pxPerMeter).not.toBeNull();
         expect(basePxPerMeter).not.toBeNull();

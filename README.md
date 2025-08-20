@@ -74,3 +74,5 @@ Testing using DOM
 
     npx vitest --project=browser
     npm run coverage
+
+Next on Testing > https://testing-library.com/
