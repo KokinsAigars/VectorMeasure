@@ -18,16 +18,15 @@ import {
 
 describe('state.js argument testing', () => {
 
-    it('test initial setup providing pdf path(s) and base calibration', () => {
-        let result = false;
+    it('test initial setup providing pdf path(s) and base calibration', async () => {
 
-        setupInit();
+        await setupInit();
 
-        if (pxPerMeter !== null && basePxPerMeter !== null &&
-            PdfPlanPath !== null && PdfPlanReversePath !== null &&
-            PdfPlanVerticalPath !== null) result = true
-
-        expect(result).toBe(true)
+        expect(pxPerMeter).not.toBeNull();
+        expect(basePxPerMeter).not.toBeNull();
+        expect(PdfPlanPath).not.toBeNull();
+        expect(PdfPlanReversePath).not.toBeNull();
+        expect(PdfPlanVerticalPath).not.toBeNull();
     })
 
 });

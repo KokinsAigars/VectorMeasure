@@ -8,8 +8,8 @@
 
 import {debugLogLevelLoading, debugLogLevelSuccess} from './module/debug.js';
 import { setupInit } from "./setupInit.js";
-import {PdfPlanPath, pxPerMeter} from "./module/state.js";
 import { loadPdfByName } from './module/loader.js';
+import {PdfPlanPath, pxPerMeter} from "./module/state.js";
 
 // call MAIN() function
 document.addEventListener('DOMContentLoaded', () => {

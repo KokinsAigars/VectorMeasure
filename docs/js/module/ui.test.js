@@ -12,8 +12,6 @@ import * as ui from "./ui.js";
 it('ui.js element selection', () => {
 
     const elements = [
-        ui.DivPdfContainer,
-        ui.DivInfo,
         ui.BtnZoomIn,
         ui.BtnZoomOut,
         ui.BtnPanToggle,
@@ -23,11 +21,14 @@ it('ui.js element selection', () => {
         ui.BtnMeasure,
         ui.BtnAddLine,
         ui.BtnDeleteLine,
-        ui.BtnSave,
-        ui.DivMeasurementTip,
-        ui.BtnCalibrate,
         ui.BtnComment,
+        ui.BtnSave,
+        ui.InputRecalibrate,
+        ui.BtnCalibrate,
+        ui.DivInfo,
         ui.CommentLayer,
+        ui.DivPdfContainer,
+        ui.DivMeasurementTip,
     ].map(Boolean);
 
     console.log('ui.DivPdfContainer: ', ui.DivPdfContainer);
@@ -37,3 +38,20 @@ it('ui.js element selection', () => {
     // expect(elements).not.toContain(false);
     expect(elements.every(Boolean)).toBe(true);
 })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

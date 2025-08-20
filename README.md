@@ -1,6 +1,20 @@
 
 work in active phase
 
+npm run dev
+http://localhost:3000/
+
+
+npm test
+npm run test:watch
+npx vitest --project=browser
+npm run coverage
+
+
+
+
+
+
 /**
 * Abbreviation: VM
 * License: MIT
@@ -57,6 +71,6 @@ Testing using DOM
 
     npm i -D vitest @vitest/browser playwright
     npx playwright install
-    npx vitest --project=browser
 
+    npx vitest --project=browser
     npm run coverage
