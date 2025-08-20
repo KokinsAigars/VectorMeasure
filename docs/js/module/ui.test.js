@@ -53,7 +53,7 @@ it.skipIf(testCond.production)('ui.js element selection 2', () => {
         document.getElementById('zoom-out-btn'),
         document.getElementById('pan-btn'),
         document.getElementById('reset-pdf-btn'),
-        document.getElementById('flip-pdf-horizontal-btn'),,
+        document.getElementById('flip-pdf-horizontal-btn'),
         document.getElementById('flip-pdf-vertical-btn'),
         document.getElementById('measure-btn'),
         document.getElementById('add-line-btn'),
