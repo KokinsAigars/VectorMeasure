@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@cond": ["./test-conditions.js"]
+    },
+    "allowJs": true
+  }
+}

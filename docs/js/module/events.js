@@ -11,7 +11,6 @@ import * as actions from './actions.js';
 import {drawingCanvas, pdfCanvas} from './canvas.js';
 import {handleCalibrateClick} from "./calibration.js";
 import { onDrawMouseDown, onDrawMouseMove, onDrawMouseUp, onDeleteHover, onDeleteClick, clearDeleteHover } from "./draw.js";
-import {InputRecalibrate} from "./ui.js";
 
 // EventListeners
 export function setupEventListeners() {
