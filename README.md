@@ -1,78 +1,44 @@
-
-work in active phase
-
-npm run dev
-http://localhost:3000/
-
-
-npm test
-npm run test:watch
-npx vitest --project=browser
-npm run coverage
-
-
-
-
-
-
 /**
-* Abbreviation: VM
+* Project Name: “VectorMeasure”
 * License: MIT
 * Contributor(s): Aigars Kokins, ChatGPT-5
 * 2025.06.03 - init(1)
 * 2025.08.08 - init(2)
-* 2025.08.15 - init(3) V3
+* 2025.08.15 - init(3) V0.0.8
+* 
 * The purpose of this project is to test pdf.js functionality
 * https://github.com/mozilla/pdf.js
 *
 */
 
- * Project Name: “VectorMeasure”
-/**
- * Add Canvas and render PDF
- *
- * Add canvas overlay [measureCanvas] (transparent layer for drawing lines)
- *
- * Click two points to draw a line
- *
- * Measure pixel distance
- *
- * Add a simple calibration tool to convert to real-world unit
- */
 
+DEVELOPMENT
 
+Download && install Node.js ^v22.18.0(LTS)
+https://nodejs.org/en/download
+    > node -v
+    v22.18.0
+    
     npm install
     
-    
-    https://nodejs.org/en/download
-    npm install npm@latest
-    npm install -g npm-check-updates
-    // full reinstall> npm ci
-    npm audit fix --force
-
-    npm install
-
     npm run dev
     http://localhost:3000/
+    
 
-
-
-TESTING environment
-Test runner && Assertion Library
-Jest || Vitest
-https://jestjs.io/
-https://vitest.dev/
-
-    npm install --save-dev vitest
-    npm test
-    npm run test:watch
-
-Testing using DOM
-
-    npm i -D vitest @vitest/browser playwright
+For Testing
     npx playwright install
 
+for Avast users
+    Access Firewall Settings: Go to Menu > Settings > Protection > Firewall > View Firewall rules.
+    Manage Network Rules: Click on "Network rules"
+    Add a New Rule:
+        name: "node.js_test" && Protocol: "TCP"" && Address: "127.0.0.1" && Local Port: "63315" && Action: "Allow"
+
+or in cmd: > set NODE_OPTIONS=--dns-result-order=ipv4first
+
+    npm test
+    npm run test:watch
     npx vitest --project=browser
+
     npm run coverage
 
-Next on Testing > https://testing-library.com/
