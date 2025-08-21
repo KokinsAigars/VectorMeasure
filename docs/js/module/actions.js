@@ -79,26 +79,6 @@ function setTool(next) {
     }
 }
 
-export function handleMeasureBtn() {
-    if(debugLogLevelA) console.log('actions.js > handleMeasureBtn() is called');
-
-    let isOn = ui.BtnMeasure.dataset;
-    // console.log('isOn: ', isOn.mode);
-    if(isOn.mode === 'off') {
-        console.log('measureOn');
-        measureOn = true;
-        setTool(TOOL.MEASURE);
-        setMeasureActive(true);
-    }
-    else {
-        console.log('measureOff');
-        setTool(TOOL.NONE);
-        cancelCurrentMeasure()
-    }
-
-    measureOn = !measureOn;
-}
-
 export function offBtn() {
     if (debugLogLevelA) console.log('actions.js > offBtn() is called');
 
@@ -112,26 +92,6 @@ export function offBtn() {
 
     [ui.BtnPanToggle, ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnComment]
         .forEach(btn => btn && renderButton(btn, false));
-}
-
-export async function handleZoomIn() {
-    if(debugLogLevelA) console.log('actions.js > handleZoomIn() is called');
-
-    const next = Math.min(state.currentScale + state.ZOOM.step, state.ZOOM.max);
-    if (next === state.currentScale) return;
-    state.setCurrentScale(next);
-    state.recomputePxPerMeter();
-    await renderAtCurrentTransform();
-}
-
-export async function handleZoomOut() {
-    if(debugLogLevelA) console.log('actions.js > handleZoomOut() is called');
-
-    const next = Math.max(state.currentScale - state.ZOOM.step, state.ZOOM.min);
-    if (next === state.currentScale) return;
-    state.setCurrentScale(next);
-    state.recomputePxPerMeter();
-    await renderAtCurrentTransform();
 }
 
 export function startPan(event) {
@@ -163,6 +123,66 @@ export function endPan() {
     if(debugLogLevelA) console.log('actions.js > endPan() is called');
 
     isPanning = false;
+}
+
+export function renderButton(button, on) {
+    if(debugLogLevelA) console.log('actions.js > renderButton('+ button +', '+ on +') is called');
+
+    button.classList.toggle('is-on', on);
+    button.setAttribute('aria-pressed', String(on));
+    button.dataset.mode = on ? 'on' : 'off';
+
+    if (button === ui.BtnPanToggle) {
+        button.textContent = on ? '✅ Pan' : 'Pan';
+    } else if (button === ui.BtnMeasure) {
+        if (on) {
+            button.textContent = '✅ Measuring';
+            ui.DivInfo.innerText = 'Click two points to measure. (Esc to cancel)';
+        } else {
+            button.textContent = '📏 Measure Distance';
+            ui.DivInfo.innerText = '';
+        }
+    } else if (button === ui.BtnAddLine) {
+        button.textContent = on ? '✅ Line' : 'Line';
+    } else if (button === ui.BtnDeleteLine) {
+        button.textContent = on ? '✅ Delete' : 'Delete Line';
+    } else if (button === ui.BtnComment) {
+        button.textContent = on ? '✅ Comment' : 'Comment';
+    }
+}
+
+
+
+
+
+export async function handleZoomIn() {
+    if(debugLogLevelA) console.log('actions.js > handleZoomIn() is called');
+
+    const next = Math.min(state.currentScale + state.ZOOM.step, state.ZOOM.max);
+    if (next === state.currentScale) return;
+    state.setCurrentScale(next);
+    state.recomputePxPerMeter();
+    await renderAtCurrentTransform();
+}
+
+export async function handleZoomOut() {
+    if(debugLogLevelA) console.log('actions.js > handleZoomOut() is called');
+
+    const next = Math.max(state.currentScale - state.ZOOM.step, state.ZOOM.min);
+    if (next === state.currentScale) return;
+    state.setCurrentScale(next);
+    state.recomputePxPerMeter();
+    await renderAtCurrentTransform();
+}
+
+export function handlePanBtn() {
+    if(debugLogLevelA) console.log('actions.js > handlePanBtn() is called');
+
+    if( activeTool !== TOOL.PAN) {
+        setTool(TOOL.PAN);
+    } else {
+        setTool(TOOL.NONE);
+    }
 }
 
 export async function handleResetView() {
@@ -207,40 +227,27 @@ export function flipPdfVertical() {
     });
 }
 
-export function renderButton(button, on) {
-    if(debugLogLevelA) console.log('actions.js > renderButton('+ button +', '+ on +') is called');
 
-    button.classList.toggle('is-on', on);
-    button.setAttribute('aria-pressed', String(on));
-    button.dataset.mode = on ? 'on' : 'off';
 
-    if (button === ui.BtnPanToggle) {
-        button.textContent = on ? '✅ Pan' : 'Pan';
-    } else if (button === ui.BtnMeasure) {
-        if (on) {
-            button.textContent = '✅ Measuring';
-            ui.DivInfo.innerText = 'Click two points to measure. (Esc to cancel)';
-        } else {
-            button.textContent = '📏 Measure Distance';
-            ui.DivInfo.innerText = '';
-        }
-    } else if (button === ui.BtnAddLine) {
-        button.textContent = on ? '✅ Line' : 'Line';
-    } else if (button === ui.BtnDeleteLine) {
-        button.textContent = on ? '✅ Delete' : 'Delete Line';
-    } else if (button === ui.BtnComment) {
-        button.textContent = on ? '✅ Comment' : 'Comment';
+
+export function handleMeasureBtn() {
+    if(debugLogLevelA) console.log('actions.js > handleMeasureBtn() is called');
+
+    let isOn = ui.BtnMeasure.dataset;
+    // console.log('isOn: ', isOn.mode);
+    if(isOn.mode === 'off') {
+        console.log('measureOn');
+        measureOn = true;
+        setTool(TOOL.MEASURE);
+        setMeasureActive(true);
     }
-}
-
-export function handlePanBtn() {
-    if(debugLogLevelA) console.log('actions.js > handlePanBtn() is called');
-
-    if( activeTool !== TOOL.PAN) {
-        setTool(TOOL.PAN);
-    } else {
+    else {
+        console.log('measureOff');
         setTool(TOOL.NONE);
+        cancelCurrentMeasure()
     }
+
+    measureOn = !measureOn;
 }
 
 export function handleAddLineBtn() {

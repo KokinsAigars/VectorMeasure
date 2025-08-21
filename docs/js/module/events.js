@@ -49,17 +49,6 @@ export function setupEventListeners() {
 
             //TODO which button is pressed? cancel active function, but if pressed again cancel button
 
-
-
-
-
-
-
-
-
-
-
-
         }
     });
     document.addEventListener('keyup', (e) => {

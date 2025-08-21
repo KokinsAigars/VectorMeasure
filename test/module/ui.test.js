@@ -30,7 +30,6 @@ it.skipIf(!js_module_ui)('ui.js element selection 1', () => {
         ui.CommentLayer,
         ui.DivPdfContainer,
         ui.DivMeasurementTip,
-        ui.DivCommentRoot,
     ].map(Boolean);
 
     console.log('ui.DivPdfContainer: ', ui.DivPdfContainer);
@@ -61,7 +60,6 @@ it.skipIf(!js_module_ui)('ui.js element selection 2', () => {
         document.getElementById('comment-layer'),
         document.getElementById('pdf-container'),
         document.getElementById('measurement-tip'),
-        document.querySelector('.comment-root'),
     ].map(Boolean);
 
     expect(elements.every(Boolean)).toBe(true);

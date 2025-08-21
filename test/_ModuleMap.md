@@ -22,3 +22,9 @@
 pdfjs/pdf.mjs 
 - https://mozilla.github.io/pdf.js/
 - https://github.com/mozilla/pdf.js
+
+
+
+HTML SCRIPTS app.js > loader.js > canvas.js
+
+HTML BUTTONS > ui.js > events.js > actions.js || calibration.js > measure.js || draw.js
