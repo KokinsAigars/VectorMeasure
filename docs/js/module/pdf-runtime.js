@@ -5,9 +5,13 @@
  * module/ pdf-runtime.js;
  */
 
+import {debugLogLevelLoading} from '../debug.js';
+
 let pdfjsLib = null;
 
 export async function getPdfjs() {
+    if(debugLogLevelLoading) console.log('pdf-runtime.js > getPdfjs() is called');
+
     // Skip entirely when running under Vitest
     if (import.meta?.vitest) return null;
 

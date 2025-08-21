@@ -5,7 +5,7 @@
  * module/ actions.js;
  */
 
-import {debugLogLevelA} from './debug.js';
+import {debugLogLevelA} from '../debug.js';
 import * as ui from "./ui.js";
 import * as state from './state.js';
 import {clearCanvasContainer, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';

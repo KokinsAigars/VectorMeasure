@@ -6,7 +6,7 @@
  * module/ comments.js;
  */
 
-import {debugLogLevelLoading} from './debug.js';
+import {debugLogLevelLoading} from '../debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js'; // for TOOL / activeTool if you have it
 import * as state from './state.js';     // expects currentScale and panOffset (or default to 1 / {0,0})

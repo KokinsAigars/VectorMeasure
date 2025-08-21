@@ -5,7 +5,7 @@
  * module/ calibration.js;
  */
 
-import {debugLogLevelA} from "./debug.js";
+import {debugLogLevelA} from "../debug.js";
 import { getMeasurementPoints, clearMeasurementState } from './measure.js';
 import { currentScale, setBasePxPerMeter, recomputePxPerMeter, pxPerMeter } from './state.js';
 

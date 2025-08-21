@@ -5,7 +5,7 @@
  * module/ state.js;
  */
 
-import {debugLogLevelA, debugLogLevelLoading} from './debug.js';
+import {debugLogLevelA, debugLogLevelLoading} from '../debug.js';
 
 // Calibration and zoom state
 export let pxPerMeter = 37.6;       // Default: 1px ≈ 0.02652 meters  [1/0.02660 = 37.6]

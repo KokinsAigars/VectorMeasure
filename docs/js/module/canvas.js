@@ -5,7 +5,7 @@
  * module/ canvas.js;
  */
 
-import {debugLogLevelA, debugLogLevelLoading} from './debug.js';
+import {debugLogLevelA, debugLogLevelLoading} from '../debug.js';
 import { DivInfo, DivPdfContainer } from "./ui.js";
 import * as state from './state.js';
 import { redrawAllLines } from './draw.js';
@@ -150,7 +150,6 @@ async function createDrawingCanvas() {
     drawingCanvas.style.pointerEvents = 'none';
     DivPdfContainer.appendChild(drawingCanvas);
 }
-
 
 
 export function clearCanvasContainer() {

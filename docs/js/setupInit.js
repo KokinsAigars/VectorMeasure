@@ -5,7 +5,7 @@
  * setupInit.js;
  */
 
-import {debugLogLevelLoading} from './module/debug.js';
+import {debugLogLevelLoading} from './debug.js';
 import {
     setPxPerMeter,
     setBasePxPerMeter,

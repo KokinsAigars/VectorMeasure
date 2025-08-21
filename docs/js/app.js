@@ -6,7 +6,7 @@
  * app.js;
  */
 
-import {debugLogLevelLoading, debugLogLevelSuccess} from './module/debug.js';
+import {debugLogLevelLoading, debugLogLevelSuccess} from './debug.js';
 import { setupInit } from "./setupInit.js";
 import { loadPdfByName } from './module/loader.js';
 import {PdfPlanPath, pxPerMeter} from "./module/state.js";

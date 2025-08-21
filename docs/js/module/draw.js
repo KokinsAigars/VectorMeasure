@@ -6,7 +6,7 @@
  * module/ draw.js;
  */
 
-import { debugLogLevelA } from './debug.js';
+import { debugLogLevelA } from '../debug.js';
 import * as state from './state.js';
 import { drawingCanvas, previewCanvas } from './canvas.js';
 
