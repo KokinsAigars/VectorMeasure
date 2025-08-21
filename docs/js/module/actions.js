@@ -28,7 +28,12 @@ export const TOOL = Object.freeze({
 export let activeTool = TOOL.NONE;
 
 function setCanvasInteractivity() {
-    if(debugLogLevelA) console.log('actions.js > setCanvasInteractivity() is called');
+    if(debugLogLevelA && !debugLogVerbose) console.log('actions.js > setCanvasInteractivity() is called');
+    if (debugLogVerbose) {
+        console.groupCollapsed('function setCanvasInteractivity()');
+            console.log('prepare Canvas according to activeTool, as well as mouse pointer');
+        console.groupEnd();
+    }
 
     // pdfCanvas (Pan)
     pdfCanvas.style.pointerEvents = (activeTool === TOOL.PAN) ? 'auto' : 'none';
@@ -47,8 +52,49 @@ function setCanvasInteractivity() {
                 activeTool === TOOL.COMMENT ? 'text' : 'default';
 }
 
+export function renderButton(button, on) {
+    if(debugLogLevelA && !debugLogVerbose) console.log('actions.js > renderButton('+ button +', '+ on +') is called');
+    if (debugLogVerbose) {
+        console.groupCollapsed('function renderButton('+ button.innerText +', '+ on +')');
+            console.log('switching html class as well as aria-pressed="false" data-mode="off" . on or off');
+            console.log('also changing text on buttons according if button is on or off');
+            console.log('also changing text in ui.DivInfo.innerText, some interface info display');
+        console.groupEnd();
+    }
+
+    button.classList.toggle('is-on', on);
+    button.setAttribute('aria-pressed', String(on));
+    button.dataset.mode = on ? 'on' : 'off';
+
+    if (button === ui.BtnPanToggle) {
+        button.textContent = on ? '✅ Pan' : 'Pan';
+    } else if (button === ui.BtnMeasure) {
+        if (on) {
+            button.textContent = '✅ Measuring';
+            ui.DivInfo.innerText = 'Click two points to measure. (Esc to cancel)';
+        } else {
+            button.textContent = '📏 Measure Distance';
+            ui.DivInfo.innerText = '';
+        }
+    } else if (button === ui.BtnAddLine) {
+        button.textContent = on ? '✅ Line' : 'Line';
+    } else if (button === ui.BtnDeleteLine) {
+        button.textContent = on ? '✅ Delete' : 'Delete Line';
+    } else if (button === ui.BtnComment) {
+        button.textContent = on ? '✅ Comment' : 'Comment';
+    }
+}
+
 function renderAllButtons() {
     if(debugLogLevelA && !debugLogVerbose) console.log('actions.js > renderAllButtons() is called');
+    if (debugLogVerbose) {
+        console.groupCollapsed('function renderAllButtons()');
+            console.log('"all" the buttons are rendered off except active one, what is determined by activeTool');
+            console.log('ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnComment, ui.BtnPanToggle');
+            console.log('looping through array calling function renderButton(btn, false) to switch off all the buttons');
+            console.log('calling function renderButton(true) on button that matches if (activeTool === TOOL.XXX) to turn it back on');
+        console.groupEnd();
+    }
 
     // OFF by default
     [ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnComment, ui.BtnPanToggle]
@@ -140,32 +186,6 @@ export function endPan() {
     isPanning = false;
 }
 
-export function renderButton(button, on) {
-    if(debugLogLevelA) console.log('actions.js > renderButton('+ button +', '+ on +') is called');
-
-    button.classList.toggle('is-on', on);
-    button.setAttribute('aria-pressed', String(on));
-    button.dataset.mode = on ? 'on' : 'off';
-
-    if (button === ui.BtnPanToggle) {
-        button.textContent = on ? '✅ Pan' : 'Pan';
-    } else if (button === ui.BtnMeasure) {
-        if (on) {
-            button.textContent = '✅ Measuring';
-            ui.DivInfo.innerText = 'Click two points to measure. (Esc to cancel)';
-        } else {
-            button.textContent = '📏 Measure Distance';
-            ui.DivInfo.innerText = '';
-        }
-    } else if (button === ui.BtnAddLine) {
-        button.textContent = on ? '✅ Line' : 'Line';
-    } else if (button === ui.BtnDeleteLine) {
-        button.textContent = on ? '✅ Delete' : 'Delete Line';
-    } else if (button === ui.BtnComment) {
-        button.textContent = on ? '✅ Comment' : 'Comment';
-    }
-}
-
 export async function handleZoomIn() {
     if(debugLogLevelA) console.log('actions.js > handleZoomIn() is called');
 
@@ -242,9 +262,9 @@ export function reset() {
 }
 
 export function handleMeasureBtn() {
-    if (debugLogLevelA && !debugLogVerbose) console.log('actions.js > handleMeasureBtn() is called');
+    if (debugLogLevelA && !debugLogVerbose) console.log('USER: actions.js > handleMeasureBtn() is called');
     if (debugLogVerbose) {
-        console.groupCollapsed('Measure button clicked');
+        console.groupCollapsed('USER: Measure button clicked');
             console.log('index.html button Measure > ui.js selected / events.js added EventListeners and functions');
             console.log('actions.js > handleMeasureBtn() is called');
             console.log('checking if button is active, if data-mode="off" or "on"');
@@ -273,9 +293,9 @@ export function handleMeasureBtn() {
 }
 
 export function handleAddLineBtn() {
-    if (debugLogLevelA && !debugLogVerbose) console.log('actions.js > handleAddLineBtn() is called');
+    if (debugLogLevelA && !debugLogVerbose) console.log('USER: actions.js > handleAddLineBtn() is called');
     if (debugLogVerbose) {
-        console.groupCollapsed('Add Line button clicked');
+        console.groupCollapsed('USER: Add Line button clicked');
             console.log('index.html button Add Line > ui.js selected / events.js added EventListeners and functions');
             console.log('actions.js > handleAddLineBtn() is called');
             console.log('calling function > setTool(TOOL.DRAW)');
@@ -286,9 +306,9 @@ export function handleAddLineBtn() {
 }
 
 export function handleDeleteLineBtn() {
-        if (debugLogLevelA && !debugLogVerbose) console.log('actions.js > handleDeleteLineBtn() is called');
+        if (debugLogLevelA && !debugLogVerbose) console.log('USER: actions.js > handleDeleteLineBtn() is called');
         if (debugLogVerbose) {
-            console.groupCollapsed('Delete Line button clicked');
+            console.groupCollapsed('USER: Delete Line button clicked');
                 console.log('index.html button Delete Line > ui.js selected / events.js added EventListeners and functions');
                 console.log('actions.js > handleDeleteLineBtn() is called');
                 console.log('calling function > setTool(TOOL.DELETE)');
@@ -300,9 +320,9 @@ export function handleDeleteLineBtn() {
 }
 
 export function handleAddCommentBtn() {
-    if (debugLogLevelA && !debugLogVerbose) console.log('actions.js > handleAddCommentBtn() is called');
+    if (debugLogLevelA && !debugLogVerbose) console.log('USER: actions.js > handleAddCommentBtn() is called');
     if (debugLogVerbose) {
-        console.groupCollapsed('Comment button clicked');
+        console.groupCollapsed('USER: Comment button clicked');
             console.log('index.html button Comments > ui.js selected / events.js added EventListeners and functions');
             console.log('actions.js > handleAddCommentBtn() is called');
             console.log('checking if button is active, if data-mode="off" or "on"');
