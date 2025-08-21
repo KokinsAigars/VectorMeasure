@@ -8,7 +8,7 @@
 
 import { it, expect, beforeAll } from 'vitest';
 import * as testCond from '@cond';
-import * as ui from "./ui.js";
+import * as ui from "@jsModule/ui.js";
 
 beforeAll(() => {
     console.log('beforeAll hook');

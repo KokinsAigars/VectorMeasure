@@ -10,6 +10,7 @@ import { DivInfo, DivPdfContainer } from "./ui.js";
 import * as state from './state.js';
 import { redrawAllLines } from './draw.js';
 import {applyCommentTransform} from './comments.js';
+import { getPdfjs } from './pdf-runtime.js';
 
 export let pdfDoc = null;
 export let pdfPage = null;
@@ -47,8 +48,16 @@ export async function initCanvasRenderPDF(options = {}) {
 async function loadPDF() {
     if(debugLogLevelLoading) console.log('canvas.js > loadPDF() is called');
 
+    const lib = await getPdfjs();
+    if (!lib) {
+        if (debugLogLevelLoading) console.warn('PDF.js disabled in tests (import.meta.vitest).');
+        return false;
+    }
+
     pdfDoc = await pdfjsLib.getDocument(PDFlink).promise;
     pdfPage = await pdfDoc.getPage(1);
+
+    return true;
 }
 
 async function createPDFCanvas() {

@@ -26,7 +26,7 @@ function makeCanvas(id) {
 }
 
 // Mock ui.js to provide all referenced elements
-vi.mock('./ui.js', () => {
+vi.mock('@jsModule/ui.js', () => {
   return {
     BtnZoomIn: makeButton('zoom-in-btn'),
     BtnZoomOut: makeButton('zoom-out-btn'),
@@ -49,7 +49,7 @@ vi.mock('./ui.js', () => {
 });
 
 // Mock canvas.js to provide canvases
-vi.mock('./canvas.js', () => {
+vi.mock('@jsModule/canvas.js', () => {
   return {
     pdfCanvas: makeCanvas('pdf-canvas'),
     drawingCanvas: makeCanvas('drawing-canvas'),
@@ -57,7 +57,7 @@ vi.mock('./canvas.js', () => {
 });
 
 // Mock actions.js and required properties
-vi.mock('./actions.js', () => {
+vi.mock('@jsModule/actions.js', () => {
   return {
     handleZoomIn: vi.fn(),
     handleZoomOut: vi.fn(),
@@ -81,12 +81,12 @@ vi.mock('./actions.js', () => {
 });
 
 // Mock calibration.js
-vi.mock('./calibration.js', () => ({
+vi.mock('@jsModule/calibration.js', () => ({
   handleCalibrateClick: vi.fn(),
 }));
 
 // Mock draw.js
-vi.mock('./draw.js', () => ({
+vi.mock('@jsModule/draw.js', () => ({
   onDrawMouseDown: vi.fn(),
   onDrawMouseMove: vi.fn(),
   onDrawMouseUp: vi.fn(),
@@ -96,10 +96,10 @@ vi.mock('./draw.js', () => ({
 }));
 
 // Import after mocks so that events.js uses them
-import * as ui from './ui.js';
-import { pdfCanvas, drawingCanvas } from './canvas.js';
-import * as actions from './actions.js';
-import { setupEventListeners } from './events.js';
+import * as ui from '@jsModule/ui.js';
+import { pdfCanvas, drawingCanvas } from '@jsModule/canvas.js';
+import * as actions from '@jsModule/actions.js';
+import { setupEventListeners } from '@jsModule/events.js';
 
 let docSpy;
 let pdfCanvasSpy;

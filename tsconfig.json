@@ -1,9 +1,21 @@
 {
   "compilerOptions": {
+    "types": ["node", "vitest/globals", "@vitest/browser/providers/playwright"],
+    "module": "esnext",
+    "target": "esnext",
+    "moduleResolution": "bundler",
     "baseUrl": ".",
     "paths": {
-      "@cond": ["./test-conditions.js"]
+      "@cond": ["./test-conditions.js"],
+      "@docsJs/*": ["docs/js/*"],
+      "@jsModule/*": ["docs/js/module/*"]
     },
-    "allowJs": true
+    "allowJs": true,
+    "include": [
+      "vitest.config.ts",
+      "docs/**/*.js",
+      "tests/**/*.js",
+      "types"
+    ]
   }
 }

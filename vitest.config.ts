@@ -1,6 +1,5 @@
-/// <reference types="@vitest/browser/providers/playwright" />
 import { defineConfig } from 'vitest/config'
-import * as path from 'path'
+import path from 'node:path'
 
 export default defineConfig({
     test: {
@@ -24,14 +23,22 @@ export default defineConfig({
         ],
     },
     optimizeDeps: {
-        exclude: ['./docs/js/pdfjs/pdf.mjs'],
+        exclude: ['docs/js/pdfjs/pdf.mjs'],  // exclude from dependency pre-bundling
     },
     ssr: {
-        external: ['./docs/js/pdfjs/pdf.mjs'],
+        external: ['docs/js/pdfjs/pdf.mjs'], // don’t try to SSR this file
     },
     resolve: {
         alias: {
-            '@cond': path.resolve(__dirname, 'test-conditions.js'),
+            // file alias
+            '@cond': path.resolve(process.cwd(), 'test-conditions.js'),
+
+            // directory alias
+            '@docsJs': path.resolve(process.cwd(), 'docs/js'),
+            '@jsModule' : path.resolve(process.cwd(), 'docs/js/module'),
+
+            './docs/js/pdfjs/pdf.mjs': path.resolve(__dirname, 'test/__mocks__/pdfjsStub.js'),
         },
     },
 })
+

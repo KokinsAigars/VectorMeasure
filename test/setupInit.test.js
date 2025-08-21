@@ -8,14 +8,14 @@
 
 import { it, expect, describe } from 'vitest';
 import * as testCond from '@cond';
-import { setupInit } from "./setupInit.js";
+import { setupInit } from "@docsJs/setupInit.js";
 import {
     pxPerMeter,
     basePxPerMeter,
     PdfPlanPath,
     PdfPlanReversePath,
     PdfPlanVerticalPath
-} from './module/state.js';
+} from '@jsModule/state.js';
 
 describe('state.js argument testing', () => {
 

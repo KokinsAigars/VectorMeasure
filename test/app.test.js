@@ -6,10 +6,10 @@
  * app.test.js;
  */
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { it, expect, vi, beforeEach } from 'vitest';
 
 // Mock loader to avoid real PDF/Canvas work and make it resolve to success
-vi.mock('./module/loader.js', () => {
+vi.mock('@jsModule/loader.js', () => {
   return {
     loadPdfByName: vi.fn(() => Promise.resolve(true)),
   };
@@ -24,9 +24,9 @@ beforeEach(() => {
 });
 
 // Import after mocks so app.js uses the mocked loader
-import * as loader from './module/loader.js';
-import { PdfPlanPath, pxPerMeter } from './module/state.js';
-import './app.js';
+import * as loader from '@jsModule/loader.js';
+import { PdfPlanPath, pxPerMeter } from '@jsModule/state.js';
+import '@docsJs/app.js';
 
 
 it('calls loadPdfByName with state values and handles success', async () => {
