@@ -7,6 +7,7 @@
  */
 
 import { it, expect, vi, beforeEach } from 'vitest';
+import { js_app } from '@cond';
 
 // Mock loader to avoid real PDF/Canvas work and make it resolve to success
 vi.mock('@jsModule/loader.js', () => {
@@ -29,7 +30,7 @@ import { PdfPlanPath, pxPerMeter } from '@jsModule/state.js';
 import '@docsJs/app.js';
 
 
-it('calls loadPdfByName with state values and handles success', async () => {
+it.skipIf(!js_app)('calls loadPdfByName with state values and handles success', async () => {
     // Trigger the app initialization
     document.dispatchEvent(new Event('DOMContentLoaded'));
 
@@ -47,5 +48,3 @@ it('calls loadPdfByName with state values and handles success', async () => {
     );
     expect(loggedLoaded).toBe(true);
 });
-
-

@@ -101,10 +101,14 @@
 #drawing-canvas { z-index: 22; }
 
 
+.comment-root{
+    position: relative;
+}
+
 .comment-layer {
     position: absolute;
     inset: 0;
-    pointer-events: none; /* JS turns this on only when COMMENT tool is active */
+    pointer-events: none;
 }
 
 .comment-badge {

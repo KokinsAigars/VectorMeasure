@@ -7,7 +7,7 @@
  */
 
 import { it, expect, describe } from 'vitest';
-import * as testCond from '@cond';
+import { js_setupInit } from '@cond';
 import { setupInit } from "@docsJs/setupInit.js";
 import {
     pxPerMeter,
@@ -19,7 +19,7 @@ import {
 
 describe('state.js argument testing', () => {
 
-    it.skipIf(!testCond.production)('test initial setup providing pdf path(s) and base calibration', () => {
+    it.skipIf(!js_setupInit)('test initial setup providing pdf path(s) and base calibration', () => {
 
         setupInit();
 

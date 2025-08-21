@@ -7,6 +7,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { js_module_events } from "@cond";
 
 // Create DOM helpers for our mocked modules
 function makeButton(id) {
@@ -132,11 +133,11 @@ beforeEach(() => {
 });
 
 describe('events.js -> setupEventListeners', () => {
-  it('exports setupEventListeners function', () => {
+    it.skipIf(!js_module_events)('exports setupEventListeners function', () => {
     expect(typeof setupEventListeners).toBe('function');
   });
 
-  it('adds click listeners for all UI buttons', () => {
+    it.skipIf(!js_module_events)('adds click listeners for all UI buttons', () => {
     setupEventListeners();
 
     const pairs = [
@@ -162,7 +163,7 @@ describe('events.js -> setupEventListeners', () => {
     }
   });
 
-  it('adds document-level listeners for pan/draw interactions', () => {
+    it.skipIf(!js_module_events)('adds document-level listeners for pan/draw interactions', () => {
     setupEventListeners();
 
     const events = ['keydown', 'keyup', 'mousemove', 'mouseup'];
@@ -174,7 +175,7 @@ describe('events.js -> setupEventListeners', () => {
     }
   });
 
-  it('adds listeners to canvases (pdfCanvas and drawingCanvas)', () => {
+    it.skipIf(!js_module_events)('adds listeners to canvases (pdfCanvas and drawingCanvas)', () => {
     setupEventListeners();
 
     // pdfCanvas should have mousedown listener
@@ -191,7 +192,7 @@ describe('events.js -> setupEventListeners', () => {
     }
   });
 
-  it('provides required action and draw function stubs (existence check)', () => {
+    it.skipIf(!js_module_events)('provides required action and draw function stubs (existence check)', () => {
     expect(typeof actions.handleZoomIn).toBe('function');
     expect(typeof actions.handleZoomOut).toBe('function');
     expect(typeof actions.handlePanBtn).toBe('function');

@@ -22,6 +22,4 @@ export const DivInfo = document.getElementById('info');
 export const CommentLayer = document.getElementById('comment-layer');
 export const DivPdfContainer = document.getElementById('pdf-container');
 export const DivMeasurementTip = document.getElementById('measurement-tip');
-
-
-
+export const DivCommentRoot = document.querySelector('.comment-root');

@@ -6,17 +6,11 @@
  * module/ ui.test.js;
  */
 
-import { it, expect, beforeAll } from 'vitest';
-import * as testCond from '@cond';
+import { it, expect } from 'vitest';
+import { js_module_ui } from "@cond";
 import * as ui from "@jsModule/ui.js";
 
-beforeAll(() => {
-    console.log('beforeAll hook');
-    console.log('!testCond.production: ', !testCond.production);
-    console.log('!testCond.development: ', !testCond.development);
-})
-
-it.skipIf(!testCond.production)('ui.js element selection 1', () => {
+it.skipIf(!js_module_ui)('ui.js element selection 1', () => {
 
     const elements = [
         ui.BtnZoomIn,
@@ -36,6 +30,7 @@ it.skipIf(!testCond.production)('ui.js element selection 1', () => {
         ui.CommentLayer,
         ui.DivPdfContainer,
         ui.DivMeasurementTip,
+        ui.DivCommentRoot,
     ].map(Boolean);
 
     console.log('ui.DivPdfContainer: ', ui.DivPdfContainer);
@@ -46,7 +41,7 @@ it.skipIf(!testCond.production)('ui.js element selection 1', () => {
     expect(elements.every(Boolean)).toBe(true);
 });
 
-it.skipIf(!testCond.production)('ui.js element selection 2', () => {
+it.skipIf(!js_module_ui)('ui.js element selection 2', () => {
 
     const elements = [
         document.getElementById('zoom-in-btn'),
@@ -66,12 +61,13 @@ it.skipIf(!testCond.production)('ui.js element selection 2', () => {
         document.getElementById('comment-layer'),
         document.getElementById('pdf-container'),
         document.getElementById('measurement-tip'),
+        document.querySelector('.comment-root'),
     ].map(Boolean);
 
     expect(elements.every(Boolean)).toBe(true);
 });
 
-it.skipIf(!testCond.development)('finds #pdf-container', () => {
+it.skipIf(!js_module_ui)('finds #pdf-container', () => {
     const el = document.getElementById('pdf-container');
     expect(el).not.toBeNull();
 });
