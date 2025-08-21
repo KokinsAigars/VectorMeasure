@@ -107,12 +107,13 @@ export function redrawAllLines() {
     }
 }
 
-// export function clearAllLines() {
-//     lines.length = 0;
-//     if (!drawingCanvas) return;
-//     const ctx = drawingCanvas.getContext('2d');
-//     ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-// }
+// call on Reset or Flip button click
+export function clearAllLines() {
+    lines.length = 0;
+    if (!drawingCanvas) return;
+    const ctx = drawingCanvas.getContext('2d');
+    ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
+}
 
 // Utility: shortest distance from point to segment (screen space)
 function distPointToSeg(px, py, x1, y1, x2, y2) {
@@ -127,6 +128,7 @@ function distPointToSeg(px, py, x1, y1, x2, y2) {
     const projy = y1 + t * vy;
     return Math.hypot(px - projx, py - projy);
 }
+
 // Find nearest line index under cursor within tolerance (returns -1 if none)
 function findLineIndexAtEvent(e) {
     if (!drawingCanvas) return -1;
@@ -148,6 +150,7 @@ function findLineIndexAtEvent(e) {
     }
     return bestDist <= HIT_TOLERANCE_SCR ? bestIdx : -1;
 }
+
 // Public: hover highlight for delete mode
 export function onDeleteHover(e) {
     if (!previewCanvas || !drawingCanvas) return;
@@ -163,6 +166,7 @@ export function onDeleteHover(e) {
     // red dashed highlight
     stroke(p_ctx, L.x1 * s, L.y1 * s, L.x2 * s, L.y2 * s, '#e53935', 4);
 }
+
 // Public: click to delete line
 export function onDeleteClick(e) {
     const idx = findLineIndexAtEvent(e);

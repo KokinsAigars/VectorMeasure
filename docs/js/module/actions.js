@@ -5,13 +5,13 @@
  * module/ actions.js;
  */
 
-import {debugLogLevelA} from '../debug.js';
+import { debugLogLevelA, debugLogVerbose } from '../debug.js';
 import * as ui from "./ui.js";
 import * as state from './state.js';
 import {clearCanvasContainer, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
 import {loadPdfByName} from './loader.js';
 import {setMeasureActive, cancelCurrentMeasure} from './measure.js';
-import { cancelDrawing } from './draw.js';
+import {cancelDrawing, clearAllLines} from './draw.js';
 
 export let isPanning = false;
 export let panMode = false;
@@ -48,7 +48,7 @@ function setCanvasInteractivity() {
 }
 
 function renderAllButtons() {
-    if(debugLogLevelA) console.log('actions.js > renderAllButtons() is called');
+    if(debugLogLevelA && !debugLogVerbose) console.log('actions.js > renderAllButtons() is called');
 
     // OFF by default
     [ui.BtnMeasure, ui.BtnAddLine, ui.BtnDeleteLine, ui.BtnComment, ui.BtnPanToggle]
@@ -63,7 +63,19 @@ function renderAllButtons() {
 }
 
 function setTool(next) {
-    if(debugLogLevelA) console.log('actions.js > setTool('+ next +') is called');
+    if (debugLogLevelA && !debugLogVerbose) console.log('actions.js > setTool('+ next +') is called');
+    if (debugLogVerbose) {
+        console.groupCollapsed('function setTool(next)');
+            console.log('actions.js > setTool('+ next +') is called');
+            console.log('argument comes form buttons handles function, e.g. setTool('+ next +');')
+            console.log('changing export let activeTool');
+            console.log('panMode is on if activeTool is TOOL.PAN');
+            console.log('function is called > renderAllButtons()');
+            console.log('function is called > setCanvasInteractivity()');
+            console.log('disable draw capability if active tools is not Draw, by calling function > cancelDrawing();');
+            console.log('disable measure if active tools is not MEASURE, by calling function > cancelCurrentMeasure();');
+        console.groupEnd();
+    }
 
     // toggle if same button pressed
     activeTool = (activeTool === next) ? TOOL.NONE : next;
@@ -76,6 +88,9 @@ function setTool(next) {
 
     if (activeTool !== TOOL.DRAW) {
         try { cancelDrawing(); } catch {}
+    }
+    if (activeTool !== TOOL.MEASURE) {
+        try { cancelCurrentMeasure(); } catch {}
     }
 }
 
@@ -151,10 +166,6 @@ export function renderButton(button, on) {
     }
 }
 
-
-
-
-
 export async function handleZoomIn() {
     if(debugLogLevelA) console.log('actions.js > handleZoomIn() is called');
 
@@ -188,9 +199,7 @@ export function handlePanBtn() {
 export async function handleResetView() {
     if(debugLogLevelA) console.log('actions.js > handleResetView() is called');
 
-    offBtn();
-    clearCanvasContainer();
-    setMeasureActive(false);
+    reset()
 
     loadPdfByName(state.PdfPlanPath, state.pxPerMeter).then(success => {
         if (success) {
@@ -202,9 +211,7 @@ export async function handleResetView() {
 export function flipPdfHorizontal() {
     if(debugLogLevelA) console.log('actions.js > flipPdfHorizontal() is called');
 
-    offBtn();
-    clearCanvasContainer();
-    setMeasureActive(false);
+    reset()
 
     loadPdfByName(state.PdfPlanReversePath, state.pxPerMeter).then(success => {
         if (success) {
@@ -216,9 +223,7 @@ export function flipPdfHorizontal() {
 export function flipPdfVertical() {
     if(debugLogLevelA) console.log('actions.js > flipPdfVertical() is called');
 
-    offBtn();
-    clearCanvasContainer();
-    setMeasureActive(false);
+    reset()
 
     loadPdfByName(state.PdfPlanVerticalPath, state.pxPerMeter).then(success => {
         if (success) {
@@ -227,22 +232,39 @@ export function flipPdfVertical() {
     });
 }
 
+export function reset() {
+    if(debugLogLevelA) console.log('actions.js > reset() is called');
 
-
+    clearAllLines();
+    offBtn();
+    clearCanvasContainer();
+    setMeasureActive(false);
+}
 
 export function handleMeasureBtn() {
-    if(debugLogLevelA) console.log('actions.js > handleMeasureBtn() is called');
+    if (debugLogLevelA && !debugLogVerbose) console.log('actions.js > handleMeasureBtn() is called');
+    if (debugLogVerbose) {
+        console.groupCollapsed('Measure button clicked');
+            console.log('index.html button Measure > ui.js selected / events.js added EventListeners and functions');
+            console.log('actions.js > handleMeasureBtn() is called');
+            console.log('checking if button is active, if data-mode="off" or "on"');
+            console.log('if(off) > switch it on, and vice versa');
+            console.log('calling function > setTool(TOOL.MEASURE); // or setTool(TOOL.NONE);');
+            console.log('calling function >  setMeasureActive(true);; // or cancelCurrentMeasure();');
+            console.log('switching measureOn = true // or false');
+        console.groupEnd();
+    }
 
     let isOn = ui.BtnMeasure.dataset;
     // console.log('isOn: ', isOn.mode);
     if(isOn.mode === 'off') {
-        console.log('measureOn');
+        // console.log('measureOn');
         measureOn = true;
         setTool(TOOL.MEASURE);
         setMeasureActive(true);
     }
     else {
-        console.log('measureOff');
+        // console.log('measureOff');
         setTool(TOOL.NONE);
         cancelCurrentMeasure()
     }
@@ -251,24 +273,50 @@ export function handleMeasureBtn() {
 }
 
 export function handleAddLineBtn() {
-    if(debugLogLevelA) console.log('actions.js > handleAddLineBtn() is called');
+    if (debugLogLevelA && !debugLogVerbose) console.log('actions.js > handleAddLineBtn() is called');
+    if (debugLogVerbose) {
+        console.groupCollapsed('Add Line button clicked');
+            console.log('index.html button Add Line > ui.js selected / events.js added EventListeners and functions');
+            console.log('actions.js > handleAddLineBtn() is called');
+            console.log('calling function > setTool(TOOL.DRAW)');
+        console.groupEnd();
+    }
 
     setTool(TOOL.DRAW);
 }
 
 export function handleDeleteLineBtn() {
-    if(debugLogLevelA) console.log('actions.js > handleDeleteLineBtn() is called');
+        if (debugLogLevelA && !debugLogVerbose) console.log('actions.js > handleDeleteLineBtn() is called');
+        if (debugLogVerbose) {
+            console.groupCollapsed('Delete Line button clicked');
+                console.log('index.html button Delete Line > ui.js selected / events.js added EventListeners and functions');
+                console.log('actions.js > handleDeleteLineBtn() is called');
+                console.log('calling function > setTool(TOOL.DELETE)');
+            console.groupEnd();
+        }
 
-    setTool(TOOL.DELETE);
+        setTool(TOOL.DELETE);
+
 }
 
 export function handleAddCommentBtn() {
-    if(debugLogLevelA) console.log('actions.js > handleAddCommentBtn() is called');
+    if (debugLogLevelA && !debugLogVerbose) console.log('actions.js > handleAddCommentBtn() is called');
+    if (debugLogVerbose) {
+        console.groupCollapsed('Comment button clicked');
+            console.log('index.html button Comments > ui.js selected / events.js added EventListeners and functions');
+            console.log('actions.js > handleAddCommentBtn() is called');
+            console.log('checking if button is active, if data-mode="off" or "on"');
+            console.log('calling function > setTool(TOOL.COMMENT) //or setTool(TOOL.NONE)');
+        console.groupEnd();
+        }
 
-    setTool(TOOL.COMMENT);
+    let isOn = ui.BtnComment.dataset;
 
-    // ui.CommentLayer.style.pointerEvents =
-    //     (activeTool === TOOL.COMMENT) ? 'auto' : 'none';
+    if(isOn.mode === 'off') {
+        setTool(TOOL.COMMENT);
+    } else {
+        setTool(TOOL.NONE);
+    }
 
 }
 
@@ -289,10 +337,4 @@ export function handleSaveClick() {
     link.download = 'VectorMeasure.png';
     link.click();
 }
-
-
-
-
-
-
 

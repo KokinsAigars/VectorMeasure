@@ -60,6 +60,15 @@ function hideTipAndPreview() {
     p_ctx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 }
 
+export function clearMeasurementState() {
+    console.log('measure.js > clearMeasurementState() is called');
+
+    startPoint = null;
+    lastMeasuredStart = null;
+    lastMeasuredEnd = null;
+    isDrawing = false;
+}
+
 export function cancelCurrentMeasure() {
     if(debugLogLevelA) console.log('measure.js > cancelCurrentMeasure() is called');
 
@@ -73,15 +82,6 @@ export function cancelCurrentMeasure() {
 
     const c_tx = previewCanvas.getContext('2d');
     c_tx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-}
-
-export function clearMeasurementState() {
-    console.log('measure.js > clearMeasurementState() is called');
-
-    startPoint = null;
-    lastMeasuredStart = null;
-    lastMeasuredEnd = null;
-    isDrawing = false;
 }
 
 export function onMeasureMove(event) {
