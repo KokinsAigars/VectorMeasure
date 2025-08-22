@@ -17,10 +17,7 @@ import {
     onDeleteHover,
     onDeleteClick,
     clearDeleteHover,
-    cancelDrawing
 } from "./draw.js";
-import {activeTool, TOOL} from "./actions.js";
-import {cancelCurrentMeasure} from "./measure.js";
 
 // EventListeners
 export function setupEventListeners() {
