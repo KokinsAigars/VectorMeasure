@@ -6,7 +6,7 @@
  * module/ draw.js;
  */
 
-import { debugLogLevelA } from '../debug.js';
+import {debugLogDraw} from '../debug.js';
 import * as state from './state.js';
 import { drawingCanvas, previewCanvas } from './canvas.js';
 
@@ -18,17 +18,23 @@ const HIT_TOLERANCE_SCR = 8;
 const lines = []; // [{x1,y1,x2,y2,color,width} in page px]
 
 function canvasPointFromEvent(canvas, e) {
+    if(debugLogDraw) console.log('draw.js > canvasPointFromEvent(canvas, e) is called');
+
     const r = canvas.getBoundingClientRect();
     return { x: e.clientX - r.left, y: e.clientY - r.top };
 }
 
 function clearPreview() {
+    if(debugLogDraw) console.log('draw.js > clearPreview() is called');
+
     const p = previewCanvas?.getContext('2d');
     if (!p) return;
     p.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
 }
 
 function stroke(ctx, x1, y1, x2, y2, color = '#1f7aed', width = 3) {
+    if(debugLogDraw) console.log('draw.js > stroke() is called. line on drawingCanvas created');
+
     ctx.strokeStyle = color;
     ctx.lineWidth = width;
     ctx.lineCap = 'round';
@@ -38,17 +44,19 @@ function stroke(ctx, x1, y1, x2, y2, color = '#1f7aed', width = 3) {
     ctx.stroke();
 }
 
-/** Public: mousedown on drawingCanvas */
+/** Mousedown on drawingCanvas */
 export function onDrawMouseDown(e) {
+    if(debugLogDraw) console.log('draw.js > onDrawMouseDown(e) is called. --Start drawing');
+
     if (!drawingCanvas) return;
     drawing = true;
     start = canvasPointFromEvent(drawingCanvas, e);
-
-    if (debugLogLevelA) console.log('draw.js > start', start);
 }
 
-/** Public: mousemove (document) */
+/** Mousemove (document) */
 export function onDrawMouseMove(e) {
+    if(debugLogDraw) console.log('draw.js > onDrawMouseMove(e) is called. --Continue drawing');
+
     if (!drawing || !start) return;
     if (!previewCanvas) return;
 
@@ -58,8 +66,10 @@ export function onDrawMouseMove(e) {
     stroke(p, start.x, start.y, curr.x, curr.y, 'rgba(31,122,237,0.6)', 3);
 }
 
-/** Public: mouseup (document) */
+/** Mouseup (document) */
 export function onDrawMouseUp(e) {
+    if(debugLogDraw) console.log('draw.js > onDrawMouseUp(e) is called. --Saved lines:');
+
     if (!drawing || !start) return;
     if (!drawingCanvas) return;
 
@@ -84,19 +94,21 @@ export function onDrawMouseUp(e) {
     clearPreview();
     drawing = false;
     start = null;
-
-    if (debugLogLevelA) console.log('draw.js > saved lines:', lines.length);
 }
 
-/** Public: if user switches tool mid-draw */
+/** If user switches tool mid-draw */
 export function cancelDrawing() {
+    if(debugLogDraw) console.log('draw.js > cancelDrawing() is called.');
+
     drawing = false;
     start = null;
     clearPreview();
 }
 
-/** Public: redraw all stored lines after zoom/resize */
+/** Redraw all stored lines after zoom/resize */
 export function redrawAllLines() {
+    if(debugLogDraw) console.log('draw.js > redrawAllLines() is called.');
+
     if (!drawingCanvas) return;
     const ctx = drawingCanvas.getContext('2d');
     ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
@@ -109,6 +121,8 @@ export function redrawAllLines() {
 
 // call on Reset or Flip button click
 export function clearAllLines() {
+    if(debugLogDraw) console.log('draw.js > clearAllLines() is called.');
+
     lines.length = 0;
     if (!drawingCanvas) return;
     const ctx = drawingCanvas.getContext('2d');
@@ -117,6 +131,8 @@ export function clearAllLines() {
 
 // Utility: shortest distance from point to segment (screen space)
 function distPointToSeg(px, py, x1, y1, x2, y2) {
+    if(debugLogDraw) console.log('draw.js > distPointToSeg() is called. shortest distance from point to segment (screen space)');
+
     const vx = x2 - x1, vy = y2 - y1;
     const wx = px - x1, wy = py - y1;
     const c1 = vx * wx + vy * wy;
@@ -131,6 +147,8 @@ function distPointToSeg(px, py, x1, y1, x2, y2) {
 
 // Find nearest line index under cursor within tolerance (returns -1 if none)
 function findLineIndexAtEvent(e) {
+    if(debugLogDraw) console.log('draw.js > findLineIndexAtEvent(e) is called.');
+
     if (!drawingCanvas) return -1;
     const pt = canvasPointFromEvent(drawingCanvas, e);
     const s = state.currentScale || 1;
@@ -153,6 +171,8 @@ function findLineIndexAtEvent(e) {
 
 // Public: hover highlight for delete mode
 export function onDeleteHover(e) {
+    if(debugLogDraw) console.log('draw.js > onDeleteHover(e) is called.');
+
     if (!previewCanvas || !drawingCanvas) return;
     clearPreview();
 
@@ -169,6 +189,8 @@ export function onDeleteHover(e) {
 
 // Public: click to delete line
 export function onDeleteClick(e) {
+    if(debugLogDraw) console.log('draw.js > onDeleteClick(e) is called.');
+
     const idx = findLineIndexAtEvent(e);
     if (idx < 0) return;
 
@@ -179,5 +201,7 @@ export function onDeleteClick(e) {
 
 // Public: clear highlight on leave or tool change
 export function clearDeleteHover() {
+    if(debugLogDraw) console.log('draw.js > clearDeleteHover() is called.');
+
     clearPreview();
 }

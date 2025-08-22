@@ -27,11 +27,12 @@ export const TOOL = Object.freeze({
 });
 export let activeTool = TOOL.NONE;
 
-function setCanvasInteractivity() {
-    if(debugLogLevelA && !debugLogVerbose) console.log('actions.js > setCanvasInteractivity() is called');
+function setCanvasCursor() {
+    if(debugLogLevelA && !debugLogVerbose) console.log('actions.js > setCanvasCursor() is called');
     if (debugLogVerbose) {
-        console.groupCollapsed('function setCanvasInteractivity()');
-            console.log('prepare Canvas according to activeTool, as well as mouse pointer');
+        console.groupCollapsed('function setCanvasCursor()');
+            console.log('prepare Canvas according to activeTool. Set mouse pointer (cursor) && .style.pointerEvents');
+            console.log('if activeTool is TOOL.PAN > cursor is /grab/, etc.');
         console.groupEnd();
     }
 
@@ -117,7 +118,7 @@ function setTool(next) {
             console.log('changing export let activeTool');
             console.log('panMode is on if activeTool is TOOL.PAN');
             console.log('function is called > renderAllButtons()');
-            console.log('function is called > setCanvasInteractivity()');
+            console.log('function is called > setCanvasCursor()');
             console.log('disable draw capability if active tools is not Draw, by calling function > cancelDrawing();');
             console.log('disable measure if active tools is not MEASURE, by calling function > cancelCurrentMeasure();');
         console.groupEnd();
@@ -130,7 +131,7 @@ function setTool(next) {
     panMode = (activeTool === TOOL.PAN);
 
     renderAllButtons();
-    setCanvasInteractivity();
+    setCanvasCursor();
 
     if (activeTool !== TOOL.DRAW) {
         try { cancelDrawing(); } catch {}

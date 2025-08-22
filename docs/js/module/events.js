@@ -5,12 +5,22 @@
  * module/ events.js;
  */
 
-import {debugLogLevelLoading} from '../debug.js';
+import {debugLogLevelLoading, debugLogVerbose} from '../debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
 import {drawingCanvas, pdfCanvas} from './canvas.js';
 import {handleCalibrateClick} from "./calibration.js";
-import { onDrawMouseDown, onDrawMouseMove, onDrawMouseUp, onDeleteHover, onDeleteClick, clearDeleteHover } from "./draw.js";
+import {
+    onDrawMouseDown,
+    onDrawMouseMove,
+    onDrawMouseUp,
+    onDeleteHover,
+    onDeleteClick,
+    clearDeleteHover,
+    cancelDrawing
+} from "./draw.js";
+import {activeTool, TOOL} from "./actions.js";
+import {cancelCurrentMeasure} from "./measure.js";
 
 // EventListeners
 export function setupEventListeners() {
@@ -43,12 +53,6 @@ export function setupEventListeners() {
             spaceDown = true;
             pdfCanvas.style.pointerEvents = 'auto';
             pdfCanvas.style.cursor = 'grab';
-        }
-        if (e.code === 'Escape') {
-            console.log('escape');
-
-            //TODO which button is pressed? cancel active function, but if pressed again cancel button
-
         }
     });
     document.addEventListener('keyup', (e) => {

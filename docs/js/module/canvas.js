@@ -23,6 +23,7 @@ export let measureCanvas= null;
 export let previewCanvas= null;
 export let previewCanvasCtx = null;
 export let drawingCanvas= null;
+export let commentCanvas = null;
 let unscaledViewport = null;
 let originalCanvasWidth = null;
 let currentRenderTask = null;
@@ -43,6 +44,7 @@ export async function initCanvasRenderPDF(options = {}) {
     await createMeasureCanvas();
     await createPreviewCanvas();
     await createDrawingCanvas();
+    await createCommentCanvas();
 }
 
 async function loadPDF() {
@@ -151,6 +153,22 @@ async function createDrawingCanvas() {
     DivPdfContainer.appendChild(drawingCanvas);
 }
 
+async function createCommentCanvas() {
+    if(debugLogLevelLoading) console.log('canvas.js > createCommentCanvas() is called');
+
+    commentCanvas = document.createElement('canvas');
+    commentCanvas.id = 'drawing-canvas';
+    commentCanvas.width = viewport.width;
+    commentCanvas.height = viewport.height;
+    commentCanvas.style.position = 'absolute';
+    commentCanvas.style.top = '0';
+    commentCanvas.style.left = '0';
+    commentCanvas.style.pointerEvents = 'none';
+    DivPdfContainer.appendChild(commentCanvas);
+}
+
+
+
 
 export function clearCanvasContainer() {
     if(debugLogLevelA) console.log('canvas.js > clearCanvasContainer() is called');
@@ -159,7 +177,7 @@ export function clearCanvasContainer() {
         DivPdfContainer.innerHTML = '';
     }
 
-    [pdfCanvas, measureCanvas, previewCanvas, drawingCanvas].forEach(c => {
+    [pdfCanvas, measureCanvas, previewCanvas, drawingCanvas, commentCanvas].forEach(c => {
         if (c && c.parentNode) c.parentNode.removeChild(c);
     });
 }
@@ -204,7 +222,7 @@ export async function renderAtCurrentTransform() {
 
     // sync overlays
     const t = `translate(${state.panOffset.x}px, ${state.panOffset.y}px)`;
-    [measureCanvas, previewCanvas, drawingCanvas].forEach(c => {
+    [measureCanvas, previewCanvas, drawingCanvas, commentCanvas].forEach(c => {
         if (!c) return;
         if (needResize) {
             c.width  = pdfCanvas.width;
