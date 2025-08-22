@@ -8,7 +8,6 @@
 import {debugLogLevelLoading} from '../debug.js';
 import { initCanvasRenderPDF } from './canvas.js';
 import {setupEventListeners} from "./events.js";
-import {initComments} from "./comments.js";
 
 let isLoadingPdf = false;
 let currentLoadId = 0;
@@ -37,7 +36,6 @@ export async function loadPdfByName(_PdfPlanPath, _PxPerMeter) {
         }
 
         setupEventListeners();
-        initComments();
 
         return true;
 

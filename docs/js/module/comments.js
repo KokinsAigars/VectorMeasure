@@ -2,23 +2,27 @@
  * Project Name: “VectorMeasure”;
  * License: MIT;
  * Contributor(s): Aigars Kokins, ChatGPT-5;
- * numbered comment markers with collapsible notes, persisted in localStorage
+ * canvas-based numbered bubbles persisted in localStorage
  * module/ comments.js;
  */
 
-import {debugLogLevelLoading} from '../debug.js';
-import * as ui from './ui.js';
-import * as actions from './actions.js'; // for TOOL / activeTool if you have it
-import * as state from './state.js';     // expects currentScale and panOffset (or default to 1 / {0,0})
+import { debugLogLevelLoading } from '../debug.js';
+import * as actions from './actions.js';
+import * as state from './state.js';
+import { commentCanvas } from './canvas.js';
+import { DivPdfContainer } from './ui.js';
 
-let items = []; // [{id, n, x, y, text}]  x,y in PAGE coords (pre-scale, pre-pan)
-let openEditorId = null; // only one editor open at a time
+/** Stored in PAGE coordinates (pre-scale), so redraw scales them */
+let items = [];        // [{id, n, x, y, text}]
 let docKey = 1;
 const key = () => `vm:comments:${docKey || 'default'}`;
 
-function load() {
-    if (debugLogLevelLoading) console.log('comments.js > load() function called');
+// one active editor in DOM
+export let editorEl = null;
+let editorForId = null;
 
+function load() {
+    if (debugLogLevelLoading) console.log('comments.js > load()');
     try { items = JSON.parse(localStorage.getItem(key()) || '[]'); }
     catch { items = []; }
 }
@@ -26,118 +30,201 @@ function save() {
     localStorage.setItem(key(), JSON.stringify(items));
 }
 
-function screenXY(x, y) {
-    const s = state.currentScale || 1; // layer will be translated by pan, so we only multiply by scale here
-    return { left: x * s, top: y * s };
-}
 
+
+/** screen → page coords */
 function pageXYFromEvent(e) {
-    const rect = ui.DivPdfContainer.getBoundingClientRect();
+    const r = commentCanvas.getBoundingClientRect();
+    const sx = e.clientX - r.left;
+    const sy = e.clientY - r.top;
     const s = state.currentScale || 1;
-    const pan = state.panOffset || { x: 0, y: 0 };
-    const px = e.clientX - rect.left - pan.x;
-    const py = e.clientY - rect.top  - pan.y;
-    return { x: px / s, y: py / s };
+    return { x: sx / s, y: sy / s };
 }
 
-function clearLayer() { ui.CommentLayer.innerHTML = ''; }
+/** page → screen (for editor positioning) */
+export function screenXYFromPage(px, py) {
+    const s = state.currentScale || 1;
+    return {
+        x: px * s + state.panOffset.x,   // ← keep if overlays are translated via CSS
+        y: py * s + state.panOffset.y,   // ← remove the +panOffset if not using CSS translate
+    };
+}
 
-function renderOne(c) {
-    // badge
-    const b = document.createElement('div');
-    b.className = 'comment-badge';
-    b.dataset.id = c.id;
-    b.textContent = c.n;
+/** low-level draw of one bubble + number */
+function drawBubble(ctx, x, y, n) {
+    const s = state.currentScale || 1;
+    const r = Math.max(8, Math.min(12 * s, 26));
 
-    const p = screenXY(c.x, c.y);
-    b.style.left = `${p.left}px`;
-    b.style.top  = `${p.top}px`;
-    b.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        showEditor(c.id);
-    });
-    ui.CommentLayer.appendChild(b);
+    ctx.beginPath();
+    ctx.arc(x * s, y * s, r, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+    ctx.lineWidth = Math.max(2, 2 * s);
+    ctx.strokeStyle = '#1f7aed';
+    ctx.stroke();
 
-    // editor (only if open)
-    if (openEditorId === c.id) {
-        const wrap = document.createElement('div');
-        wrap.className = 'comment-editor';
-        wrap.dataset.id = c.id;
-        wrap.style.left = `${p.left}px`;
-        wrap.style.top  = `${p.top}px`;
-        wrap.innerHTML = `
-      <div style="font-weight:600; margin-bottom:6px;">Comment ${c.n}</div>
-      <textarea>${c.text || ''}</textarea>
-      <div class="row">
-        <button data-act="save">Save</button>
-        <button data-act="cancel">Cancel</button>
-      </div>
-    `;
-        wrap.querySelector('[data-act="save"]').addEventListener('click', () => {
-            const ta = wrap.querySelector('textarea');
-            c.text = ta.value;
-            save();
-            openEditorId = null;
-            renderAll();
-        });
-        wrap.querySelector('[data-act="cancel"]').addEventListener('click', () => {
-            // if new & empty, remove it
-            if (!c.text || !c.text.trim()) {
-                // detect if it was just created and has no text
-                items = items.filter(it => it.id !== c.id);
-                // re-number
-                items.forEach((it, i) => it.n = i + 1);
-                save();
-            }
-            openEditorId = null;
-            renderAll();
-        });
-        ui.CommentLayer.appendChild(wrap);
+    ctx.fillStyle = '#1f7aed';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    const fontPx = Math.max(10, Math.min(12 * s, 20));
+    ctx.font = `600 ${fontPx}px system-ui, sans-serif`;
+    ctx.fillText(String(n), x * s, y * s);
+}
+
+/** public: redraw all bubbles */
+export function redrawComments() {
+    if (!commentCanvas) return;
+    const ctx = commentCanvas.getContext('2d');
+    ctx.clearRect(0, 0, commentCanvas.width, commentCanvas.height);
+    for (const c of items) drawBubble(ctx, c.x, c.y, c.n);
+
+    // keep editor aligned on zoom/pan
+    if (editorEl && editorForId) {
+        const c = items.find(i => i.id === editorForId);
+        if (c) {
+            const pos = screenXYFromPage(c.x, c.y);
+            editorEl.style.left = `${pos.x + 12}px`;
+            editorEl.style.top  = `${pos.y}px`;
+        }
     }
 }
 
-function renderAll() {
-    if (debugLogLevelLoading) console.log('comments.js > renderAll() function called');
-
-    if (!ui.CommentLayer) return;
-    clearLayer();
-    for (const c of items) renderOne(c);
+/** hit-test in SCREEN space; returns comment or null */
+export function hitTest(e) {
+    const s = state.currentScale || 1;
+    const r = commentCanvas.getBoundingClientRect();
+    const sx = e.clientX - r.left;
+    const sy = e.clientY - r.top;
+    const bubbleR = Math.max(8, Math.min(12 * s, 26));
+    for (let i = items.length - 1; i >= 0; i--) {
+        const c = items[i];
+        const cx = c.x * s;
+        const cy = c.y * s;
+        if (Math.hypot(sx - cx, sy - cy) <= bubbleR + 3) return c;
+    }
+    return null;
 }
 
+/** re-number sequentially after any delete */
+function renumber() {
+    items.forEach((c, i) => c.n = i + 1);
+}
+
+/** delete one by id */
+function deleteById(id) {
+    const idx = items.findIndex(c => c.id === id);
+    if (idx < 0) return;
+    items.splice(idx, 1);
+    renumber();
+    save();
+    redrawComments();
+}
+
+/** open inline editor near bubble */
+function openEditor(c) {
+    closeEditor();
+
+    const pos = screenXYFromPage(c.x, c.y);
+
+    const el = document.createElement('div');
+    el.className = 'comment-editor';
+    el.style.position = 'absolute';
+    el.style.left = `${pos.x + 12}px`;
+    el.style.top  = `${pos.y}px`;
+
+    // add these:
+    el.style.zIndex = '9999';          // above all canvases
+    el.style.pointerEvents = 'auto';   // clickable
+
+    el.innerHTML = `
+    <textarea placeholder="Add a note..."></textarea>
+    <div class="row">
+      <button data-act="save">Save</button>
+      <button data-act="delete">Delete</button>
+      <button data-act="cancel">Cancel</button>
+    </div>
+  `;
+
+    const ta = el.querySelector('textarea');
+    ta.value = c.text || '';
+
+    el.addEventListener('click', (ev) => {
+        const act = ev.target?.getAttribute?.('data-act');
+        if (!act) return;
+
+        if (act === 'save') {
+            c.text = ta.value.trim();
+            save();
+            closeEditor();
+        } else if (act === 'delete') {
+            closeEditor();
+            deleteById(c.id);
+        } else if (act === 'cancel') {
+            closeEditor();
+        }
+    });
+
+    console.log('DivPdfContainer?', DivPdfContainer);
+    console.log('Appending editor…');
+    DivPdfContainer.appendChild(el);
+    editorEl = el;
+    editorForId = c.id;
+    ta.focus();
+    console.log('Editor in DOM?', document.body.contains(el));
+}
+
+function closeEditor() {
+    if (editorEl && editorEl.parentNode) editorEl.parentNode.removeChild(editorEl);
+    editorEl = null;
+    editorForId = null;
+}
+
+/** public: wipe everything for current doc (used by Reset) */
+export function clearAllComments() {
+    items = [];
+    save();              // overwrites storage for current key with []
+    closeEditor();
+    redrawComments();
+}
+
+/** init: load, draw, click-to-add/edit in COMMENT mode */
 export function initComments() {
-    if (debugLogLevelLoading) console.log('comments.js > initComments() function called');
+    if (debugLogLevelLoading) console.log('comments.js > initComments()');
 
     load();
-    renderAll();
+    redrawComments();
 
-    // event delegation: click empty space to add comment (only in COMMENT tool)
-    ui.CommentLayer.addEventListener('click', (e) => {
+    commentCanvas.addEventListener('click', (e) => {
         if (actions.activeTool !== actions.TOOL.COMMENT) return;
-        if (e.target.closest('.comment-badge, .comment-editor')) return; // ignore UI
+
+        const hit = hitTest(e);
+        if (hit) {
+            openEditor(hit);
+            return;
+        }
+
+        // create new bubble
         const pt = pageXYFromEvent(e);
-        const c = {
-            id: crypto.randomUUID(),
-            n: items.length + 1,
-            x: pt.x, y: pt.y,
-            text: ''
-        };
+        const c = { id: crypto.randomUUID(), n: items.length + 1, x: pt.x, y: pt.y, text: '' };
         items.push(c);
         save();
-        openEditorId = c.id;   // open editor immediately
-        renderAll();
-    }, false);
+        redrawComments();
+        openEditor(c);
+    });
 }
 
-export function showEditor(id) {
-    openEditorId = id;
-    renderAll();
+
+export function exportCommentsJSON() {
+    if (debugLogLevelLoading) console.log('comments.js > exportCommentsJSON()');
+
+    return JSON.stringify({
+        version: 1,
+        scale_invariant: true,
+        items: items.map(({id, n, x, y, text}) => ({
+            id, n, x, y, text: text || ''
+        })),
+        meta: { exportedAt: new Date().toISOString() }
+    }, null, 2);
 }
 
-export function applyCommentTransform() {
-    // keep the whole layer translated/scaled like your overlay canvases
-    const s = state.currentScale || 1;
-    const p = state.panOffset || { x: 0, y: 0 };
-    ui.CommentLayer.style.transform = `translate(${p.x}px, ${p.y}px) scale(${s})`;
-    ui.CommentLayer.style.transformOrigin = 'top left';
-    // badges/editors are positioned in page*scale space, so no extra work here
-}
+

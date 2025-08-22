@@ -16,11 +16,8 @@ export let PdfPlanVerticalPath = null;
 export let currentScale = 1;
 export let originalCanvasWidth = null;
 export let unscaledViewport = null;
-
 export let panOffset = { x: 0, y: 0 };
 export const ZOOM = { min: 0.25, max: 4.0, step: 0.1 };
-
-export let scale = 1;
 
 export function setPxPerMeter(value) {
     if(debugLogLevelLoading) console.log('state.js > setPxPerMeter(value) is called');

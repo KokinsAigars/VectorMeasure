@@ -9,7 +9,7 @@ import {debugLogLevelA, debugLogLevelLoading} from '../debug.js';
 import { DivInfo, DivPdfContainer } from "./ui.js";
 import * as state from './state.js';
 import { redrawAllLines } from './draw.js';
-import {applyCommentTransform} from './comments.js';
+import {initComments, redrawComments} from './comments.js';
 import { getPdfjs } from './pdf-runtime.js';
 
 export let pdfDoc = null;
@@ -45,6 +45,8 @@ export async function initCanvasRenderPDF(options = {}) {
     await createPreviewCanvas();
     await createDrawingCanvas();
     await createCommentCanvas();
+
+    initComments();
 }
 
 async function loadPDF() {
@@ -157,7 +159,7 @@ async function createCommentCanvas() {
     if(debugLogLevelLoading) console.log('canvas.js > createCommentCanvas() is called');
 
     commentCanvas = document.createElement('canvas');
-    commentCanvas.id = 'drawing-canvas';
+    commentCanvas.id = 'comment-canvas';
     commentCanvas.width = viewport.width;
     commentCanvas.height = viewport.height;
     commentCanvas.style.position = 'absolute';
@@ -232,12 +234,9 @@ export async function renderAtCurrentTransform() {
         c.style.transformOrigin = 'top left';
     });
 
-    // redraw stored lines if size changed
-    // redrawMeasurements();
-
     redrawAllLines();
 
-    applyCommentTransform();
+    redrawComments();
 
     return true;
 }

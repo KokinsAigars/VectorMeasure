@@ -8,10 +8,11 @@
 import { debugLogLevelA, debugLogVerbose } from '../debug.js';
 import * as ui from "./ui.js";
 import * as state from './state.js';
-import {clearCanvasContainer, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
+import {clearCanvasContainer, commentCanvas, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
 import {loadPdfByName} from './loader.js';
 import {setMeasureActive, cancelCurrentMeasure} from './measure.js';
 import {cancelDrawing, clearAllLines} from './draw.js';
+import { clearAllComments, exportCommentsJSON } from './comments.js';
 
 export let isPanning = false;
 export let panMode = false;
@@ -45,12 +46,18 @@ function setCanvasCursor() {
     measureCanvas.style.cursor        = (activeTool === TOOL.MEASURE) ? 'crosshair' : 'default';
 
     // drawingCanvas (Draw/Delete/Comment)
-    const useDrawing = [TOOL.DRAW, TOOL.DELETE, TOOL.COMMENT].includes(activeTool);
+    const useDrawing = [TOOL.DRAW, TOOL.DELETE].includes(activeTool);
     drawingCanvas.style.pointerEvents = useDrawing ? 'auto' : 'none';
     drawingCanvas.style.cursor =
         activeTool === TOOL.DRAW ? 'crosshair' :
-            activeTool === TOOL.DELETE ? 'not-allowed' :
-                activeTool === TOOL.COMMENT ? 'text' : 'default';
+            activeTool === TOOL.DELETE ? 'not-allowed' : 'default';
+
+    // commentCanvas accepts clicks only in COMMENT mode
+    const cc = document.getElementById('comment-canvas');
+    if (cc) {
+        cc.style.pointerEvents = (activeTool === TOOL.COMMENT) ? 'auto' : 'none';
+        cc.style.cursor = (activeTool === TOOL.COMMENT) ? 'crosshair' : 'default';
+    }
 }
 
 export function renderButton(button, on) {
@@ -173,7 +180,7 @@ export function movePan(event) {
 
     // Pan is CSS translate on overlays; update transform only
     const all = document.querySelectorAll(
-        '#pdf-canvas, #measure-canvas, #preview-canvas, #drawing-canvas'
+        '#pdf-canvas, #measure-canvas, #preview-canvas, #drawing-canvas, #comment-canvas'
     );
     all.forEach(c => {
         c.style.transform = `translate(${x}px, ${y}px)`;
@@ -257,6 +264,7 @@ export function reset() {
     if(debugLogLevelA) console.log('actions.js > reset() is called');
 
     clearAllLines();
+    clearAllComments(); //wipe comment bubbles && localStorage for this doc
     offBtn();
     clearCanvasContainer();
     setMeasureActive(false);
@@ -341,21 +349,37 @@ export function handleAddCommentBtn() {
 
 }
 
-export function handleSaveClick() {
-    if(debugLogLevelA) console.log('actions.js > handleSaveClick() is called');
+export function handlePngSaveClick() {
+    if(debugLogLevelA) console.log('actions.js > handlePngSaveClick() is called');
 
     const mergedCanvas = document.createElement('canvas');
     mergedCanvas.width = pdfCanvas.width;
     mergedCanvas.height = pdfCanvas.height;
 
     const mergedCtx = mergedCanvas.getContext('2d');
-    mergedCtx.drawImage(pdfCanvas, 0, 0);
-    mergedCtx.drawImage(drawingCanvas, 0, 0);
+    mergedCtx.drawImage(pdfCanvas, 0, 0);        // base PDF
+    mergedCtx.drawImage(drawingCanvas, 0, 0);    // lines
+    mergedCtx.drawImage(commentCanvas, 0, 0);    // bubbles + numbers on top
 
     const imageData = mergedCanvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = imageData;
     link.download = 'VectorMeasure.png';
     link.click();
+}
+
+export function handleExportComments() {
+    if(debugLogLevelA) console.log('actions.js > handleExportComments() is called');
+
+    const data = exportCommentsJSON();
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'comments.json';
+    a.click();
+
+    URL.revokeObjectURL(url);
 }
 

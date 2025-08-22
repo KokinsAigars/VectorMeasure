@@ -5,11 +5,11 @@
  * module/ events.js;
  */
 
-import {debugLogLevelLoading, debugLogVerbose} from '../debug.js';
+import {debugLogLevelLoading} from '../debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
 import {drawingCanvas, pdfCanvas} from './canvas.js';
-import {handleCalibrateClick} from "./calibration.js";
+import {handleCalibrateClick} from './calibration.js';
 import {
     onDrawMouseDown,
     onDrawMouseMove,
@@ -17,7 +17,7 @@ import {
     onDeleteHover,
     onDeleteClick,
     clearDeleteHover,
-} from "./draw.js";
+} from './draw.js';
 
 // EventListeners
 export function setupEventListeners() {
@@ -29,7 +29,8 @@ export function setupEventListeners() {
     if (ui.BtnResetPdf) ui.BtnResetPdf.addEventListener('click', actions.handleResetView);
     if (ui.BtnFlipPdfHorizontal) ui.BtnFlipPdfHorizontal.addEventListener('click', actions.flipPdfHorizontal);
     if (ui.BtnFlipPdfVertical) ui.BtnFlipPdfVertical.addEventListener('click', actions.flipPdfVertical);
-    if (ui.BtnSave) ui.BtnSave.addEventListener('click', actions.handleSaveClick);
+    if (ui.BtnPngSave) ui.BtnPngSave.addEventListener('click', actions.handlePngSaveClick);
+    if (ui.BtnJsonSave) ui.BtnJsonSave.addEventListener('click', actions.handleExportComments);
     if (ui.BtnMeasure) ui.BtnMeasure.addEventListener('click', actions.handleMeasureBtn);
     if (ui.BtnAddLine) ui.BtnAddLine.addEventListener('click', actions.handleAddLineBtn);
     if (ui.BtnDeleteLine) ui.BtnDeleteLine.addEventListener('click', actions.handleDeleteLineBtn);
@@ -46,6 +47,10 @@ export function setupEventListeners() {
     });
     document.addEventListener('keydown', (e) => {
         if (e.code === 'Space') {
+            // 🛠️ Skip if user is typing in input/textarea/contentEditable
+            const t = e.target;
+            if (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || t.isContentEditable) return;
+
             e.preventDefault();
             spaceDown = true;
             pdfCanvas.style.pointerEvents = 'auto';
@@ -54,6 +59,10 @@ export function setupEventListeners() {
     });
     document.addEventListener('keyup', (e) => {
         if (e.code === 'Space') {
+            // Same guard
+            const t = e.target;
+            if (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || t.isContentEditable) return;
+
             spaceDown = false;
             if (!actions.panMode) {
                 pdfCanvas.style.pointerEvents = 'none';
@@ -106,5 +115,6 @@ export function setupEventListeners() {
             onDeleteClick(e);
         });
     }
+
 }
 
