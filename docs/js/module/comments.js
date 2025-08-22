@@ -31,8 +31,6 @@ function save() {
     sessionStorage.setItem(key(), JSON.stringify(items));
 }
 
-
-
 /** screen → page coords */
 function pageXYFromEvent(e) {
     const r = commentCanvas.getBoundingClientRect();

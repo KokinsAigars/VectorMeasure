@@ -12,12 +12,11 @@ let pdfjsLib = null;
 export async function getPdfjs() {
     if(debugLogLevelLoading) console.log('pdf-runtime.js > getPdfjs() is called');
 
-    // Skip entirely when running under Vitest
+    // Skip entirely when testing with Vitest
     if (import.meta?.vitest) return null;
 
     if (!pdfjsLib) {
-        pdfjsLib = await import('../pdfjs/pdf.mjs');
-        pdfjsLib.GlobalWorkerOptions.workerSrc = '../pdfjs/pdf.worker.mjs';
+        pdfjsLib = await import('../libs/pdfjs/pdf.mjs');
     }
     return pdfjsLib;
 }

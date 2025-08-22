@@ -10,3 +10,4 @@ export const debugLogLevelLoading = false;
 export const debugLogLevelA = true;
 export const debugLogLevelSuccess = true;
 export const debugLogDraw = true;
+export const debugLogDatabase = true;

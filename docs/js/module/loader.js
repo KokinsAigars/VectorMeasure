@@ -26,7 +26,7 @@ export async function loadPdfByName(_PdfPlanPath, _PxPerMeter) {
         await initCanvasRenderPDF({
             PDFlink: _PdfPlanPath,
             pxPerMeter: _PxPerMeter,
-            workerSrc: 'js/pdfjs/pdf.worker.mjs'
+            workerSrc: 'js/libs/pdfjs/pdf.worker.mjs'
         });
 
         // Make sure no newer call was made while we were loading

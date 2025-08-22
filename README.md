@@ -42,3 +42,6 @@ or in cmd: > set NODE_OPTIONS=--dns-result-order=ipv4first
 
     npm run coverage
 
+
+    npm install dexie
+    npm install dexie-export-import

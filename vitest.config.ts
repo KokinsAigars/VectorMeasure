@@ -19,20 +19,20 @@ export default defineConfig({
         coverage: {
             provider: 'v8',
             exclude: [
-                'docs/js/pdfjs/**',
+                'docs/js/libs/**',
             ],
         },
         exclude: [
             'node_modules',
-            'docs/js/pdfjs/**',
+            'docs/js/libs/**',
             'docs/pdf/**'
         ],
     },
     optimizeDeps: {
-        exclude: ['docs/js/pdfjs/pdf.mjs'],  // exclude from dependency pre-bundling
+        exclude: ['docs/js/libs/pdfjs/pdf.mjs'],  // exclude from dependency pre-bundling
     },
     ssr: {
-        external: ['docs/js/pdfjs/pdf.mjs'], // don’t try to SSR this file
+        external: ['docs/js/libs/pdfjs/pdf.mjs'], // don’t try to SSR this file
     },
     resolve: {
         alias: {
@@ -43,7 +43,7 @@ export default defineConfig({
             '@docsJs': path.resolve(process.cwd(), 'docs/js'),
             '@jsModule' : path.resolve(process.cwd(), 'docs/js/module'),
 
-            './docs/js/pdfjs/pdf.mjs': path.resolve(__dirname, 'test/__mocks__/pdfjsStub.js'),
+            './docs/js/libs/pdfjs/pdf.mjs': path.resolve(__dirname, 'test/__mocks__/pdfjsStub.js'),
         },
     },
 })
