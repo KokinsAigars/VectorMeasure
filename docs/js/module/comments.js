@@ -2,7 +2,7 @@
  * Project Name: “VectorMeasure”;
  * License: MIT;
  * Contributor(s): Aigars Kokins, ChatGPT-5;
- * canvas-based numbered bubbles persisted in localStorage
+ * canvas-based numbered bubbles persisted in sessionStorage
  * module/ comments.js;
  */
 
@@ -14,8 +14,9 @@ import { DivPdfContainer } from './ui.js';
 
 /** Stored in PAGE coordinates (pre-scale), so redraw scales them */
 let items = [];        // [{id, n, x, y, text}]
-let docKey = 1;
-const key = () => `vm:comments:${docKey || 'default'}`;
+// let docKey = 1;
+// const key = () => `vm:comments:${docKey || 'default'}`;
+const key = () => `vm:comments`;
 
 // one active editor in DOM
 export let editorEl = null;
@@ -23,11 +24,11 @@ let editorForId = null;
 
 function load() {
     if (debugLogLevelLoading) console.log('comments.js > load()');
-    try { items = JSON.parse(localStorage.getItem(key()) || '[]'); }
+    try { items = JSON.parse(sessionStorage.getItem(key()) || '[]'); }
     catch { items = []; }
 }
 function save() {
-    localStorage.setItem(key(), JSON.stringify(items));
+    sessionStorage.setItem(key(), JSON.stringify(items));
 }
 
 
@@ -218,13 +219,19 @@ export function exportCommentsJSON() {
     if (debugLogLevelLoading) console.log('comments.js > exportCommentsJSON()');
 
     return JSON.stringify({
-        version: 1,
-        scale_invariant: true,
-        items: items.map(({id, n, x, y, text}) => ({
-            id, n, x, y, text: text || ''
+        items: items.map(({n, text}) => ({
+            n, text: text || ''
         })),
         meta: { exportedAt: new Date().toISOString() }
     }, null, 2);
+    // return JSON.stringify({
+    //     version: 1,
+    //     scale_invariant: true,
+    //     items: items.map(({id, n, x, y, text}) => ({
+    //         id, n, x, y, text: text || ''
+    //     })),
+    //     meta: { exportedAt: new Date().toISOString() }
+    // }, null, 2);
 }
 
 

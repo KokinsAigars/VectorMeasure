@@ -101,6 +101,8 @@
 #drawing-canvas { z-index: 40; }
 #comment-canvas { z-index: 50; }
 
+
+
 .comment-editor {
     background: #fff;
     border: 1px solid #c9d3e0;
@@ -115,6 +117,7 @@
     min-height: 80px;
     resize: vertical;
     box-sizing: border-box;
+    padding: 2px;
 }
 .comment-editor .row {
     display: flex;

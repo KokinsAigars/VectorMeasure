@@ -18,6 +18,7 @@ import {
     onDeleteClick,
     clearDeleteHover,
 } from './draw.js';
+import {BtnZoomAll} from "./ui.js";
 
 // EventListeners
 export function setupEventListeners() {
@@ -25,6 +26,7 @@ export function setupEventListeners() {
 
     if (ui.BtnZoomIn) ui.BtnZoomIn.addEventListener('click', actions.handleZoomIn);
     if (ui.BtnZoomOut) ui.BtnZoomOut.addEventListener('click', actions.handleZoomOut);
+    if (ui.BtnZoomAll) ui.BtnZoomAll.addEventListener('click', actions.handleZoomAll)
     if (ui.BtnPanToggle) ui.BtnPanToggle.addEventListener('click', actions.handlePanBtn);
     if (ui.BtnResetPdf) ui.BtnResetPdf.addEventListener('click', actions.handleResetView);
     if (ui.BtnFlipPdfHorizontal) ui.BtnFlipPdfHorizontal.addEventListener('click', actions.flipPdfHorizontal);

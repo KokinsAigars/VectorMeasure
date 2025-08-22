@@ -9,12 +9,14 @@
 import { it, expect } from 'vitest';
 import { js_module_ui } from "@cond";
 import * as ui from "@jsModule/ui.js";
+import {BtnZoomAll} from "@jsModule/ui.js";
 
 it.skipIf(!js_module_ui)('ui.js element selection 1', () => {
 
     const elements = [
         ui.BtnZoomIn,
         ui.BtnZoomOut,
+        ui.BtnZoomAll,
         ui.BtnPanToggle,
         ui.BtnResetPdf,
         ui.BtnFlipPdfHorizontal,
@@ -46,6 +48,7 @@ it.skipIf(!js_module_ui)('ui.js element selection 2', () => {
     const elements = [
         document.getElementById('zoom-in-btn'),
         document.getElementById('zoom-out-btn'),
+        document.getElementById('zoom-all-btn'),
         document.getElementById('pan-btn'),
         document.getElementById('reset-pdf-btn'),
         document.getElementById('flip-pdf-horizontal-btn'),

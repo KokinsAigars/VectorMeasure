@@ -13,6 +13,7 @@ import {loadPdfByName} from './loader.js';
 import {setMeasureActive, cancelCurrentMeasure} from './measure.js';
 import {cancelDrawing, clearAllLines} from './draw.js';
 import { clearAllComments, exportCommentsJSON } from './comments.js';
+import {setCurrentScale} from "./state.js";
 
 export let isPanning = false;
 export let panMode = false;
@@ -214,6 +215,14 @@ export async function handleZoomOut() {
     await renderAtCurrentTransform();
 }
 
+export async function handleZoomAll() {
+    if(debugLogLevelA) console.log('actions.js > handleZoomAll() is called');
+
+    state.setCurrentScale(1);
+    state.recomputePxPerMeter();
+    await renderAtCurrentTransform();
+}
+
 export function handlePanBtn() {
     if(debugLogLevelA) console.log('actions.js > handlePanBtn() is called');
 
@@ -264,7 +273,7 @@ export function reset() {
     if(debugLogLevelA) console.log('actions.js > reset() is called');
 
     clearAllLines();
-    clearAllComments(); //wipe comment bubbles && localStorage for this doc
+    clearAllComments(); //wipe comment bubbles && sessionStorage for this doc
     offBtn();
     clearCanvasContainer();
     setMeasureActive(false);

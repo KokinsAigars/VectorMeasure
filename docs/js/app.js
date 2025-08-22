@@ -15,6 +15,11 @@ import {PdfPlanPath, pxPerMeter} from "./module/state.js";
 document.addEventListener('DOMContentLoaded', () => {
     if(debugLogLevelLoading) console.log('DOMContentLoaded');
 
+    //if comments in sessionStorage - remove
+    if (sessionStorage.getItem("vm:comments")) {
+        sessionStorage.removeItem('vm:comments');
+    }
+
     setupInit();
 
     loadPdfByName(PdfPlanPath, pxPerMeter).then(success => {
