@@ -5,6 +5,7 @@
 * 2025.06.03 - init(1)
 * 2025.08.08 - init(2)
 * 2025.08.15 - init(3) V0.0.8
+* 2025.08.23 - V1.0.0
 * 
 * The purpose of this project is to test pdf.js functionality
 * https://github.com/mozilla/pdf.js
@@ -45,3 +46,12 @@ or in cmd: > set NODE_OPTIONS=--dns-result-order=ipv4first
 
     npm install dexie
     npm install dexie-export-import
+    https://cdn.jsdelivr.net/npm/dexie@4.2.0/dist/
+
+    
+    In Dexie (and IndexedDB under the hood):
+    
+        ++id → auto-incremented primary key
+        &field → unique index (must not have duplicates)
+        field → normal index (duplicates allowed)
+        *field → multiEntry index (used if field is an array; each array item is indexed separately)

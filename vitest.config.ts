@@ -4,9 +4,8 @@ import path from 'node:path'
 export default defineConfig({
     server: {
         host: '127.0.0.1',
-        // optional: pick a port range if your env is picky
         port: 63315,
-        // strictPort: true,
+        strictPort: true,
     },
     test: {
         name: 'browser',
@@ -29,10 +28,16 @@ export default defineConfig({
         ],
     },
     optimizeDeps: {
-        exclude: ['docs/js/libs/pdfjs/pdf.mjs'],  // exclude from dependency pre-bundling
+        exclude: [
+            'docs/js/libs/pdfjs/pdf.mjs',
+            'docs/js/libs/dexie/dexie.mjs'
+        ],  // exclude from dependency pre-bundling
     },
     ssr: {
-        external: ['docs/js/libs/pdfjs/pdf.mjs'], // don’t try to SSR this file
+        external: [
+            'docs/js/libs/pdfjs/pdf.mjs',
+            'docs/js/libs/dexie/dexie.mjs'
+        ], // don’t try to SSR this file
     },
     resolve: {
         alias: {
@@ -42,6 +47,7 @@ export default defineConfig({
             // directory alias
             '@docsJs': path.resolve(process.cwd(), 'docs/js'),
             '@jsModule' : path.resolve(process.cwd(), 'docs/js/module'),
+            '@libs' : path.resolve(process.cwd(), 'docs/js/libs'),
 
             './docs/js/libs/pdfjs/pdf.mjs': path.resolve(__dirname, 'test/__mocks__/pdfjsStub.js'),
         },

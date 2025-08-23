@@ -7,7 +7,6 @@
 
 import {debugLogLevelA, debugLogLevelLoading} from '../debug.js';
 
-// Calibration and zoom state
 export let pxPerMeter = 37.6;       // Default: 1px ≈ 0.02652 meters  [1/0.02660 = 37.6]
 export let basePxPerMeter = 37.6;   // For reset/view recalibration [Store calibration relative to scale 1.0]
 export let PdfPlanPath = null;
@@ -59,8 +58,6 @@ export function setUnscaledViewport(viewport) {
 
     unscaledViewport = viewport;
 }
-
-
 export function recomputePxPerMeter() {
     if(debugLogLevelA) console.log('state.js > recomputePxPerMeter() is called');
 

@@ -169,9 +169,6 @@ async function createCommentCanvas() {
     DivPdfContainer.appendChild(commentCanvas);
 }
 
-
-
-
 export function clearCanvasContainer() {
     if(debugLogLevelA) console.log('canvas.js > clearCanvasContainer() is called');
 
@@ -240,5 +237,3 @@ export async function renderAtCurrentTransform() {
 
     return true;
 }
-
-

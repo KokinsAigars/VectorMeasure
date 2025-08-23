@@ -9,6 +9,7 @@ import { debugLogLevelA } from "../debug.js";
 import { DivInfo, DivMeasurementTip } from "./ui.js";
 import { measureCanvas, previewCanvas } from './canvas.js';
 import * as state from './state.js';
+
 let startPoint = null;
 let isDrawing = false;
 let lastMeasuredStart = null;
@@ -173,4 +174,3 @@ export function getMeasurementPoints() {
 
     return { lastMeasuredStart, lastMeasuredEnd };
 }
-

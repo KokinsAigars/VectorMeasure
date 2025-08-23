@@ -1,6 +1,6 @@
 {
   "name": "vectormeasure",
-  "version": "0.0.8",
+  "version": "1.0.0",
   "description": "A simple PDF measurement tool",
   "main": "server.js",
   "author": "Aigars Kokins",

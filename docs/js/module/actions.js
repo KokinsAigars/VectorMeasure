@@ -13,7 +13,6 @@ import {loadPdfByName} from './loader.js';
 import {setMeasureActive, cancelCurrentMeasure} from './measure.js';
 import {cancelDrawing, clearAllLines} from './draw.js';
 import { clearAllComments, exportCommentsJSON } from './comments.js';
-import {setCurrentScale} from "./state.js";
 
 export let isPanning = false;
 export let panMode = false;
@@ -215,13 +214,13 @@ export async function handleZoomOut() {
     await renderAtCurrentTransform();
 }
 
-export async function handleZoomAll() {
-    if(debugLogLevelA) console.log('actions.js > handleZoomAll() is called');
-
-    state.setCurrentScale(1);
-    state.recomputePxPerMeter();
-    await renderAtCurrentTransform();
-}
+// export async function handleZoomAll() {
+//     if(debugLogLevelA) console.log('actions.js > handleZoomAll() is called');
+//
+//     state.setCurrentScale(1);
+//     state.recomputePxPerMeter();
+//     await renderAtCurrentTransform();
+// }
 
 export function handlePanBtn() {
     if(debugLogLevelA) console.log('actions.js > handlePanBtn() is called');
@@ -386,7 +385,8 @@ export function handleExportComments() {
 
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'comments.json';
+    // a.download = 'comments.json';
+    a.download = 'comments.txt';
     a.click();
 
     URL.revokeObjectURL(url);
