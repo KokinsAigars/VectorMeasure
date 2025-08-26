@@ -8,7 +8,7 @@
 import {debugLogLevelLoading} from '../debug.js';
 import * as ui from './ui.js';
 import * as actions from './actions.js';
-import {drawingCanvas, pdfCanvas} from './canvas.js';
+import {commentCanvas, drawingCanvas, measureCanvas, pdfCanvas, previewCanvas} from './canvas.js';
 import {handleCalibrateClick} from './calibration.js';
 import {
     onDrawMouseDown,
@@ -41,23 +41,65 @@ export function setupEventListeners() {
 
     // --- Pan via Space + drag
     let spaceDown = false;
+    function disableOverlaysPointerEvents() {
+        [measureCanvas, previewCanvas, drawingCanvas, commentCanvas]
+            .forEach(c => c && (c.style.pointerEvents = 'none'));
+    }
+    function restoreOverlaysPointerEventsForActiveTool() {
+        // pdfCanvas based on explicit pan mode (tool PAN)
+        pdfCanvas.style.pointerEvents = actions.panMode ? 'auto' : 'none';
+        pdfCanvas.style.cursor = actions.panMode ? 'grab' : 'default';
+
+        // measure layer active only in MEASURE
+        if (measureCanvas) {
+            measureCanvas.style.pointerEvents =
+                (actions.activeTool === actions.TOOL.MEASURE) ? 'auto' : 'none';
+            measureCanvas.style.cursor =
+                (actions.activeTool === actions.TOOL.MEASURE) ? 'crosshair' : 'default';
+        }
+
+        // drawing layer active only in DRAW/DELETE
+        if (drawingCanvas) {
+            const useDrawing = [actions.TOOL.DRAW, actions.TOOL.DELETE].includes(actions.activeTool);
+            drawingCanvas.style.pointerEvents = useDrawing ? 'auto' : 'none';
+            drawingCanvas.style.cursor =
+                actions.activeTool === actions.TOOL.DRAW   ? 'crosshair' :
+                    actions.activeTool === actions.TOOL.DELETE ? 'not-allowed' : 'default';
+        }
+
+        // comment layer active only in COMMENT
+        if (commentCanvas) {
+            commentCanvas.style.pointerEvents =
+                (actions.activeTool === actions.TOOL.COMMENT) ? 'auto' : 'none';
+            commentCanvas.style.cursor =
+                (actions.activeTool === actions.TOOL.COMMENT) ? 'crosshair' : 'default';
+        }
+
+        // preview is purely visual
+        if (previewCanvas) previewCanvas.style.pointerEvents = 'none';
+    }
     if (pdfCanvas) pdfCanvas.addEventListener('mousedown', (e) => {
         if (!spaceDown && !actions.panMode) return;
         pdfCanvas.style.cursor = 'grabbing';
         actions.startPan(e);
     });
-    document.addEventListener('keydown', (e) => {
-        if (e.code === 'Space') {
-            // 🛠️ Skip if user is typing in input/textarea/contentEditable
-            const t = e.target;
-            if (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || t.isContentEditable) return;
 
-            e.preventDefault();
-            spaceDown = true;
-            pdfCanvas.style.pointerEvents = 'auto';
-            pdfCanvas.style.cursor = 'grab';
-        }
+    document.addEventListener('keydown', (e) => {
+        if (e.code !== 'Space') return;
+
+        // guard: don’t hijack when typing
+        const t = e.target;
+        if (t && (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || t.isContentEditable)) return;
+
+        e.preventDefault();
+        spaceDown = true;
+
+        // Make sure mousedown goes to the PDF canvas
+        disableOverlaysPointerEvents();
+        pdfCanvas.style.pointerEvents = 'auto';
+        pdfCanvas.style.cursor = 'grab';
     });
+
     document.addEventListener('keyup', (e) => {
         if (e.code === 'Space') {
             // Same guard
@@ -65,11 +107,12 @@ export function setupEventListeners() {
             if (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT' || t.isContentEditable) return;
 
             spaceDown = false;
-            if (!actions.panMode) {
-                pdfCanvas.style.pointerEvents = 'none';
-                pdfCanvas.style.cursor = 'default';
-            }
+
+            // stop the temporary pan (if dragging)
             actions.endPan();
+
+            // restore per-tool interactivity
+            restoreOverlaysPointerEventsForActiveTool();
         }
     });
     document.addEventListener('mousemove', (e) => {
@@ -79,7 +122,7 @@ export function setupEventListeners() {
     });
     document.addEventListener('mouseup', () => {
         if (!actions.isPanning) return;
-        if (pdfCanvas) pdfCanvas.style.cursor = (spaceDown || actions.panMode) ? 'grab' : 'default';
+        pdfCanvas.style.cursor = (spaceDown || actions.panMode) ? 'grab' : 'default';
         actions.endPan();
     });
 

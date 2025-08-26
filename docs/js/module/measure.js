@@ -16,6 +16,10 @@ let lastMeasuredStart = null;
 let lastMeasuredEnd = null;
 let measuring = false;
 
+// keep page-space copies so we can reproject on zoom
+let lastMeasuredStartPage = null;
+let lastMeasuredEndPage = null;
+
 export function setMeasureActive(on) {
     if(debugLogLevelA) console.log('measure.js > setMeasureActive() is called');
 
@@ -67,6 +71,8 @@ export function clearMeasurementState() {
     startPoint = null;
     lastMeasuredStart = null;
     lastMeasuredEnd = null;
+    lastMeasuredStartPage = null;
+    lastMeasuredEndPage = null;
     isDrawing = false;
 }
 
@@ -145,8 +151,13 @@ export function canvasOnMeasureClick(event) {
         m_ctx.lineTo(x, y);
         m_ctx.stroke();
 
+        // keep both overlay-space (for current UI tooltips/calibration)
+        // and page-space (for stable redraw after zoom)
         lastMeasuredStart = startPoint;
         lastMeasuredEnd = { x, y };
+        const s = state.currentScale || 1;
+        lastMeasuredStartPage = { x: startPoint.x / s, y: startPoint.y / s };
+        lastMeasuredEndPage   = { x: x / s, y: y / s };
 
         const dx = x - startPoint.x;
         const dy = y - startPoint.y;
@@ -173,4 +184,25 @@ export function getMeasurementPoints() {
     console.log('measure.js > getMeasurementPoints() is called');
 
     return { lastMeasuredStart, lastMeasuredEnd };
+}
+
+// ---- keep the last measured line aligned after zoom/resize
+export function redrawMeasurement() {
+  if (!measureCanvas) return;
+  const ctx = measureCanvas.getContext('2d');
+  ctx.clearRect(0, 0, measureCanvas.width, measureCanvas.height);
+
+  if (!lastMeasuredStartPage || !lastMeasuredEndPage) return;
+  const s = state.currentScale || 1;
+  const x1 = lastMeasuredStartPage.x * s;
+  const y1 = lastMeasuredStartPage.y * s;
+  const x2 = lastMeasuredEndPage.x   * s;
+  const y2 = lastMeasuredEndPage.y   * s;
+
+  ctx.strokeStyle = 'rgba(255,0,0)';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
 }

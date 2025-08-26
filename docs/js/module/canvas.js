@@ -11,6 +11,7 @@ import * as state from './state.js';
 import { redrawAllLines } from './draw.js';
 import {initComments, redrawComments} from './comments.js';
 import { getPdfjs } from './pdf-runtime.js';
+import {redrawMeasurement} from './measure.js';
 
 export let pdfDoc = null;
 export let pdfPage = null;
@@ -203,8 +204,12 @@ export async function renderAtCurrentTransform() {
     if (needResize) {
         pdfCanvas.width = viewport.width;
         pdfCanvas.height = viewport.height;
-        // keep container height synced with zoom
         DivPdfContainer.style.height = `${viewport.height}px`;
+            // keep overlays in lockstep with the PDF size
+            for (const c of [measureCanvas, previewCanvas, drawingCanvas, commentCanvas].filter(Boolean)) {
+            c.width = viewport.width;
+            c.height = viewport.height;
+        }
     }
 
     pdfCanvasCtx = pdfCanvas.getContext('2d');
@@ -224,7 +229,13 @@ export async function renderAtCurrentTransform() {
         currentRenderTask = null;
     }
 
-    const t = `translate(${state.panX}px, ${state.panY}px) scale(${1})`;
+    // const t = `translate(${state.panX}px, ${state.panY}px)`;
+    // for (const c of [pdfCanvas, measureCanvas, previewCanvas, drawingCanvas, commentCanvas].filter(Boolean)) {
+    //     c.style.transformOrigin = '0 0';
+    //     c.style.transform = t;
+    // }
+
+    const t = `translate(${state.panOffset.x}px, ${state.panOffset.y}px)`;
     for (const c of [pdfCanvas, measureCanvas, previewCanvas, drawingCanvas, commentCanvas].filter(Boolean)) {
         c.style.transformOrigin = '0 0';
         c.style.transform = t;
@@ -233,6 +244,11 @@ export async function renderAtCurrentTransform() {
     redrawAllLines();
 
     redrawComments();
+
+    // also keep the last measured segment locked to the page
+    try {
+        redrawMeasurement();
+    } catch {}
 
     return true;
 }
