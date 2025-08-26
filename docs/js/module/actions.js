@@ -5,14 +5,22 @@
  * module/ actions.js;
  */
 
-import { debugLogLevelA, debugLogVerbose } from '../debug.js';
+import {debugLogLevelA, debugLogVerbose} from '../debug.js';
 import * as ui from "./ui.js";
 import * as state from './state.js';
-import {clearCanvasContainer, commentCanvas, drawingCanvas, measureCanvas, pdfCanvas, renderAtCurrentTransform} from './canvas.js';
+import {
+    clearCanvasContainer,
+    commentCanvas,
+    drawingCanvas,
+    measureCanvas,
+    pdfCanvas, pdfPage, previewCanvas,
+    renderAtCurrentTransform
+} from './canvas.js';
 import {loadPdfByName} from './loader.js';
-import {setMeasureActive, cancelCurrentMeasure} from './measure.js';
+import {cancelCurrentMeasure, setMeasureActive} from './measure.js';
 import {cancelDrawing, clearAllLines} from './draw.js';
-import { clearAllComments, exportCommentsJSON } from './comments.js';
+import {clearAllComments, exportCommentsJSON} from './comments.js';
+import {setPxPerMeter} from "./state.js";
 
 export let isPanning = false;
 export let panMode = false;
@@ -27,6 +35,7 @@ export const TOOL = Object.freeze({
     COMMENT: 'COMMENT',
 });
 export let activeTool = TOOL.NONE;
+let hiResTimer = 0;
 
 function setCanvasCursor() {
     if(debugLogLevelA && !debugLogVerbose) console.log('actions.js > setCanvasCursor() is called');
@@ -214,13 +223,34 @@ export async function handleZoomOut() {
     await renderAtCurrentTransform();
 }
 
-// export async function handleZoomAll() {
-//     if(debugLogLevelA) console.log('actions.js > handleZoomAll() is called');
-//
-//     state.setCurrentScale(1);
-//     state.recomputePxPerMeter();
-//     await renderAtCurrentTransform();
-// }
+export async function handleZoomAll() {
+    if(debugLogLevelA) console.log('actions.js > handleZoomAll() is called');
+
+    const vp = state.getUnscaledViewport && state.getUnscaledViewport();  // { width, height }
+    const cw = ui.DivPdfContainer.clientWidth;
+    const ch = ui.DivPdfContainer.clientHeight;
+
+    if (!vp || !vp.width || !vp.height || !cw || !ch) return; // guard
+
+    // 1) compute fit scale from the ORIGINAL PDF pixels
+    const fitScale = Math.min(cw / vp.width, ch / vp.height);
+
+    // 2) center pans in container
+    const contentW = vp.width * fitScale;
+    const contentH = vp.height * fitScale;
+    const panX = Math.round((cw - contentW) / 2);
+    const panY = Math.round((ch - contentH) / 2);
+
+    // 3) update your state (what renderAtCurrentTransform reads)
+    const desiredWidth = ui.DivPdfContainer.clientWidth;
+    const scale = desiredWidth / state.unscaledViewport.width;
+    state.setCurrentScale(scale);
+    state.setPanOffset(0, 0);
+    state.recomputePxPerMeter();
+
+    // 4) snap visually (uses your existing code)
+    await renderAtCurrentTransform();
+}
 
 export function handlePanBtn() {
     if(debugLogLevelA) console.log('actions.js > handlePanBtn() is called');
@@ -235,7 +265,7 @@ export function handlePanBtn() {
 export async function handleResetView() {
     if(debugLogLevelA) console.log('actions.js > handleResetView() is called');
 
-    reset()
+    reset();
 
     loadPdfByName(state.PdfPlanPath, state.pxPerMeter).then(success => {
         if (success) {

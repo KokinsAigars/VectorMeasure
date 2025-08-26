@@ -17,6 +17,22 @@ export let originalCanvasWidth = null;
 export let unscaledViewport = null;
 export let panOffset = { x: 0, y: 0 };
 export const ZOOM = { min: 0.25, max: 4.0, step: 0.1 };
+export let basePageW = 0;
+export let basePageH = 0;
+export let panX = 0;
+export let panY = 0;       // or whatever you already store
+
+export function setPan(x, y) { panX = x; panY = y; }
+export function getPan() { return { x: panX, y: panY }; }
+export function getCurrentScale() { return currentScale; }
+
+export function setBasePageSize(w, h) {
+    basePageW = w;
+    basePageH = h;
+}
+export function getBasePageSize() {
+    return { w: basePageW, h: basePageH };
+}
 
 export function setPxPerMeter(value) {
     if(debugLogLevelLoading) console.log('state.js > setPxPerMeter(value) is called');
@@ -68,3 +84,5 @@ export function setPanOffset(x, y) {
 
     panOffset = { x, y };
 }
+
+export function getUnscaledViewport() { return unscaledViewport; }

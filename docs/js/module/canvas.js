@@ -28,6 +28,7 @@ let unscaledViewport = null;
 let originalCanvasWidth = null;
 let currentRenderTask = null;
 
+
 export async function initCanvasRenderPDF(options = {}) {
     if(debugLogLevelLoading) console.log('canvas.js > initCanvasRenderPDF() is called');
 
@@ -93,6 +94,10 @@ async function createPDFCanvas() {
 
     //Render the PDF page into the canvas
     await pdfPage.render({ canvasContext: pdfCanvasCtx, viewport }).promise;
+
+    if (!state.basePageW || !state.basePageH) {
+        state.setBasePageSize(pdfCanvas.width, pdfCanvas.height);
+    }
 
     return true;
 }
@@ -219,17 +224,11 @@ export async function renderAtCurrentTransform() {
         currentRenderTask = null;
     }
 
-    // sync overlays
-    const t = `translate(${state.panOffset.x}px, ${state.panOffset.y}px)`;
-    [measureCanvas, previewCanvas, drawingCanvas, commentCanvas].forEach(c => {
-        if (!c) return;
-        if (needResize) {
-            c.width  = pdfCanvas.width;
-            c.height = pdfCanvas.height;
-        }
+    const t = `translate(${state.panX}px, ${state.panY}px) scale(${1})`;
+    for (const c of [pdfCanvas, measureCanvas, previewCanvas, drawingCanvas, commentCanvas].filter(Boolean)) {
+        c.style.transformOrigin = '0 0';
         c.style.transform = t;
-        c.style.transformOrigin = 'top left';
-    });
+    }
 
     redrawAllLines();
 
@@ -237,3 +236,4 @@ export async function renderAtCurrentTransform() {
 
     return true;
 }
+

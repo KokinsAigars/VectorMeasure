@@ -74,7 +74,14 @@
     overflow: hidden;
     aspect-ratio: auto; /* let JS control height */
     border: 1px solid #ccc;
+    outline: 1px solid rgba(225, 225, 225, 0.8);
+    outline-offset: -1px; /* draws right on the edge */
 }
+#pdf-container.debug-bounds canvas {
+    outline: 1px solid rgba(0,200,0,.8);
+    outline-offset: -1px;
+}
+
 #measurement-tip {
     position: fixed;
     display: none;
