@@ -38,6 +38,9 @@ export let activeTool = TOOL.NONE;
 let hiResTimer = 0;
 
 function setCanvasCursor() {
+    // Canvases may not be created yet (before first PDF load)
+    if (!pdfCanvas || !measureCanvas || !drawingCanvas) return;
+
     if(debugLogLevelA && !debugLogVerbose) console.log('actions.js > setCanvasCursor() is called');
     if (debugLogVerbose) {
         console.groupCollapsed('function setCanvasCursor()');
@@ -45,6 +48,10 @@ function setCanvasCursor() {
             console.log('if activeTool is TOOL.PAN > cursor is /grab/, etc.');
         console.groupEnd();
     }
+
+    // pdfCanvas (Pan)
+    // If canvases aren’t created yet (before first PDF load), bail out safely.
+    if (!pdfCanvas || !measureCanvas || !drawingCanvas) return;
 
     // pdfCanvas (Pan)
     pdfCanvas.style.pointerEvents = (activeTool === TOOL.PAN) ? 'auto' : 'none';
@@ -125,7 +132,7 @@ function renderAllButtons() {
     if (activeTool === TOOL.COMMENT)   renderButton(ui.BtnComment, true);
 }
 
-function setTool(next) {
+export function setTool(next) {
     if (debugLogLevelA && !debugLogVerbose) console.log('actions.js > setTool('+ next +') is called');
     if (debugLogVerbose) {
         console.groupCollapsed('function setTool(next)');
@@ -422,3 +429,17 @@ export function handleExportComments() {
     URL.revokeObjectURL(url);
 }
 
+
+export function setToolbarEnabled(map) {
+    // map: { measure: true, draw:false, ... }
+    // toggle buttons / disable attributes by id
+}
+export function showBanner(title, text) {
+    // render a simple banner area
+}
+export function clearBanner() { /* ... */ }
+export function toast(msg) { console.log(msg); }
+export async function pickPlanPdf() {
+    // show <input type="file" accept="application/pdf"> or your own chooser
+    // return a path/URL/blob URL that your loadPDF already supports
+}

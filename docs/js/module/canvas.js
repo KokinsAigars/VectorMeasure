@@ -28,15 +28,24 @@ export let commentCanvas = null;
 let unscaledViewport = null;
 let originalCanvasWidth = null;
 let currentRenderTask = null;
-
+let pdfjs = null;
 
 export async function initCanvasRenderPDF(options = {}) {
     if(debugLogLevelLoading) console.log('canvas.js > initCanvasRenderPDF() is called');
 
     // Function Options
     PDFlink = options.PDFlink;
-    const metersPerPx = 1 / options.pxPerMeter;
-    if (options.workerSrc) pdfjsLib.GlobalWorkerOptions.workerSrc = options.workerSrc;
+
+    let metersPerPx = 1;
+    if (options.pxPerMeter !== null){
+        metersPerPx = 1 / options.pxPerMeter;
+    }
+
+    // Load pdf.js module and configure worker if provided
+    pdfjs = await getPdfjs();
+    if (options.workerSrc && pdfjs) {
+        pdfjs.GlobalWorkerOptions.workerSrc = options.workerSrc;
+    }
 
     DivInfo.innerText =`📐 Default calibration: 1px ≈ ${metersPerPx.toFixed(5)} meters`;
 
@@ -54,13 +63,13 @@ export async function initCanvasRenderPDF(options = {}) {
 async function loadPDF() {
     if(debugLogLevelLoading) console.log('canvas.js > loadPDF() is called');
 
-    const lib = await getPdfjs();
-    if (!lib) {
+    // In tests, getPdfjs() returns null via vitest alias — skip
+    if (!pdfjs) {
         if (debugLogLevelLoading) console.warn('PDF.js disabled in tests (import.meta.vitest).');
         return false;
     }
 
-    pdfDoc = await pdfjsLib.getDocument(PDFlink).promise;
+    pdfDoc = await pdfjs.getDocument(PDFlink).promise;
     pdfPage = await pdfDoc.getPage(1);
 
     return true;
@@ -82,6 +91,7 @@ async function createPDFCanvas() {
     const desiredWidth = DivPdfContainer.clientWidth;
     const scale = desiredWidth / unscaledViewport.width;
     viewport = pdfPage.getViewport({ scale: scale });
+    const pdfCtx = setupCanvasHiDPI(pdfCanvas, viewport.width, viewport.height, window.devicePixelRatio || 1);
 
     //Store scale & dimensions in local and global stat
     currentScale = scale;
@@ -199,6 +209,7 @@ export async function renderAtCurrentTransform() {
     }
 
     viewport = pdfPage.getViewport({ scale: state.currentScale });
+    const pdfCtx = setupCanvasHiDPI(pdfCanvas, viewport.width, viewport.height, window.devicePixelRatio || 1);
 
     const needResize = pdfCanvas.width !== viewport.width || pdfCanvas.height !== viewport.height;
     if (needResize) {
@@ -253,3 +264,56 @@ export async function renderAtCurrentTransform() {
     return true;
 }
 
+// mouse/touch → canvas CSS pixels
+function eventToCanvasCssPx(e, canvasEl) {
+    const r = canvasEl.getBoundingClientRect();
+    const x = e.clientX - r.left;
+    const y = e.clientY - r.top;
+    return [x, y]; // CSS px
+}
+
+// CSS px → PDF-space px (scale=1), panning in CSS px
+function cssToPdfPx([cx, cy], { panX, panY, currentScale }) {
+    const xPdf = (cx - panX) / currentScale;
+    const yPdf = (cy - panY) / currentScale;
+    return [xPdf, yPdf];
+}
+
+function pdfDist(p1, p2) {
+    const dx = p2[0] - p1[0];
+    const dy = p2[1] - p1[1];
+    return Math.hypot(dx, dy);
+}
+
+export function setupCanvasHiDPI(canvasOrId, cssW, cssH, dpr = window.devicePixelRatio || 1) {
+    const canvas = (typeof canvasOrId === 'string')
+        ? document.getElementById(canvasOrId)
+        : canvasOrId;
+
+    if (!canvas) {
+        // Throwing with context helps you spot which id/element is missing
+        throw new Error(`setupCanvasHiDPI: canvas not found for "${canvasOrId}"`);
+    }
+    if (cssW == null || cssH == null) {
+        throw new Error('setupCanvasHiDPI: cssW/cssH must be numbers');
+    }
+
+    canvas.width  = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    canvas.style.width  = `${cssW}px`;
+    canvas.style.height = `${cssH}px`;
+
+    const ctx = canvas.getContext('2d');
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return ctx;
+}
+export function ensureCanvas(container, id) {
+    let el = document.getElementById(id);
+    if (!el) {
+        el = document.createElement('canvas');
+        el.id = id;
+        el.className = 'vm-layer'; // optional class
+        container.appendChild(el);
+    }
+    return el;
+}

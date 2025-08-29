@@ -69,7 +69,6 @@
     width: 90%;        /* or a max-width like 1000px */
     max-width: 90%;  /* optional: to control size on big screens */
     height: 100%;
-    max-height: 1000px;
     margin: 10px 50px;  /* optional: center the container */
     overflow: hidden;
     aspect-ratio: auto; /* let JS control height */

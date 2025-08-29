@@ -21,11 +21,19 @@ export let basePageW = 0;
 export let basePageH = 0;
 export let panX = 0;
 export let panY = 0;       // or whatever you already store
-
+export let dpr = window.devicePixelRatio || 1;
+export let pxPerMeterPDF = null; // measuredPdfPx / knownMeters
 export function setPan(x, y) { panX = x; panY = y; }
 export function getPan() { return { x: panX, y: panY }; }
 export function getCurrentScale() { return currentScale; }
-
+export function setCalibration(pxPerMeter) {
+    pxPerMeterPDF = pxPerMeter;          // unscaled!
+    sessionStorage.setItem('vm.basePxPerMeter', String(pxPerMeterPDF));
+}
+export function loadCalibration() {
+    const s = sessionStorage.getItem('vm.basePxPerMeter');
+    if (s) pxPerMeterPDF = Number(s);
+}
 export function setBasePageSize(w, h) {
     basePageW = w;
     basePageH = h;
@@ -33,7 +41,6 @@ export function setBasePageSize(w, h) {
 export function getBasePageSize() {
     return { w: basePageW, h: basePageH };
 }
-
 export function setPxPerMeter(value) {
     if(debugLogLevelLoading) console.log('state.js > setPxPerMeter(value) is called');
 
@@ -48,6 +55,11 @@ export function setPdfPlanPath(value) {
     if(debugLogLevelLoading) console.log('state.js > setPdfPlanPath('+ value +') is called');
 
     PdfPlanPath = value;
+}
+export function getPdfPlanPath() {
+    if(debugLogLevelLoading) console.log('state.js > getPdfPlanPath() is called');
+
+    return PdfPlanPath
 }
 export function setPdfPlanReversePath(value) {
     if(debugLogLevelLoading) console.log('state.js > setPdfPlanReversePath('+ value +') is called');
@@ -84,5 +96,4 @@ export function setPanOffset(x, y) {
 
     panOffset = { x, y };
 }
-
 export function getUnscaledViewport() { return unscaledViewport; }

@@ -17,8 +17,8 @@ https://nodejs.org/en/download
     v22.18.0
     
     npm install
-    
-    npm run dev
+
+- Run `npm run dev`
     http://localhost:3000/
     
 
@@ -33,8 +33,10 @@ for Avast users
 
 in cmd: > set NODE_OPTIONS=--dns-result-order=ipv4first
 
-    npm test
-    npm run test:watch
-    npx vitest --project=browser
+    npx playwright install
+- Run `npm run test`
+- Run `npm run test:watch`
+- Run `npx vitest --project=browser`
 
-    npm run coverage
+- Run `npm run coverage`
+    

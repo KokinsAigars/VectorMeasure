@@ -5,8 +5,8 @@
  * module/ debug.js;
  */
 
-export const debugLogVerbose = false;
-export const debugLogLevelLoading = false;
+export const debugLogVerbose = true;
+export const debugLogLevelLoading = true;
 export const debugLogLevelA = false;
 export const debugLogLevelSuccess = false;
 export const debugLogDraw = false;

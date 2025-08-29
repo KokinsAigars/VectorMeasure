@@ -9,16 +9,25 @@ import { debugLogLevelA } from "../debug.js";
 import { DivInfo, DivMeasurementTip } from "./ui.js";
 import { measureCanvas, previewCanvas } from './canvas.js';
 import * as state from './state.js';
+import * as actions from './actions.js';
 
 let startPoint = null;
 let isDrawing = false;
 let lastMeasuredStart = null;
 let lastMeasuredEnd = null;
 let measuring = false;
+let mP1 = null;
+let mP2 = null;
 
 // keep page-space copies so we can reproject on zoom
 let lastMeasuredStartPage = null;
 let lastMeasuredEndPage = null;
+
+// Stable handler references for add/remove
+function handleMeasureClick(e) { canvasOnMeasureClick(e); }
+function handleMeasureMove(e) { onMeasureMove(e); }
+function handleMeasureLeave() { hideTipAndPreview(); }
+function handleWindowKeydown(e) { if (e.key === 'Escape') cancelCurrentMeasure(); }
 
 export function setMeasureActive(on) {
     if(debugLogLevelA) console.log('measure.js > setMeasureActive() is called');
@@ -28,32 +37,53 @@ export function setMeasureActive(on) {
 
     if (on) {
         // Let this canvas receive clicks/mousemove
-        measureCanvas.style.pointerEvents = 'auto';
-        previewCanvas.style.pointerEvents = 'none'; // purely visual overlay
+        if (measureCanvas) measureCanvas.style.pointerEvents = 'auto';
+        if (previewCanvas) previewCanvas.style.pointerEvents = 'none'; // purely visual overlay
 
-        measureCanvas.addEventListener('click',     (e) => { canvasOnMeasureClick(e); });
-        measureCanvas.addEventListener('mousemove', (e) => { onMeasureMove(e); });
-        measureCanvas.addEventListener('mouseleave', () => { hideTipAndPreview(); });
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') cancelCurrentMeasure();
-        });
+        if (measureCanvas) {
+            measureCanvas.addEventListener('click',     handleMeasureClick);
+            measureCanvas.addEventListener('mousemove', handleMeasureMove);
+            measureCanvas.addEventListener('mouseleave', handleMeasureLeave);
+        }
+        window.addEventListener('keydown', handleWindowKeydown);
 
         if (DivInfo) DivInfo.innerText = 'Click two points to measure. (Esc to cancel)';
 
     }
     else {
-        measureCanvas.removeEventListener('click',     (e) => { canvasOnMeasureClick(e) });
-        measureCanvas.removeEventListener('mousemove', (e) => { onMeasureMove(e); });
-        measureCanvas.removeEventListener('mouseleave', () => { hideTipAndPreview(); });
-        window.removeEventListener('keydown', (e) => {
-            if (e.key === 'Escape') cancelCurrentMeasure();
-        });
+        if (measureCanvas) {
+            measureCanvas.removeEventListener('click',     handleMeasureClick);
+            measureCanvas.removeEventListener('mousemove', handleMeasureMove);
+            measureCanvas.removeEventListener('mouseleave', handleMeasureLeave);
+        }
+        window.removeEventListener('keydown', handleWindowKeydown);
 
-        measureCanvas.style.pointerEvents = 'none';
+        if (measureCanvas) measureCanvas.style.pointerEvents = 'none';
         cancelCurrentMeasure();
 
         if (DivInfo) DivInfo.innerText = '';
     }
+}
+
+function finishMeasurement(pxLength) {
+    document.dispatchEvent(new CustomEvent('vm:measure:completed', { detail: { pxLength } }));
+}
+
+export function enableMeasureModeOnce() {
+    return new Promise((resolve) => {
+        // Turn tool + listeners on
+        actions.setTool(actions.TOOL.MEASURE);
+        setMeasureActive(true);
+
+        const onDone = (ev) => {
+            document.removeEventListener('vm:measure:completed', onDone);
+            // Turn listeners + tool off
+            setMeasureActive(false);
+            actions.setTool(actions.TOOL.NONE);
+            resolve(ev.detail); // { pxLength }
+        };
+        document.addEventListener('vm:measure:completed', onDone, { once: true });
+    });
 }
 
 function hideTipAndPreview() {
@@ -177,6 +207,8 @@ export function canvasOnMeasureClick(event) {
         isDrawing = false;
 
         document.getElementById('measurement-tip').style.display = 'none';
+        // Notify calibrators waiting on a one-shot measurement:
+        try { finishMeasurement(pixelDistance); } catch {}
     }
 }
 
@@ -206,3 +238,32 @@ export function redrawMeasurement() {
   ctx.lineTo(x2, y2);
   ctx.stroke();
 }
+
+export function attachMeasureHandlers(canvasEl, onPreview) {
+    canvasEl.addEventListener('click', (e) => {
+        if (!state.pxPerMeterPDF) {
+            console.warn('No calibration yet.');
+            return;
+        }
+        const dev = eventToCanvasDevicePx(e, canvasEl);
+        const pPdf = canvasToPdfPx(dev);
+
+        if (!mP1) {
+            mP1 = pPdf;
+        } else {
+            mP2 = pPdf;
+            const dPdf = pdfDist(mP1, mP2);
+            const meters = dPdf / state.pxPerMeterPDF;
+
+            console.log('[Measure] dPdf=', dPdf,
+                'pxPerMeterPDF=', state.pxPerMeterPDF,
+                'meters=', meters.toFixed(3));
+
+            // draw + report
+            onPreview?.({ p1: mP1, p2: mP2, meters });
+
+            mP1 = mP2 = null;
+        }
+    }, { passive: true });
+}
+
