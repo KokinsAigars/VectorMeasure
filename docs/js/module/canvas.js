@@ -33,6 +33,12 @@ let pdfjs = null;
 export async function initCanvasRenderPDF(options = {}) {
     if(debugLogLevelLoading) console.log('canvas.js > initCanvasRenderPDF() is called');
 
+    // Add validation
+    if (!DivPdfContainer) {
+        console.error('PDF container not found. Make sure the DOM is fully loaded.');
+        return false;
+    }
+
     // Function Options
     PDFlink = options.PDFlink;
 
@@ -84,24 +90,31 @@ async function createPDFCanvas() {
         return false;
     }
 
-    //pdfPage.getViewport() returns information about the PDF page size at a given zoom level.
+    // Get viewport and calculate scale
     unscaledViewport = pdfPage.getViewport({ scale: 1 });
-
-    //fit PDF into a container
+    
+    // Fit PDF into container
     const desiredWidth = DivPdfContainer.clientWidth;
     const scale = desiredWidth / unscaledViewport.width;
     viewport = pdfPage.getViewport({ scale: scale });
+    
+    // Create the canvas element first
+    await createPdfElementCanvas();
+    
+    // Now set up the canvas with high DPI
     const pdfCtx = setupCanvasHiDPI(pdfCanvas, viewport.width, viewport.height, window.devicePixelRatio || 1);
-
-    //Store scale & dimensions in local and global stat
+    if (!pdfCtx) {
+        console.error('Failed to set up PDF canvas context');
+        return false;
+    }
+    
+    // Store scale & dimensions in local and global state
     currentScale = scale;
     originalCanvasWidth = desiredWidth;
-
+    
     state.setCurrentScale(scale);
     state.setOriginalCanvasWidth(desiredWidth);
     state.setUnscaledViewport(unscaledViewport);
-
-    await createPdfElementCanvas();
 
     //Render the PDF page into the canvas
     await pdfPage.render({ canvasContext: pdfCanvasCtx, viewport }).promise;
@@ -285,14 +298,32 @@ function pdfDist(p1, p2) {
     return Math.hypot(dx, dy);
 }
 
+/**
+ * Sets up a canvas for high-DPI display
+ * @param {string|HTMLCanvasElement} canvasOrId - Either a canvas element or its ID
+ * @param {number} cssW - Width in CSS pixels
+ * @param {number} cssH - Height in CSS pixels
+ * @param {number} [dpr=window.devicePixelRatio] - Device pixel ratio
+ * @returns {CanvasRenderingContext2D|null} The 2D rendering context, or null if setup failed
+ */
 export function setupCanvasHiDPI(canvasOrId, cssW, cssH, dpr = window.devicePixelRatio || 1) {
-    const canvas = (typeof canvasOrId === 'string')
-        ? document.getElementById(canvasOrId)
-        : canvasOrId;
+    if (!cssW || !cssH) {
+        console.error('Invalid canvas dimensions:', { cssW, cssH });
+        return null;
+    }
 
-    if (!canvas) {
-        // Throwing with context helps you spot which id/element is missing
-        throw new Error(`setupCanvasHiDPI: canvas not found for "${canvasOrId}"`);
+    let canvas;
+    if (typeof canvasOrId === 'string') {
+        canvas = document.getElementById(canvasOrId);
+        if (!canvas) {
+            console.error(`Canvas element with ID "${canvasOrId}" not found in the DOM`);
+            return null;
+        }
+    } else if (canvasOrId instanceof HTMLCanvasElement) {
+        canvas = canvasOrId;
+    } else {
+        console.error('Invalid canvas parameter. Expected ID string or HTMLCanvasElement, got:', canvasOrId);
+        return null;
     }
     if (cssW == null || cssH == null) {
         throw new Error('setupCanvasHiDPI: cssW/cssH must be numbers');
@@ -304,6 +335,10 @@ export function setupCanvasHiDPI(canvasOrId, cssW, cssH, dpr = window.devicePixe
     canvas.style.height = `${cssH}px`;
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error('Could not get 2D context for canvas');
+        return null;
+    }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     return ctx;
 }

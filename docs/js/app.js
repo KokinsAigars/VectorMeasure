@@ -8,14 +8,17 @@ import { renderAtCurrentTransform, pdfDoc, ensureCanvas, setupCanvasHiDPI } from
 import { loadPdfByName } from './module/loader.js';
 import { enableMeasureModeOnce, setMeasureActive } from './module/measure.js';
 import {clearBanner, pickPlanPdf, setToolbarEnabled, showBanner, toast} from "./module/actions.js";
+import {currentScale} from "./module/state.js";
 
 // --- App stages ---------------------------------------------------
 export const STAGE = { CALIBRATE: 'CALIBRATE', PLAN: 'PLAN' };
 
 // Persist keys
 const LS_KEYS = {
-    BASE_PX_PER_M: 'vm.basePxPerMeter',
-    PLAN_PATH:     'vm.planPath',
+    // Base key for storing all calibrations
+    CALIBRATIONS: 'vm.calibrations',
+    // Current plan path
+    PLAN_PATH: 'vm.planPath',
 };
 
 const CAL_BASE_LEN_METERS = 10; // ← fixed baseline length
@@ -37,16 +40,48 @@ function initLayers(viewportW, viewportH) {
 }
 
 
+// Helper function to get/set calibrations
+function getCalibrations() {
+    const calibrations = sessionStorage.getItem(LS_KEYS.CALIBRATIONS);
+    return calibrations ? JSON.parse(calibrations) : {};
+}
+
+function saveCalibration(planPath, pxPerMeter) {
+    const calibrations = getCalibrations();
+    calibrations[planPath] = {
+        pxPerMeter,
+        timestamp: new Date().toISOString()
+    };
+    sessionStorage.setItem(LS_KEYS.CALIBRATIONS, JSON.stringify(calibrations));
+    return pxPerMeter;
+}
+
+function getCalibration(planPath) {
+    const calibrations = getCalibrations();
+    return calibrations[planPath]?.pxPerMeter;
+}
+
 /// --- Boot ----------------------------------------------------------
 export async function bootApp() {
-    // defaults (paths, px/m) so PLAN can load even after refresh
+    // Initialize defaults
     setupInit2();
-
-    const storedBase = Number(sessionStorage.getItem(LS_KEYS.BASE_PX_PER_M));
-    if (!Number.isFinite(storedBase) || storedBase <= 0) {
+    
+    // Get the current plan path
+    let planPath = state.PdfPlanPath || sessionStorage.getItem(LS_KEYS.PLAN_PATH);
+    
+    if (!planPath) {
+        // No plan selected yet, go to calibration
+        await transitionTo(STAGE.CALIBRATE);
+        return;
+    }
+    
+    // Check if we have a saved calibration for this plan
+    const storedCalibration = getCalibration(planPath);
+    
+    if (!storedCalibration) {
         await transitionTo(STAGE.CALIBRATE);
     } else {
-        state.setBasePxPerMeter(storedBase);
+        state.setBasePxPerMeter(storedCalibration);
         state.recomputePxPerMeter?.();
         await transitionTo(STAGE.PLAN);
     }
@@ -94,13 +129,15 @@ async function enterCalibrateStage() {
     const { pxLength } = await enableMeasureModeOnce();
     setMeasureActive?.(false);
 
-    // Fixed-length calibration: 10 m
-    const basePxPerMeter = pxLength / CAL_BASE_LEN_METERS;
+    // Fixed-length calibration: 10 m (divide by currentScale to get base value)
+    const basePxPerMeter = (pxLength / CAL_BASE_LEN_METERS) / currentScale;
     state.setBasePxPerMeter(basePxPerMeter);
-    sessionStorage.setItem(LS_KEYS.BASE_PX_PER_M, String(basePxPerMeter));
+    
+    // Save calibration for this specific plan
+    saveCalibration(planPath, basePxPerMeter);
     state.recomputePxPerMeter?.();
 
-    toast?.(`Calibrated to 10 m: ${basePxPerMeter.toFixed(2)} px/m`);
+    toast?.(`Calibrated to 10 m: ${basePxPerMeter.toFixed(2)} px/m for ${planPath.split('/').pop()}`);
 
     await transitionTo(STAGE.PLAN);
 
@@ -135,6 +172,34 @@ async function enterPlanStage() {
     toast?.(`Plan ready. Scale: ${state.pxPerMeter.toFixed(2)} px/m`);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    bootApp().catch(console.error);
-})
+// Wait for DOM to be fully loaded before initializing
+async function initApp() {
+    try {
+        // First make sure UI is set up
+        await setupInit();
+        
+        // Then boot the app
+        await bootApp();
+    } catch (error) {
+        console.error('Failed to initialize app:', error);
+        // Show error to user
+        const errorDiv = document.createElement('div');
+        errorDiv.style.color = 'red';
+        errorDiv.style.padding = '20px';
+        errorDiv.style.fontFamily = 'Arial, sans-serif';
+        errorDiv.innerHTML = `
+            <h2>Error initializing application</h2>
+            <p>${error.message}</p>
+            <p>Please refresh the page to try again.</p>
+        `;
+        document.body.innerHTML = '';
+        document.body.appendChild(errorDiv);
+    }
+}
+
+// Start the app when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    initApp();
+}
