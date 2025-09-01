@@ -1,6 +1,6 @@
 // app2.js (stage controller) — aligned to current modules
 
-import { setupInit, setupInit2 } from './setupInit.js';
+import { setupInit } from './setupInit.js';
 import * as ui from './module/ui.js';
 import * as actions from './module/actions.js';
 import * as state from './module/state.js';
@@ -9,6 +9,7 @@ import { loadPdfByName } from './module/loader.js';
 import { enableMeasureModeOnce, setMeasureActive } from './module/measure.js';
 import {clearBanner, pickPlanPdf, setToolbarEnabled, showBanner, toast} from "./module/actions.js";
 import {currentScale, PdfPlanPath_calibrate} from "./module/state.js";
+import {DivMeasurementTip} from "./module/ui.js";
 
 // --- App stages ---------------------------------------------------
 export const STAGE = { CALIBRATE: 'CALIBRATE', PLAN: 'PLAN' };
@@ -64,7 +65,7 @@ function getCalibration(planPath) {
 /// --- Boot ----------------------------------------------------------
 export async function bootApp() {
     // Initialize defaults
-    setupInit2();
+    setupInit();
     
     // Get the current plan path
     let planPath = state.PdfPlanPath || sessionStorage.getItem(LS_KEYS.PLAN_PATH);
@@ -109,6 +110,8 @@ async function enterCalibrateStage() {
         pan: true, zoomIn: true, zoomOut: true, zoomAll: true, reset: true,
     });
     showBanner?.('Calibration', 'Click two points exactly 10 meters apart.');
+
+
 
     // Ensure a page exists to measure on (use default plan or ask user)
     let planPath_calibrate = state.PdfPlanPath_calibrate;
@@ -171,8 +174,10 @@ async function enterPlanStage() {
 }
 
 // Wait for DOM to be fully loaded before initializing
-async function initApp() {
+export async function initApp() {
     try {
+        console.log('Initializing...');
+        sessionStorage.clear();
         // First make sure UI is set up
         setupInit();
         
@@ -199,5 +204,5 @@ async function initApp() {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initApp);
 } else {
-    initApp();
+    initApp().then();
 }

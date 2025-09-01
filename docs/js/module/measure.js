@@ -48,7 +48,6 @@ export function setMeasureActive(on) {
         window.addEventListener('keydown', handleWindowKeydown);
 
         if (DivInfo) DivInfo.innerText = 'Click two points to measure. (Esc to cancel)';
-
     }
     else {
         if (measureCanvas) {
@@ -70,10 +69,12 @@ function finishMeasurement(pxLength) {
 }
 
 export function enableMeasureModeOnce() {
+
     return new Promise((resolve) => {
         // Turn tool + listeners on
         actions.setTool(actions.TOOL.MEASURE);
         setMeasureActive(true);
+
 
         const onDone = (ev) => {
             document.removeEventListener('vm:measure:completed', onDone);
@@ -151,11 +152,14 @@ export function onMeasureMove(event) {
         ? `${flooredMeters.toFixed(0)} m`
         : `${flooredMeters.toFixed(1)} m`;
 
-    const tooltip = document.getElementById('measurement-tip');
-    tooltip.innerText = distanceText;
-    tooltip.style.left = `${event.clientX + 12}px`;
-    tooltip.style.top = `${event.clientY + 12}px`;
-    tooltip.style.display = 'block';
+    if(sessionStorage.getItem('vm.calibrations')){
+        const tooltip = document.getElementById('measurement-tip');
+        tooltip.innerText = distanceText;
+        tooltip.style.left = `${event.clientX + 12}px`;
+        tooltip.style.top = `${event.clientY + 12}px`;
+        tooltip.style.display = 'block';
+    }
+
 }
 
 export function canvasOnMeasureClick(event) {

@@ -13,14 +13,14 @@ import {
     commentCanvas,
     drawingCanvas,
     measureCanvas,
-    pdfCanvas, pdfPage, previewCanvas,
+    pdfCanvas,
     renderAtCurrentTransform
 } from './canvas.js';
 import {loadPdfByName} from './loader.js';
 import {cancelCurrentMeasure, setMeasureActive} from './measure.js';
 import {cancelDrawing, clearAllLines} from './draw.js';
 import {clearAllComments, exportCommentsJSON} from './comments.js';
-import {setPxPerMeter} from "./state.js";
+import {initApp} from "../app.js";
 
 export let isPanning = false;
 export let panMode = false;
