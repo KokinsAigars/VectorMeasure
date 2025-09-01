@@ -12,6 +12,7 @@ import {
     setPdfPlanPath,
     setPdfPlanReversePath,
     setPdfPlanVerticalPath,
+    setPdfPlanPath_calibrate,
 } from './module/state.js';
 
 export function setupInit() {
@@ -21,6 +22,7 @@ export function setupInit() {
     setBasePxPerMeter(44.5);
     // setPdfPlanPath('pdf/PLANS_Tukums.pdf');
     setPdfPlanPath('pdf/AK-I_1st.pdf');
+    setPdfPlanPath_calibrate('pdf/AK-I_1st_calibrate.pdf');
     setPdfPlanReversePath('pdf/PLANS_Tukums_reverse.pdf');
     setPdfPlanVerticalPath('pdf/PLANS_Tukums_vertical.pdf');
 }
@@ -29,6 +31,7 @@ export function setupInit2() {
 
     // setPdfPlanPath('pdf/PLANS_Tukums.pdf');
     setPdfPlanPath('pdf/AK-I_1st.pdf');
+    setPdfPlanPath_calibrate('pdf/AK-I_1st_calibrate.pdf');
     setPdfPlanReversePath('pdf/PLANS_Tukums_reverse.pdf');
     setPdfPlanVerticalPath('pdf/PLANS_Tukums_vertical.pdf');
 }

@@ -10,6 +10,7 @@ import {debugLogLevelA, debugLogLevelLoading} from '../debug.js';
 export let pxPerMeter = 37.6;       // Default: 1px ≈ 0.02652 meters  [1/0.02660 = 37.6]
 export let basePxPerMeter = 37.6;   // For reset/view recalibration [Store calibration relative to scale 1.0]
 export let PdfPlanPath = null;
+export let PdfPlanPath_calibrate = null;
 export let PdfPlanReversePath = null;
 export let PdfPlanVerticalPath = null;
 export let currentScale = 1;
@@ -56,6 +57,13 @@ export function setPdfPlanPath(value) {
 
     PdfPlanPath = value;
 }
+export function setPdfPlanPath_calibrate(value) {
+    if(debugLogLevelLoading) console.log('state.js > setPdfPlanPath('+ value +') is called');
+
+    PdfPlanPath_calibrate = value;
+}
+
+
 export function getPdfPlanPath() {
     if(debugLogLevelLoading) console.log('state.js > getPdfPlanPath() is called');
 

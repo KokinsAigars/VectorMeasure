@@ -8,7 +8,7 @@ import { renderAtCurrentTransform, pdfDoc, ensureCanvas, setupCanvasHiDPI } from
 import { loadPdfByName } from './module/loader.js';
 import { enableMeasureModeOnce, setMeasureActive } from './module/measure.js';
 import {clearBanner, pickPlanPdf, setToolbarEnabled, showBanner, toast} from "./module/actions.js";
-import {currentScale} from "./module/state.js";
+import {currentScale, PdfPlanPath_calibrate} from "./module/state.js";
 
 // --- App stages ---------------------------------------------------
 export const STAGE = { CALIBRATE: 'CALIBRATE', PLAN: 'PLAN' };
@@ -111,16 +111,14 @@ async function enterCalibrateStage() {
     showBanner?.('Calibration', 'Click two points exactly 10 meters apart.');
 
     // Ensure a page exists to measure on (use default plan or ask user)
-    let planPath = state.PdfPlanPath || sessionStorage.getItem(LS_KEYS.PLAN_PATH);
-    if (!planPath) {
-        planPath = await pickPlanPdf?.();
-        if (!planPath) return; // user cancelled
-        sessionStorage.setItem(LS_KEYS.PLAN_PATH, planPath);
+    let planPath_calibrate = state.PdfPlanPath_calibrate;
+    if (!planPath_calibrate) {
+        planPath_calibrate = await pickPlanPdf?.();
     }
 
     // If not already loaded, load it now
     if (!pdfDoc) {
-        await loadPdfByName(planPath);
+        await loadPdfByName(planPath_calibrate);
         await renderAtCurrentTransform();
     }
 
@@ -134,10 +132,10 @@ async function enterCalibrateStage() {
     state.setBasePxPerMeter(basePxPerMeter);
     
     // Save calibration for this specific plan
-    saveCalibration(planPath, basePxPerMeter);
+    saveCalibration(planPath_calibrate, basePxPerMeter);
     state.recomputePxPerMeter?.();
 
-    toast?.(`Calibrated to 10 m: ${basePxPerMeter.toFixed(2)} px/m for ${planPath.split('/').pop()}`);
+    toast?.(`Calibrated to 10 m: ${basePxPerMeter.toFixed(2)} px/m for ${planPath_calibrate.split('/').pop()}`);
 
     await transitionTo(STAGE.PLAN);
 
@@ -176,7 +174,7 @@ async function enterPlanStage() {
 async function initApp() {
     try {
         // First make sure UI is set up
-        await setupInit();
+        setupInit();
         
         // Then boot the app
         await bootApp();
