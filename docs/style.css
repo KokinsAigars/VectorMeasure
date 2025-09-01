@@ -2,26 +2,71 @@
     color-scheme: light dark;
     --brand-50:  #eef2ff;
     --brand-100: #e0e7ff;
-    --brand-600: #4f46e5;
+    --brand-600: #b2aee4;
     --brand-700: #4338ca;
 
     --bg:   #ffffff;
     --fg:   #0f172a;
-    --muted:#e5e7eb;
+    --muted: #f0f2f4;
     --ring: rgba(79,70,229,.35); /* focus ring */
 }
-@media (prefers-color-scheme: dark) {
-    :root {
-        --bg:   #0b0f1a;
-        --fg:   #e5e7eb;
-        --muted:#1f2937;
-        --brand-50:#1b1f3a;
-        --brand-100:#222a55;
-        --brand-600:#7c83ff;
-        --brand-700:#9aa0ff;
-        --ring: rgba(124,131,255,.5);
+.toolbar {
+    margin-left: 35px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: .8rem;
+    container-type: inline-size;   /* enables @container */
+    align-items: center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+@container (max-width: 520px) {
+    .toolbar { justify-content: center; }
+    .btn--lg { font-size: .95rem; padding: .6rem 1rem; }
+    .btn--icon-only { padding: .5rem; }
+}
+
+/* Small screens (phones) */
+@media (max-width: 640px) {
+    .btn {
+        font-size: 0.85rem;
+        padding: 0.4rem 0.7rem;
     }
 }
+/* Medium screens (tablets and small laptops) */
+@media (min-width: 641px) and (max-width: 1024px) {
+    .btn {
+        font-size: 0.95rem;
+        padding: 0.6rem 1rem;
+    }
+}
+/* Large screens (desktops) */
+@media (min-width: 1025px) {
+    .btn {
+        font-size: 1rem;
+        padding: 0.7rem 1.2rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .btn { transition: none; }
+    .btn[aria-busy="true"]::after { animation: none; }
+}
+
+
 .btn {
     --btn-bg: var(--muted);
     --btn-text: var(--fg);
@@ -38,7 +83,7 @@
     gap: .5rem;
 
     padding: .6rem 1rem;
-    border-radius: 9999px;            /* pill */
+    border-radius: 8px;
     font: 600 0.95rem/1 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     text-decoration: none;
     cursor: pointer;
@@ -119,44 +164,14 @@
     border-radius: 50%;
     animation: btn-spin .8s linear infinite;
 }
-@keyframes btn-spin { to { transform: rotate(360deg); } }
-
-/* ====== Grouping (toolbar) ====== */
-.btn-group {
-    display: inline-flex;
-    gap: .5rem;
+.btn[data-mode="on"] {
+    --btn-bg: var(--brand-700);
+    --btn-text: #fff;          /* guarantee readable text */
+    --btn-bg-hover: color-mix(in srgb, var(--brand-700) 85%, black);
 }
 
 
-.flex-row{
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    align-items: center;
-    margin: 0 30px;
-    height: 30px;
-    padding-bottom: 30px;
-}
-.fra {
-    background: #ffffff;
-    font-size: 0.8rem;
-    color: black;
-    max-height: 50px;
-    margin-left: 15px;
-}
-.info-margin{
-    margin-left: 20px;
-    font-family: system-ui, sans-serif;
-    font-size: 14px;
-}
 
-#calibrate-btn {
-    margin-left: 10px;
-}
-.input, .input-label{
-    font-family: system-ui, sans-serif;
-    font-size: 14px;
-}
 #real-length{
     height: 30px;
     max-height: 50px;
@@ -219,13 +234,14 @@
     display: none;
     padding: 2px 6px;
     font-family: system-ui, sans-serif;
-    font-size: 12px;
-    background: rgba(0,0,0,.75);
+    font-size: 24px;
+    background: rgba(228, 45, 45, 0.75);
     color: #fff;
     border-radius: 4px;
     pointer-events: none;
     z-index: 9999;
 }
+
 /* All canvases will sit stacked on top of each other */
 #pdf-container canvas {
     display: block;
@@ -239,8 +255,6 @@
 #preview-canvas { z-index: 30; }
 #drawing-canvas { z-index: 40; }
 #comment-canvas { z-index: 50; }
-
-
 
 .comment-editor {
     background: #fff;

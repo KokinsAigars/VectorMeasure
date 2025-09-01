@@ -21,7 +21,7 @@ export function setupInit() {
     setPxPerMeter( 44.5);
     setBasePxPerMeter(44.5);
     setPdfPlanPath('pdf/AK-I_1st.pdf');
-    setPdfPlanPath_calibrate('pdf/AK-I_1st_calibrate.pdf');
+    setPdfPlanPath_calibrate('pdf/AK-I_1st_calibrate2.pdf');
     setPdfPlanReversePath('pdf/AK-I_1st_reverse.pdf');
     setPdfPlanVerticalPath('pdf/AK-I_1st_flipVertical.pdf');
 }
