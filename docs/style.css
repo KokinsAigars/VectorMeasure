@@ -2,13 +2,16 @@
     color-scheme: light dark;
     --brand-50:  #eef2ff;
     --brand-100: #e0e7ff;
-    --brand-600: #b2aee4;
+    --brand-600: #8f8f8f;
     --brand-700: #4338ca;
 
-    --bg:   #ffffff;
+    --bg: rgb(251,252,252);
     --fg:   #0f172a;
     --muted: #f0f2f4;
     --ring: rgba(79,70,229,.35); /* focus ring */
+}
+body{
+    background-color: var(--bg);
 }
 .toolbar {
     margin-left: 35px;
@@ -21,18 +24,6 @@
     container-type: inline-size;   /* enables @container */
     align-items: center;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 @container (max-width: 520px) {
     .toolbar { justify-content: center; }
     .btn--lg { font-size: .95rem; padding: .6rem 1rem; }

@@ -1,4 +1,4 @@
-// app2.js (stage controller) — aligned to current modules
+// app.js (stage controller)
 
 import { setupInit } from './setupInit.js';
 import * as ui from './module/ui.js';
@@ -62,31 +62,7 @@ function getCalibration(planPath) {
     return calibrations[planPath]?.pxPerMeter;
 }
 
-/// --- Boot ----------------------------------------------------------
-export async function bootApp() {
-    // Initialize defaults
-    setupInit();
-    
-    // Get the current plan path
-    let planPath = state.PdfPlanPath || sessionStorage.getItem(LS_KEYS.PLAN_PATH);
-    
-    if (!planPath) {
-        // No plan selected yet, go to calibration
-        await transitionTo(STAGE.CALIBRATE);
-        return;
-    }
-    
-    // Check if we have a saved calibration for this plan
-    const storedCalibration = getCalibration(planPath);
-    
-    if (!storedCalibration) {
-        await transitionTo(STAGE.CALIBRATE);
-    } else {
-        state.setBasePxPerMeter(storedCalibration);
-        state.recomputePxPerMeter?.();
-        await transitionTo(STAGE.PLAN);
-    }
-}
+
 function boot() {
     state.loadCalibration();   // restores pxPerMeterPDF if present
     state.dpr = window.devicePixelRatio || 1;
@@ -103,15 +79,13 @@ export async function transitionTo(next) {
     if (next === STAGE.PLAN) await enterPlanStage();
 }
 
-// --- Stage 1: Calibrate (fixed 10 m) -------------------------------
+// --- Stage 1: Calibrate (fixed 10 m) ------------------------------
 async function enterCalibrateStage() {
     setToolbarEnabled?.({
         measure: true, draw: false, comment: false,
         pan: true, zoomIn: true, zoomOut: true, zoomAll: true, reset: true,
     });
     showBanner?.('Calibration', 'Click two points exactly 10 meters apart.');
-
-
 
     // Ensure a page exists to measure on (use default plan or ask user)
     let planPath_calibrate = state.PdfPlanPath_calibrate;
@@ -171,6 +145,29 @@ async function enterPlanStage() {
 
     state.recomputePxPerMeter?.();
     toast?.(`Plan ready. Scale: ${state.pxPerMeter.toFixed(2)} px/m`);
+}
+
+// --- Boot App -----------------------------------------------------
+export async function bootApp() {
+    // Get the current plan path
+    let planPath = state.PdfPlanPath || sessionStorage.getItem(LS_KEYS.PLAN_PATH);
+
+    // No plan selected yet, go to calibration
+    if (!planPath) {
+        await transitionTo(STAGE.CALIBRATE);
+        return;
+    }
+
+    // Check if we have a saved calibration for this plan
+    const storedCalibration = getCalibration(planPath);
+
+    if (!storedCalibration) {
+        await transitionTo(STAGE.CALIBRATE);
+    } else {
+        state.setBasePxPerMeter(storedCalibration);
+        state.recomputePxPerMeter?.();
+        await transitionTo(STAGE.PLAN);
+    }
 }
 
 // Wait for DOM to be fully loaded before initializing
